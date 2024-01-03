@@ -55,8 +55,9 @@ int main(void)
 
 	//Triangles for testing
 	TriangleMesh* triangle = new TriangleMesh();
-	Material* material = new Material("src/img/me.PNG");
-	Material* mask = new Material("src/img/vignette.png");
+
+	Material* faceMaterial = new Material("face", "src/img/me.PNG");
+	faceMaterial->MapInitialise("src/img/vignette.png", MaterialMap::opacity);
 
 	//Set texture units
 	glUseProgram(shader);
@@ -83,8 +84,7 @@ int main(void)
 		//Use shaders to draw triangle
 		glUseProgram(shader);
 
-		material->use(0);
-		mask->use(1);
+		faceMaterial->use();
 
 		triangle->draw();
 
@@ -97,8 +97,7 @@ int main(void)
 	glDeleteProgram(shader);
 
 	delete triangle;
-	delete material;
-	delete mask;
+	delete faceMaterial;
 
 	glfwTerminate();
 
