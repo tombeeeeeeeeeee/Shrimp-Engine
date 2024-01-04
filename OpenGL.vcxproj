@@ -145,6 +145,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Graphics.cpp" />
     <ClCompile Include="src\Material.cpp" />
     <ClCompile Include="src\glad.c" />
     <ClCompile Include="src\glm\detail\glm.cpp" />
@@ -153,6 +154,7 @@
     <ClCompile Include="Utilities.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Graphics.h" />
     <ClInclude Include="src\Material.h" />
     <ClInclude Include="src\config.h" />
     <ClInclude Include="src\glad.h" />

@@ -3,16 +3,6 @@
 #include "triangle_mesh.h"
 #include "Material.h"
 
-
-#ifndef GLFW_INCLUDE_NONE
-#define GLFW_INCLUDE_NONE
-#endif
-
-#ifndef STB_IMAGE_IMPLEMENTATION
-#define STB_IMAGE_IMPLEMENTATION
-#endif
-
-
 class Graphics
 {
 public:
@@ -52,8 +42,6 @@ public:
 	//--TO ADD: Change to adding lambda's, such that a gameObject has a virtual draw function.
 	//void AddObjectToDraw(GameObject* obj);
 	//bool RemoveObjectFromDraw(GameObject* obj);
-
-	void EndGraphics();
 
 private:
 

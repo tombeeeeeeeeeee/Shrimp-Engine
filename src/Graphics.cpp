@@ -1,5 +1,9 @@
 #include "Graphics.h"
 
+#ifndef GLFW_INCLUDE_NONE
+#define GLFW_INCLUDE_NONE
+#endif
+
 Graphics::Graphics(const char* windowName, int width, int height)
 {
 	//Initialise GLFW, make sure it works. Put an error message here if you like.
@@ -31,13 +35,17 @@ Graphics::Graphics(const char* windowName, int width, int height)
 
 	//Triangles for testing
 	triangle = new TriangleMesh();
+
+	Material* faceMaterial = new Material("face", "src/img/me.PNG");
+	faceMaterial->MapInitialise("src/img/vignette.png", MaterialMap::opacity);
+
+	AddMaterialToDraw(faceMaterial);
 }
 
 Graphics::~Graphics()
 {
 	glDeleteProgram(shaderProgram);
 
-	delete window;
 	delete triangle;
 	for(Material* mat : drawMaterials)
 		delete mat;
@@ -79,6 +87,17 @@ void Graphics::InitialiseShaders(string vertexShader, string fragmentShader)
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
+
+void Graphics::SetWindowName(const char* windowName)
+{
+	glfwSetWindowTitle(window, windowName);
+}
+
+void Graphics::SetWindowSize(int width, int height)
+{
+	glViewport(0, 0, width, height);
+}
+
 
 void Graphics::Draw()
 {

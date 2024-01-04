@@ -1,4 +1,9 @@
 #include "Material.h"
+#ifndef STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_IMPLEMENTATION
+#endif
+#include <stb_image.h>
+
 
 Material::Material(const char* _name)
 {
@@ -42,10 +47,10 @@ void Material::MapInitialise(const char* filename, int unit)
 	unsigned char* data = stbi_load(filename, &width, &height, &channels, STBI_rgb_alpha);
 
 	
-	/* Debuging Code
+	///* Debuging Code
 	cout << width << " x " << height;
 	ColouredOutput(" image was loaded from: " + string::basic_string(filename), green);
-	*/
+	//*/
 
 	//make texture
 	glCreateTextures(GL_TEXTURE_2D, 1, &textures[unit]);

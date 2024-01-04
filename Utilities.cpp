@@ -1,9 +1,5 @@
 #include "Utilities.h"
 
-#ifndef STB_IMAGE_IMPLEMENTATION
-#define STB_IMAGE_IMPLEMENTATION
-#endif
-
 
 bool FileToString(string path, string* file, bool fileToConsole)
 {
