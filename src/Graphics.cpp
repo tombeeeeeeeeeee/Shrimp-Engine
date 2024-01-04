@@ -57,12 +57,13 @@ void Graphics::InitialiseShaders(string vertexShader, string fragmentShader)
 	shaderModules.push_back(makeModule(vertexShader, GL_VERTEX_SHADER));
 	shaderModules.push_back(makeModule(fragmentShader, GL_FRAGMENT_SHADER));
 
-	unsigned int shaderProgram = glCreateProgram();
+	shaderProgram = glCreateProgram();
 	for (unsigned int shaderModule : shaderModules)
 		glAttachShader(shaderProgram, shaderModule); //attaches modules to shader program.
 
 	//Links modules attached to program and creates executeble to run on GPU
 	glLinkProgram(shaderProgram);
+
 
 	int success;
 	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
@@ -80,6 +81,7 @@ void Graphics::InitialiseShaders(string vertexShader, string fragmentShader)
 
 	//Set texture units
 	glUseProgram(shaderProgram);
+	ColouredOutput(shaderProgram, green);
 	glUniform1i(glGetUniformLocation(shaderProgram, "material"), 0);
 	glUniform1i(glGetUniformLocation(shaderProgram, "mask"), 1);
 
@@ -111,7 +113,6 @@ void Graphics::Draw()
 
 	//Use shaders to draw triangle
 	glUseProgram(shaderProgram);
-	
 
 	for(Material* mat : drawMaterials)
 		mat->use();
