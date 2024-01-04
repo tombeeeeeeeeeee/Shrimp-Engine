@@ -23,5 +23,6 @@ int main(void)
 	//If we get to this point, the window has closed, so clean up GLFW and exit.
 	glfwTerminate();
 
+
 	return 0;
 }

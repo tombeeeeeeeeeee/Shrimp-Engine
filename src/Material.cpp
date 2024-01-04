@@ -47,7 +47,7 @@ void Material::MapInitialise(const char* filename, int unit)
 	unsigned char* data = stbi_load(filename, &width, &height, &channels, STBI_rgb_alpha);
 
 	
-	///* Debuging Code
+	/* Debuging Code
 	cout << width << " x " << height;
 	ColouredOutput(" image was loaded from: " + string::basic_string(filename), green);
 	//*/

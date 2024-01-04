@@ -81,13 +81,18 @@ void Graphics::InitialiseShaders(string vertexShader, string fragmentShader)
 
 	//Set texture units
 	glUseProgram(shaderProgram);
-	ColouredOutput(shaderProgram, green);
+
 	glUniform1i(glGetUniformLocation(shaderProgram, "material"), 0);
 	glUniform1i(glGetUniformLocation(shaderProgram, "mask"), 1);
 
 	//enable alpha blending
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	vec3 testingTranslation = { 0.1f, -0.3f, 0.2f };
+	mat4 model = createTranslationMatrix(testingTranslation);
+	unsigned int modelLocation = glGetUniformLocation(shaderProgram, "model");
+	glUniformMatrix4fv(modelLocation, 1, GL_FALSE, model.entries);
 }
 
 void Graphics::SetWindowName(const char* windowName)

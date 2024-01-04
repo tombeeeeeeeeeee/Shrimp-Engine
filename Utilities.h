@@ -5,6 +5,7 @@
 #include <vector>
 #include <regex>
 #include <Windows.h>
+#include <cmath>
 
 using namespace std;
 
