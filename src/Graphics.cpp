@@ -89,10 +89,8 @@ void Graphics::InitialiseShaders(string vertexShader, string fragmentShader)
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	vec3 testingTranslation = { 0.1f, -0.3f, 0.2f };
-	mat4 model = createTranslationMatrix(testingTranslation);
-	unsigned int modelLocation = glGetUniformLocation(shaderProgram, "model");
-	glUniformMatrix4fv(modelLocation, 1, GL_FALSE, model.entries);
+	//Grab locations on GPU
+	modelLocation = glGetUniformLocation(shaderProgram, "model");
 }
 
 void Graphics::SetWindowName(const char* windowName)
@@ -111,6 +109,10 @@ void Graphics::Draw()
 	//Clear the screen – eventually do rendering code here.
 	glClear(GL_COLOR_BUFFER_BIT);
 
+	mat4 modelRotation = rotationZAxisMatrix(25 * glfwGetTime());
+	mat4 model = createTranslationMatrix({ 0.25f, -0.5f, 0 }) * modelRotation;
+	glUniformMatrix4fv(modelLocation, 1, GL_FALSE, model.entries);
+
 	//Adaptive Screensize for window dragging
 	int w, h;
 	glfwGetFramebufferSize(window, &w, &h);
@@ -121,6 +123,7 @@ void Graphics::Draw()
 
 	for(Material* mat : drawMaterials)
 		mat->use();
+
 
 	triangle->draw();
 

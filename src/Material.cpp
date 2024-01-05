@@ -39,6 +39,8 @@ void Material::use(int unit)
 {
 	glActiveTexture(GL_TEXTURE0 + unit);
 	glBindTexture(GL_TEXTURE_2D, textures[unit]);
+
+
 }
 
 void Material::MapInitialise(const char* filename, int unit)

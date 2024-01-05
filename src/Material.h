@@ -43,6 +43,7 @@ public:
 	/// <param name="unit">type of map</param>
 	void MapInitialise(const char* filename, int unit);
 
+
 private:
 	string name;
 	unsigned int textures[MATERIAL_MAPCOUNT];

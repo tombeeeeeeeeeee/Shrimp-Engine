@@ -49,6 +49,9 @@ private:
 	vector<Material*> drawMaterials;
 	unsigned int shaderProgram;
 	
+	unsigned int modelLocation;
+
+
 	//Testing Triangle
 	TriangleMesh* triangle;
 
