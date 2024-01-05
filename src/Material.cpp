@@ -25,13 +25,15 @@ Material::~Material()
 
 void Material::use()
 {
+	unsigned int currentMap = 1;
 	for (int i = 0; i < MATERIAL_MAPCOUNT; i++)
 	{
-		if (textures[i] != 0)
+		if (textures[i] != 0 && (currentMap & mapMask == currentMap))
 		{
 			glActiveTexture(GL_TEXTURE0 + i);
 			glBindTexture(GL_TEXTURE_2D, textures[i]);
 		}
+		currentMap *= 2;
 	}
 }
 

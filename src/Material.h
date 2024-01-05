@@ -47,5 +47,10 @@ public:
 private:
 	string name;
 	unsigned int textures[MATERIAL_MAPCOUNT];
+
+	/// <summary>
+	/// A binary mask to signify which maps to use.
+	/// </summary>
+	unsigned int mapMask = 3;
 };
 
