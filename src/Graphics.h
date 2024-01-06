@@ -24,8 +24,8 @@ public:
 	/// <param name="vertexShader"> File path for vertex shader</param>
 	/// <param name="fragmentShader">File path for fragment shader</param>
 	void InitialiseShaders(
-		string vertexShader = "src/shaders/vertex.txt",
-		string fragmentShader = "src/shaders/fragment.txt"
+		string vertexShader = "src/shaders/vertex.vert",
+		string fragmentShader = "src/shaders/fragment.frag"
 	);
 
 	void SetWindowName(const char* windowName);
@@ -45,12 +45,15 @@ public:
 
 private:
 
+	vec3 cameraPos;
+
 	//vector<GameObject*> drawObjects;
 	vector<Material*> drawMaterials;
 	unsigned int shaderProgram;
 	
 	unsigned int modelLocation;
-
+	unsigned int viewLocation;
+	unsigned int projectionLocation;
 
 	//Testing Triangle
 	TriangleMesh* triangle;

@@ -8,7 +8,6 @@ int main(void)
 
 	graphics->InitialiseShaders();
 
-
 	//The main ‘game’ loop.
 	while (!glfwWindowShouldClose(graphics->window))
 	{

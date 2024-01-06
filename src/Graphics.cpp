@@ -91,6 +91,15 @@ void Graphics::InitialiseShaders(string vertexShader, string fragmentShader)
 
 	//Grab locations on GPU
 	modelLocation = glGetUniformLocation(shaderProgram, "model");
+	viewLocation = glGetUniformLocation(shaderProgram, "view");
+	projectionLocation = glGetUniformLocation(shaderProgram, "projection");
+
+	cameraPos = vec3( -5, 0, 3);
+
+	int w, h;
+	glfwGetFramebufferSize(window, &w, &h);
+	mat4 projection = ProjectionMatrix(45, w/h, 0.1, 10);
+	glUniformMatrix4fv(projectionLocation, 1, GL_FALSE, projection.entries);
 }
 
 void Graphics::SetWindowName(const char* windowName)
@@ -108,9 +117,12 @@ void Graphics::Draw()
 {
 	//Clear the screen – eventually do rendering code here.
 	glClear(GL_COLOR_BUFFER_BIT);
+	
+	mat4 view = ViewMatrix(cameraPos, vec3(0,0,0));
+	glUniformMatrix4fv(viewLocation, 1, GL_FALSE, view.entries);
 
-	mat4 modelRotation = rotationZAxisMatrix(25 * glfwGetTime());
-	mat4 model = createTranslationMatrix({ 0.25f, -0.5f, 0 }) * modelRotation;
+	mat4 modelRotation = rotationZAxisMatrix(10 * glfwGetTime());
+	mat4 model = createTranslationMatrix({ -0.2f, 0.4f, 0 }) * modelRotation;
 	glUniformMatrix4fv(modelLocation, 1, GL_FALSE, model.entries);
 
 	//Adaptive Screensize for window dragging

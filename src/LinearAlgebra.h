@@ -6,6 +6,103 @@
 /// </summary>
 const float LA_PI = 3.141596f;
 
+struct vec4
+{
+	float x;
+	float y;
+	float z;
+	float w;
+
+	vec4()
+	{
+		x = 0; y = 0; z = 0; w = 0;
+	}
+
+	vec4(float _x, float _y, float _z, float _w)
+	{
+		x = _x; y = _y; z = _z; w = _w;
+	}
+
+	float magnitude{ sqrtf(x * x + y * y + z * z + w * w) };
+	 
+	/// <summary>
+	/// Returns the normal of the vector
+	/// </summary>
+	vec4 normal();
+
+
+	/// <summary>
+	/// Returns the dot product of two vector4s
+	/// </summary>
+	float DotProduct(vec4 b)
+	{
+		return this->x * b.x + this->y * b.y + this->z * b.z + this->w * b.w;
+	}
+
+	vec4 operator+(const vec4& b)
+	{
+		return vec4(this->x + b.x, this->y + b.y, this->z + b.z, this->w + b.w);
+	}
+
+	vec4 operator-(const vec4& b)
+	{
+		return vec4(this->x - b.x, this->y - b.y, this->z - b.z, this->w - b.w);
+	}
+};
+
+struct vec3
+{
+	float x;
+	float y;
+	float z;
+
+	vec3()
+	{
+		x = 0; y = 0; z = 0;
+	}
+
+	vec3(float _x, float _y, float _z)
+	{
+		x = _x; y = _y; z = _z;
+	}
+
+	float magnitude() { return sqrtf(x * x + y * y + z * z); }
+
+
+	/// <summary>
+	/// Returns the normal of the vector
+	/// </summary>
+	vec3 normal()
+	{ 
+		float mag = magnitude(); 
+		if (mag == 0)  return vec3(0, 0, 0);
+		return vec3(x / mag, y / mag, z / mag);
+	}
+	
+	/// <summary>
+	/// Returns the dot product of two vector3s
+	/// </summary>
+	float dot(vec3 b)
+	{
+		return x * b.x + y * b.y + z * b.z;
+	}
+
+	/// <summary>
+	/// Returns the cross product of two vectors
+	/// </summary>
+	vec3 cross(vec3 b);
+
+	vec3 operator+(const vec3& b)
+	{
+		return vec3(this->x + b.x, this->y + b.y, this->z + b.z);
+	}
+
+	vec3 operator-(const vec3& b)
+	{
+		return vec3(this->x - b.x, this->y - b.y, this->z - b.z);
+	}
+};
+
 struct mat4
 {
 	//Column Major
@@ -32,13 +129,18 @@ struct mat4
 		entries[12] = _m03; entries[13] = _m13; entries[14] = _m23; entries[15] = _m33;
 	}
 
-	mat4(float scale)
-	{
-		entries[0] = 1; entries[1] = 0;	entries[2] = 0;  entries[3] = 0;
-		entries[4] = 0;	entries[5] = 1; entries[6] = 0;  entries[7] = 0;
-		entries[8] = 0;	entries[9] = 0; entries[10] = 1; entries[11] = 0;
-		entries[12] = scale; entries[13] = scale; entries[14] = scale; entries[15] = 1;
-	}
+	vec3 right();
+
+	vec3 up();
+
+	vec3 forward();
+
+	vec3 position();
+
+	mat4 inverse();
+
+	mat4 LookAtFrom(vec3 from, vec3 to);
+
 
 	mat4 operator*(const mat4& m)
 	{
@@ -64,31 +166,22 @@ struct mat4
 		mat.entries[13] = this->entries[1] * m.entries[12] + this->entries[5] * m.entries[13] + this->entries[9] * m.entries[14] + this->entries[13] * m.entries[15];
 		mat.entries[14] = this->entries[2] * m.entries[12] + this->entries[6] * m.entries[13] + this->entries[10] * m.entries[14] + this->entries[14] * m.entries[15];
 		mat.entries[15] = this->entries[3] * m.entries[12] + this->entries[7] * m.entries[13] + this->entries[11] * m.entries[14] + this->entries[15] * m.entries[15];
-	
+
 		return mat;
 	}
-};
 
-struct vec4
-{
-	float entries[4];
-
-	float x{ entries[0] };
-	float y{ entries[1] };
-	float z{ entries[2] };
-	float w{ entries[3] };
-};
-
-struct vec3
-{
-	float entries[3];
-
-	float x{ entries[0] };
-	float y{ entries[1] };
-	float z{ entries[2] };
+	friend ostream& operator<<(ostream& os, mat4 const& mat);
 };
 
 mat4 createTranslationMatrix(vec3 translation);
 mat4 rotationXAxisMatrix(float angle, bool degrees = true);
 mat4 rotationYAxisMatrix(float angle, bool degrees = true);
 mat4 rotationZAxisMatrix(float angle, bool degrees = true);
+
+mat4 ViewMatrix(vec3 from, vec3 to);
+mat4 ProjectionMatrix(float fov, float aspect, float nearPlane, float farPlane, bool fovDegrees = true);
+
+vec4 Normalise(vec4 vec);
+vec3 Normalise(vec3 vec);
+
+vec3 cross(vec3 a, vec3 b);

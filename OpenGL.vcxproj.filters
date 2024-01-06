@@ -36,6 +36,9 @@
     <ClCompile Include="src\Graphics.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\LinearAlgebra.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\config.h">
@@ -929,12 +932,15 @@
     <ClInclude Include="src\Graphics.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\LinearAlgebra.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="CMakeLists.txt" />
     <Text Include="src\glm\CMakeLists.txt" />
-    <Text Include="src\shaders\vertex.txt" />
-    <Text Include="src\shaders\fragment.txt" />
+    <Text Include="src\shaders\vertex.vert" />
+    <Text Include="src\shaders\fragment.frag" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="src\GLFW\glfw3.lib" />

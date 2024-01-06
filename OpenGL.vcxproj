@@ -457,8 +457,8 @@
   <ItemGroup>
     <Text Include="CMakeLists.txt" />
     <Text Include="src\glm\CMakeLists.txt" />
-    <Text Include="src\shaders\fragment.txt" />
-    <Text Include="src\shaders\vertex.txt" />
+    <Text Include="src\shaders\fragment.frag" />
+    <Text Include="src\shaders\vertex.vert" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="src\GLFW\glfw3.lib" />
