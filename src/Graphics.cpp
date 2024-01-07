@@ -36,8 +36,8 @@ Graphics::Graphics(const char* windowName, int width, int height)
 	//Triangles for testing
 	triangle = new TriangleMesh();
 
-	Material* faceMaterial = new Material("face", "src/img/me.PNG");
-	faceMaterial->MapInitialise("src/img/vignette.png", MaterialMap::opacity);
+	Material* faceMaterial = new Material("face", "img/me.PNG");
+	faceMaterial->MapInitialise("img/vignette.png", MaterialMap::opacity);
 
 	AddMaterialToDraw(faceMaterial);
 }
