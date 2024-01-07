@@ -85,11 +85,12 @@ unsigned int App::MakeCubeMesh(vec3 size) {
     glGenBuffers(1, &VBO);
     VBOs.push_back(VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float),
-        vertices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
+
     //position
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 20, (void*)0);
     glEnableVertexAttribArray(0);
+
     //texture coordinates
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 20, (void*)12);
     glEnableVertexAttribArray(1);
@@ -137,6 +138,7 @@ void App::Run() {
         if (should_close) {
             break;
         }
+
         renderSystem->Update(transformComponents, renderComponents);
     }
 }
@@ -149,7 +151,7 @@ void App::SetUpGLFW() {
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
 
-    window = glfwCreateWindow(640, 480, "Hello Window!", NULL, NULL);
+    window = glfwCreateWindow(640, 480, "Testing Window", NULL, NULL);
     glfwMakeContextCurrent(window);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
@@ -177,6 +179,7 @@ void App::SetUpOpengl() {
     shader = MakeShader();
 
     glUseProgram(shader);
+
     unsigned int projLocation = glGetUniformLocation(shader, "projection");
     mat4 projection = ProjectionMatrix( 45.0f, 640.0f / 480.0f, 0.1f, 10.0f);
     glUniformMatrix4fv(projLocation, 1, GL_FALSE, projection.entries);

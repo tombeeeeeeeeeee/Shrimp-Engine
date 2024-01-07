@@ -14,6 +14,6 @@ public:
 
 private:
     unsigned int viewLocation;
-    vec3 globalUp = { 0.0f, 1.0f, 0.0f };
+    vec3 globalUp = { 0.0f, 0.0f, 1.0f };
     GLFWwindow* window;
 };

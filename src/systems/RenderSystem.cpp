@@ -4,6 +4,14 @@ RenderSystem::RenderSystem(unsigned int shader, GLFWwindow* window)
 {
 	modelLocation = glGetUniformLocation(shader, "model");
 	this->window = window;
+
+    //Set material layers
+    glUniform1i(glGetUniformLocation(shader, "material"), 0);
+    glUniform1i(glGetUniformLocation(shader, "mask"), 1);
+
+    //enable alpha blending
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 void RenderSystem::Update(unordered_map<unsigned int, TransformComponent>& transformComponents, unordered_map<unsigned int, RenderComponent>& renderComponents)
@@ -23,7 +31,11 @@ void RenderSystem::Update(unordered_map<unsigned int, TransformComponent>& trans
         for (int i = 0; i < MATERIAL_MAPCOUNT; i++)
         {
             if (entity.second.materials[i] != 0 && (entity.second.materialMask & materialMask == materialMask))
+            {
+                glActiveTexture(GL_TEXTURE0 + i);
                 glBindTexture(GL_TEXTURE_2D, entity.second.materials[i]);
+            }
+            materialMask *= 2;
         }
 
         glBindVertexArray(entity.second.mesh);

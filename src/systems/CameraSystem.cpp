@@ -47,7 +47,7 @@ bool CameraSystem::Update( std::unordered_map<unsigned int, TransformComponent>&
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
         dPos.y += 1.0f;
     }
-    if (length(dPos) > 0.1f) {
+    if (dPos.magnitude() > 0.1f) {
         dPos = normalize(dPos);
         pos += 0.1f * dPos.x * forwards;
         pos += 0.1f * dPos.y * right;

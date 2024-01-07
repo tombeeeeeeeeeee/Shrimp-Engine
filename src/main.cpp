@@ -21,8 +21,8 @@ int main() {
 
 	RenderComponent render;
 	render.mesh = app->MakeCubeMesh({ 0.25f, 0.25f, 0.25f });
-	render.materials[0] = app->MakeTexture("../img/me.PNG");
-	render.materials[1] = app->MakeTexture("../img/vignette.png");
+	render.materials[0] = app->MakeTexture("img/me.PNG");
+	render.materials[1] = app->MakeTexture("img/vignette.jpg");
 
 	app->renderComponents[cubeEntity] = render;
 
