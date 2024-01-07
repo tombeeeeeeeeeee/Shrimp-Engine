@@ -95,18 +95,20 @@ struct vec3
 	vec3 cross(vec3 b);
 
 	vec3 operator+(const vec3& b) { return vec3(x + b.x, y + b.y, z + b.z); }
-	vec3 operator+=(const vec3& b) { return vec3(x + b.x, y + b.y, z + b.z); }
+	vec3& operator+=(const vec3& b) { this->x += b.x; this->y += b.y; this->z += b.z; return *this; }
 
 	vec3 operator-(const vec3& b) { return vec3(x - b.x, y - b.y, z - b.z); }
-	vec3 operator-=(const vec3& b) { return vec3(x - b.x, y - b.y, z - b.z); }
+	vec3& operator-=(const vec3& b) { this->x -= b.x; this->y -= b.y; this->z -= b.z; return *this; }
 
 	vec3 operator*(const float& b) { return vec3(x * b, y * b, z * b); }
-	vec3 operator*=(const float& b) { return vec3(x * b, y * b, z * b); }
+	vec3& operator*=(const float& b) { this->x *= b; this->y *= b; this->z *= b; return *this; }
 	vec3 operator*(const int& b) { return vec3(x * b, y * b, z * b); }
-	vec3 operator*=(const int& b) { return vec3(x * b, y * b, z * b); }
+	vec3& operator*=(const int& b) { this->x *= b; this->y *= b; this->z *= b; return *this; }
 
 	friend vec3 operator*(const float& b, const vec3& a) { return vec3(a.x * b, a.y * b, a.z * b); }
 	friend vec3 operator*(const int& b, const vec3& a) { return vec3(a.x * b, a.y * b, a.z * b); }
+
+	friend ostream& operator<<(ostream& os, vec3 const& vec);
 };
 
 struct mat4
@@ -173,7 +175,7 @@ struct mat4
 
 		return mat;
 	}
-	mat4 operator*=(const mat4& m)
+	mat4& operator*=(const mat4& m)
 	{
 		mat4 mat;
 
@@ -198,7 +200,9 @@ struct mat4
 		mat.entries[14] = entries[2] * m.entries[12] + entries[6] * m.entries[13] + entries[10] * m.entries[14] + entries[14] * m.entries[15];
 		mat.entries[15] = entries[3] * m.entries[12] + entries[7] * m.entries[13] + entries[11] * m.entries[14] + entries[15] * m.entries[15];
 
-		return mat;
+		*this = mat;
+
+		return *this;
 	}
 
 	friend ostream& operator<<(ostream& os, mat4 const& mat);

@@ -38,6 +38,7 @@ bool CameraSystem::Update( std::unordered_map<unsigned int, TransformComponent>&
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
         dPos.x += 1.0f;
     }
+
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
         dPos.y -= 1.0f;
     }

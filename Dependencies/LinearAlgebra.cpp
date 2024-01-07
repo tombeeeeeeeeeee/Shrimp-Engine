@@ -89,6 +89,11 @@ mat4 ViewMatrix(vec3 from, vec3 to, vec3 up)
 	);
 }
 
+ostream& operator<<(ostream& os, vec3 const& vec)
+{
+	return os << "{ " << vec.x << ", " << vec.y << ", " << vec.z << " }" << endl;
+}
+
 ostream& operator<<(ostream& os, mat4 const& mat)
 {
 	return 

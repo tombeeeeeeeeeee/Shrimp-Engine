@@ -16,7 +16,7 @@ int main() {
 
 	PhysicsComponent physics;
 	physics.velocity = { 0.0f, 0.0f, 0.0f };
-	physics.eulerVelocity = { 0.0f, 0.0f, 10.0f };
+	physics.eulerVelocity = { 10.0f, 10.0f, 10.0f };
 	app->physicsComponents[cubeEntity] = physics;
 
 	RenderComponent render;
