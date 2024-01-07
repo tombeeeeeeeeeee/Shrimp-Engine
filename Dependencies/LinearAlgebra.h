@@ -34,20 +34,22 @@ struct vec4
 	/// <summary>
 	/// Returns the dot product of two vector4s
 	/// </summary>
-	float DotProduct(vec4 b)
-	{
-		return this->x * b.x + this->y * b.y + this->z * b.z + this->w * b.w;
-	}
+	float dot(vec4 b) { return this->x * b.x + this->y * b.y + this->z * b.z + this->w * b.w; }
 
-	vec4 operator+(const vec4& b)
-	{
-		return vec4(this->x + b.x, this->y + b.y, this->z + b.z, this->w + b.w);
-	}
+	vec4 operator+(const vec4& b) { return vec4(this->x + b.x, this->y + b.y, this->z + b.z, this->w + b.w); }
+	vec4 operator+=(const vec4& b) { return vec4(this->x + b.x, this->y + b.y, this->z + b.z, this->w + b.w); }
 
-	vec4 operator-(const vec4& b)
-	{
-		return vec4(this->x - b.x, this->y - b.y, this->z - b.z, this->w - b.w);
-	}
+	vec4 operator-(const vec4& b) { return vec4(this->x - b.x, this->y - b.y, this->z - b.z, this->w - b.w); }
+	vec4 operator-=(const vec4& b) { return vec4(this->x - b.x, this->y - b.y, this->z - b.z, this->w - b.w); }
+
+	vec4 operator*(const float b) { return vec4(x * b, y * b, z * b, w * b); }
+	vec4 operator*=(const float b) { return vec4(x * b, y * b, z * b, w * b); }
+
+	vec4 operator*(const int& b) { return vec4(x * b, y * b, z * b, w * b); }
+	vec4 operator*=(const int& b) { return vec4(x * b, y * b, z * b, w * b); }
+
+	friend vec4 operator*(const float& b, const vec4& a) { return vec4(a.x * b, a.y * b, a.z * b, a.w * b); }
+	friend vec4 operator*(const int& b, const vec4& a) { return vec4(a.x * b, a.y * b, a.z * b, a.w * b); }
 };
 
 struct vec3
@@ -92,15 +94,19 @@ struct vec3
 	/// </summary>
 	vec3 cross(vec3 b);
 
-	vec3 operator+(const vec3& b)
-	{
-		return vec3(this->x + b.x, this->y + b.y, this->z + b.z);
-	}
+	vec3 operator+(const vec3& b) { return vec3(x + b.x, y + b.y, z + b.z); }
+	vec3 operator+=(const vec3& b) { return vec3(x + b.x, y + b.y, z + b.z); }
 
-	vec3 operator-(const vec3& b)
-	{
-		return vec3(this->x - b.x, this->y - b.y, this->z - b.z);
-	}
+	vec3 operator-(const vec3& b) { return vec3(x - b.x, y - b.y, z - b.z); }
+	vec3 operator-=(const vec3& b) { return vec3(x - b.x, y - b.y, z - b.z); }
+
+	vec3 operator*(const float& b) { return vec3(x * b, y * b, z * b); }
+	vec3 operator*=(const float& b) { return vec3(x * b, y * b, z * b); }
+	vec3 operator*(const int& b) { return vec3(x * b, y * b, z * b); }
+	vec3 operator*=(const int& b) { return vec3(x * b, y * b, z * b); }
+
+	friend vec3 operator*(const float& b, const vec3& a) { return vec3(a.x * b, a.y * b, a.z * b); }
+	friend vec3 operator*(const int& b, const vec3& a) { return vec3(a.x * b, a.y * b, a.z * b); }
 };
 
 struct mat4
@@ -139,33 +145,58 @@ struct mat4
 
 	mat4 inverse();
 
-	mat4 LookAtFrom(vec3 from, vec3 to);
-
 
 	mat4 operator*(const mat4& m)
 	{
 		mat4 mat;
 
 		//Colomn 1
-		mat.entries[0] = this->entries[0] * m.entries[0] + this->entries[4] * m.entries[1] + this->entries[8] * m.entries[2] + this->entries[12] * m.entries[3];
-		mat.entries[1] = this->entries[1] * m.entries[0] + this->entries[5] * m.entries[1] + this->entries[9] * m.entries[2] + this->entries[13] * m.entries[3];
-		mat.entries[2] = this->entries[2] * m.entries[0] + this->entries[6] * m.entries[1] + this->entries[10] * m.entries[2] + this->entries[14] * m.entries[3];
-		mat.entries[3] = this->entries[3] * m.entries[0] + this->entries[7] * m.entries[1] + this->entries[11] * m.entries[2] + this->entries[15] * m.entries[3];
+		mat.entries[0] = entries[0] * m.entries[0] + entries[4] * m.entries[1] + entries[8] * m.entries[2] + entries[12] * m.entries[3];
+		mat.entries[1] = entries[1] * m.entries[0] + entries[5] * m.entries[1] + entries[9] * m.entries[2] + entries[13] * m.entries[3];
+		mat.entries[2] = entries[2] * m.entries[0] + entries[6] * m.entries[1] + entries[10] * m.entries[2] + entries[14] * m.entries[3];
+		mat.entries[3] = entries[3] * m.entries[0] + entries[7] * m.entries[1] + entries[11] * m.entries[2] + entries[15] * m.entries[3];
 		//Colomn 2
-		mat.entries[4] = this->entries[0] * m.entries[4] + this->entries[4] * m.entries[5] + this->entries[8] * m.entries[6] + this->entries[12] * m.entries[7];
-		mat.entries[5] = this->entries[1] * m.entries[4] + this->entries[5] * m.entries[5] + this->entries[9] * m.entries[6] + this->entries[13] * m.entries[7];
-		mat.entries[6] = this->entries[2] * m.entries[4] + this->entries[6] * m.entries[5] + this->entries[10] * m.entries[6] + this->entries[14] * m.entries[7];
-		mat.entries[7] = this->entries[3] * m.entries[4] + this->entries[7] * m.entries[5] + this->entries[11] * m.entries[6] + this->entries[15] * m.entries[7];
+		mat.entries[4] = entries[0] * m.entries[4] + entries[4] * m.entries[5] + entries[8] * m.entries[6] + entries[12] * m.entries[7];
+		mat.entries[5] = entries[1] * m.entries[4] + entries[5] * m.entries[5] + entries[9] * m.entries[6] + entries[13] * m.entries[7];
+		mat.entries[6] = entries[2] * m.entries[4] + entries[6] * m.entries[5] + entries[10] * m.entries[6] + entries[14] * m.entries[7];
+		mat.entries[7] = entries[3] * m.entries[4] + entries[7] * m.entries[5] + entries[11] * m.entries[6] + entries[15] * m.entries[7];
 		//Colomn 3
-		mat.entries[8] = this->entries[0] * m.entries[8] + this->entries[4] * m.entries[9] + this->entries[8] * m.entries[10] + this->entries[12] * m.entries[11];
-		mat.entries[9] = this->entries[1] * m.entries[8] + this->entries[5] * m.entries[9] + this->entries[9] * m.entries[10] + this->entries[13] * m.entries[11];
-		mat.entries[10] = this->entries[2] * m.entries[8] + this->entries[6] * m.entries[9] + this->entries[10] * m.entries[10] + this->entries[14] * m.entries[11];
-		mat.entries[11] = this->entries[3] * m.entries[8] + this->entries[7] * m.entries[9] + this->entries[11] * m.entries[10] + this->entries[15] * m.entries[11];
+		mat.entries[8] = entries[0] * m.entries[8] + entries[4] * m.entries[9] + entries[8] * m.entries[10] + entries[12] * m.entries[11];
+		mat.entries[9] = entries[1] * m.entries[8] + entries[5] * m.entries[9] + entries[9] * m.entries[10] + entries[13] * m.entries[11];
+		mat.entries[10] = entries[2] * m.entries[8] + entries[6] * m.entries[9] + entries[10] * m.entries[10] + entries[14] * m.entries[11];
+		mat.entries[11] = entries[3] * m.entries[8] + entries[7] * m.entries[9] + entries[11] * m.entries[10] + entries[15] * m.entries[11];
 		//Colomn 4
-		mat.entries[12] = this->entries[0] * m.entries[12] + this->entries[4] * m.entries[13] + this->entries[8] * m.entries[14] + this->entries[12] * m.entries[15];
-		mat.entries[13] = this->entries[1] * m.entries[12] + this->entries[5] * m.entries[13] + this->entries[9] * m.entries[14] + this->entries[13] * m.entries[15];
-		mat.entries[14] = this->entries[2] * m.entries[12] + this->entries[6] * m.entries[13] + this->entries[10] * m.entries[14] + this->entries[14] * m.entries[15];
-		mat.entries[15] = this->entries[3] * m.entries[12] + this->entries[7] * m.entries[13] + this->entries[11] * m.entries[14] + this->entries[15] * m.entries[15];
+		mat.entries[12] = entries[0] * m.entries[12] + entries[4] * m.entries[13] + entries[8] * m.entries[14] + entries[12] * m.entries[15];
+		mat.entries[13] = entries[1] * m.entries[12] + entries[5] * m.entries[13] + entries[9] * m.entries[14] + entries[13] * m.entries[15];
+		mat.entries[14] = entries[2] * m.entries[12] + entries[6] * m.entries[13] + entries[10] * m.entries[14] + entries[14] * m.entries[15];
+		mat.entries[15] = entries[3] * m.entries[12] + entries[7] * m.entries[13] + entries[11] * m.entries[14] + entries[15] * m.entries[15];
+
+		return mat;
+	}
+	mat4 operator*=(const mat4& m)
+	{
+		mat4 mat;
+
+		//Colomn 1
+		mat.entries[0] = entries[0] * m.entries[0] + entries[4] * m.entries[1] + entries[8] * m.entries[2] + entries[12] * m.entries[3];
+		mat.entries[1] = entries[1] * m.entries[0] + entries[5] * m.entries[1] + entries[9] * m.entries[2] + entries[13] * m.entries[3];
+		mat.entries[2] = entries[2] * m.entries[0] + entries[6] * m.entries[1] + entries[10] * m.entries[2] + entries[14] * m.entries[3];
+		mat.entries[3] = entries[3] * m.entries[0] + entries[7] * m.entries[1] + entries[11] * m.entries[2] + entries[15] * m.entries[3];
+		//Colomn 2
+		mat.entries[4] = entries[0] * m.entries[4] + entries[4] * m.entries[5] + entries[8] * m.entries[6] + entries[12] * m.entries[7];
+		mat.entries[5] = entries[1] * m.entries[4] + entries[5] * m.entries[5] + entries[9] * m.entries[6] + entries[13] * m.entries[7];
+		mat.entries[6] = entries[2] * m.entries[4] + entries[6] * m.entries[5] + entries[10] * m.entries[6] + entries[14] * m.entries[7];
+		mat.entries[7] = entries[3] * m.entries[4] + entries[7] * m.entries[5] + entries[11] * m.entries[6] + entries[15] * m.entries[7];
+		//Colomn 3
+		mat.entries[8] = entries[0] * m.entries[8] + entries[4] * m.entries[9] + entries[8] * m.entries[10] + entries[12] * m.entries[11];
+		mat.entries[9] = entries[1] * m.entries[8] + entries[5] * m.entries[9] + entries[9] * m.entries[10] + entries[13] * m.entries[11];
+		mat.entries[10] = entries[2] * m.entries[8] + entries[6] * m.entries[9] + entries[10] * m.entries[10] + entries[14] * m.entries[11];
+		mat.entries[11] = entries[3] * m.entries[8] + entries[7] * m.entries[9] + entries[11] * m.entries[10] + entries[15] * m.entries[11];
+		//Colomn 4
+		mat.entries[12] = entries[0] * m.entries[12] + entries[4] * m.entries[13] + entries[8] * m.entries[14] + entries[12] * m.entries[15];
+		mat.entries[13] = entries[1] * m.entries[12] + entries[5] * m.entries[13] + entries[9] * m.entries[14] + entries[13] * m.entries[15];
+		mat.entries[14] = entries[2] * m.entries[12] + entries[6] * m.entries[13] + entries[10] * m.entries[14] + entries[14] * m.entries[15];
+		mat.entries[15] = entries[3] * m.entries[12] + entries[7] * m.entries[13] + entries[11] * m.entries[14] + entries[15] * m.entries[15];
 
 		return mat;
 	}
@@ -178,10 +209,13 @@ mat4 rotationXAxisMatrix(float angle, bool degrees = true);
 mat4 rotationYAxisMatrix(float angle, bool degrees = true);
 mat4 rotationZAxisMatrix(float angle, bool degrees = true);
 
-mat4 ViewMatrix(vec3 from, vec3 to);
+mat4 ViewMatrix(vec3 from, vec3 to, vec3 up = {0,1,0});
 mat4 ProjectionMatrix(float fov, float aspect, float nearPlane, float farPlane, bool fovDegrees = true);
 
-vec4 Normalise(vec4 vec);
-vec3 Normalise(vec3 vec);
+vec4 normalize(vec4 vec);
+vec3 normalize(vec3 vec);
+
+float length(vec4);
+float length(vec3);
 
 vec3 cross(vec3 a, vec3 b);

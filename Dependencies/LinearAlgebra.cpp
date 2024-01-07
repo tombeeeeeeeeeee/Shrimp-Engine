@@ -74,13 +74,12 @@ mat4 rotationZAxisMatrix(float angle, bool degrees)
 	return rot;
 }
 
-mat4 ViewMatrix(vec3 from, vec3 to)
+mat4 ViewMatrix(vec3 from, vec3 to, vec3 up)
 {
-	vec3 globalUp = { 0, 0, 1 };
 
-	vec3 f = Normalise(to - from);
-	vec3 r = Normalise(cross(f, globalUp));
-	vec3 u = Normalise(cross(r, f));
+	vec3 f = normalize(to - from);
+	vec3 r = normalize(cross(f, up));
+	vec3 u = normalize(cross(r, f));
 
 	return mat4(
 		r.x, u.x, -f.x, 0,
@@ -114,12 +113,12 @@ mat4 ProjectionMatrix(float fov, float aspect, float nearPlane, float farPlane, 
 	);
 }
 
-vec4 Normalise(vec4 vec)
+vec4 normalize(vec4 vec)
 {
 	return vec.normal();
 }
 
-vec3 Normalise(vec3 vec)
+vec3 normalize(vec3 vec)
 {
 	return vec.normal();
 }

@@ -145,19 +145,27 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\Graphics.cpp" />
+    <ClCompile Include="src\config.cpp" />
+    <ClCompile Include="src\systems\MotionSystem.cpp" />
+    <ClCompile Include="src\systems\RenderSystem.cpp" />
     <ClCompile Include="Dependencies\LinearAlgebra.cpp" />
-    <ClCompile Include="src\Material.cpp" />
     <ClCompile Include="src\glad.c" />
     <ClCompile Include="Dependencies\glm\detail\glm.cpp" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\triangle_mesh.cpp" />
+    <ClCompile Include="src\controller\app.cpp" />
+    <ClCompile Include="src\systems\CameraSystem.cpp" />
     <ClCompile Include="Dependencies\Utilities.cpp" />
+    <ClCompile Include="src\view\shader.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\Graphics.h" />
+    <ClInclude Include="src\systems\MotionSystem.h" />
+    <ClInclude Include="src\systems\RenderSystem.h" />
+    <ClInclude Include="src\components\CameraComponent.h" />
+    <ClInclude Include="src\components\ComponentInclude.h" />
+    <ClInclude Include="src\components\PhysicsComponent.h" />
+    <ClInclude Include="src\components\RenderComponent.h" />
+    <ClInclude Include="src\components\TransformComponent.h" />
     <ClInclude Include="Dependencies\LinearAlgebra.h" />
-    <ClInclude Include="src\Material.h" />
     <ClInclude Include="src\config.h" />
     <ClInclude Include="Dependencies\glad.h" />
     <ClInclude Include="Dependencies\GLFW\glfw3.h" />
@@ -451,8 +459,11 @@
     <ClInclude Include="Dependencies\glm\vector_relational.hpp" />
     <ClInclude Include="Dependencies\khrplatform.h" />
     <ClInclude Include="src\stb_image.h" />
-    <ClInclude Include="src\triangle_mesh.h" />
+    <ClInclude Include="src\controller\app.h" />
+    <ClInclude Include="src\systems\CameraSystem.h" />
+    <ClInclude Include="src\systems\SystemInclude.h" />
     <ClInclude Include="Dependencies\Utilities.h" />
+    <ClInclude Include="src\view\shader.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="CMakeLists.txt" />

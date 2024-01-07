@@ -27,16 +27,25 @@
     <ClCompile Include="Dependencies\glm\detail\glm.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\triangle_mesh.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Material.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Graphics.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Dependencies\LinearAlgebra.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\view\shader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\controller\app.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\systems\CameraSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\systems\MotionSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\systems\RenderSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\config.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -920,19 +929,43 @@
     <ClInclude Include="Dependencies\glm\vector_relational.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\triangle_mesh.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\stb_image.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Material.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Graphics.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Dependencies\LinearAlgebra.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\components\CameraComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\components\TransformComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\components\PhysicsComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\components\RenderComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\view\shader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\controller\app.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\components\ComponentInclude.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\systems\CameraSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\systems\MotionSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\systems\RenderSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\systems\SystemInclude.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
