@@ -8,6 +8,7 @@ RenderSystem::RenderSystem(unsigned int shader, GLFWwindow* window)
     //Set material layers
     glUniform1i(glGetUniformLocation(shader, "material"), 0);
     glUniform1i(glGetUniformLocation(shader, "mask"), 1);
+    glUniform1i(glGetUniformLocation(shader, "normalMap"), 2);
 
     //enable alpha blending
     glEnable(GL_BLEND);
@@ -40,8 +41,8 @@ void RenderSystem::Update(unordered_map<unsigned int, TransformComponent>& trans
             materialMask *= 2;
         }
 
-        glBindVertexArray(entity.second.mesh);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glBindVertexArray(entity.second.VAO);
+        glDrawArrays(GL_TRIANGLES, 0, entity.second.vertexCount);
     }
 
     glfwSwapBuffers(window);

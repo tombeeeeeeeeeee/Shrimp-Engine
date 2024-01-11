@@ -17,6 +17,7 @@ unsigned int makeModule(const string& filepath, unsigned int moduleType);
 /// <param name="fragmentShader">File path for fragment shader</param>
 unsigned int MakeShader(
 	const string& vertexShader = "src/shaders/vertex.vert",
+	const string& geomShader = "src/shaders/geo.geom",
 	const string& fragmentShader = "src/shaders/fragment.frag"
 );
 

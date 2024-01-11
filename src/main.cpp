@@ -3,33 +3,19 @@
 
 #include "components/ComponentInclude.h"
 
+#include "factories/factory.h"
 
 int main() {
 
 	App* app = new App();
 
-	unsigned int cubeEntity = app->MakeEntity();
-	TransformComponent transform;
-	transform.position = { 3.0f, 0.0f, 0.25f };
-	transform.eulers = { 0.0f, 0.0f, 0.0f };
-	app->transformComponents[cubeEntity] = transform;
+	Factory* factory = new Factory(app->physicsComponents, app->renderComponents, app->transformComponents);
 
-	PhysicsComponent physics;
-	physics.velocity = { 0.0f, 0.0f, 0.0f };
-	physics.eulerVelocity = { 10.0f, 10.0f, 10.0f };
-	app->physicsComponents[cubeEntity] = physics;
+	factory->MakeCube({ 3.0f, 0.0f, 0.25f }, { 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 10.0f });
 
-	RenderComponent render;
-	render.mesh = app->MakeCubeMesh({ 0.25f, 0.25f, 0.25f });
-	render.materials[0] = app->MakeTexture("img/meHappy.png");
-	render.materials[1] = app->MakeTexture("img/vignette.jpg");
+	factory->MakeRat({ 4.0f, 0.0f, 0.05f }, { 0.0f, 0.0f, 180.0f });
 
-	app->renderComponents[cubeEntity] = render;
-
-	unsigned int cameraEntity = app->MakeEntity();
-	transform.position = { 0.0f, 0.0f, 1.0f };
-	transform.eulers = { 0.0f, 0.0f, 0.0f };
-	app->transformComponents[cameraEntity] = transform;
+	unsigned int cameraEntity = factory->MakeCamera({ 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f,0.0f });
 
 	CameraComponent* camera = new CameraComponent();
 	app->cameraComponent = camera;
@@ -40,6 +26,7 @@ int main() {
 
 	app->Run();
 
+	delete factory;
 	delete app;
 	return 0;
 }

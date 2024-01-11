@@ -111,6 +111,64 @@ struct vec3
 	friend ostream& operator<<(ostream& os, vec3 const& vec);
 };
 
+struct vec2
+{
+	float x;
+	float y;
+
+	vec2()
+	{
+		x = 0; y = 0;
+	}
+
+	vec2(float _x, float _y)
+	{
+		x = _x; y = _y;
+	}
+
+	float magnitude() { return sqrtf(x * x + y * y); }
+
+
+	/// <summary>
+	/// Returns the normal of the vector
+	/// </summary>
+	vec2 normal()
+	{
+		float mag = magnitude();
+		if (mag == 0)  return vec2(0, 0);
+		return vec2(x / mag, y / mag);
+	}
+
+	/// <summary>
+	/// Returns the dot product of two vector3s
+	/// </summary>
+	float dot(vec2 b)
+	{
+		return x * b.x + y * b.y;
+	}
+
+	/// <summary>
+	/// Returns the cross product of two vectors
+	/// </summary>
+	vec3 cross(vec2 b);
+
+	vec2 operator+(const vec2& b) { return vec2(x + b.x, y + b.y); }
+	vec2& operator+=(const vec2& b) { this->x += b.x; this->y += b.y; return *this; }
+
+	vec2 operator-(const vec2& b) { return vec2(x - b.x, y - b.y); }
+	vec2& operator-=(const vec2& b) { this->x -= b.x; this->y -= b.y; return *this; }
+
+	vec2 operator*(const float& b) { return vec2(x * b, y * b); }
+	vec2& operator*=(const float& b) { this->x *= b; this->y *= b; return *this; }
+	vec2 operator*(const int& b) { return vec2(x * b, y * b); }
+	vec2& operator*=(const int& b) { this->x *= b; this->y *= b; return *this; }
+
+	friend vec2 operator*(const float& b, const vec2& a) { return vec2(a.x * b, a.y * b); }
+	friend vec2 operator*(const int& b, const vec2& a) { return vec2(a.x * b, a.y * b); }
+
+	friend ostream& operator<<(ostream& os, vec2 const& vec);
+};
+
 struct mat4
 {
 	//Column Major

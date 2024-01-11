@@ -28,7 +28,7 @@ unsigned int makeModule(const string& filepath, unsigned int moduleType)
 	return shaderModule;
 }
 
-unsigned int MakeShader(const string& vertexShader, const string& fragmentShader)
+unsigned int MakeShader(const string& vertexShader, const string& geomShader ,const string& fragmentShader)
 {
 	vector<unsigned int> shaderModules;
 
@@ -37,6 +37,7 @@ unsigned int MakeShader(const string& vertexShader, const string& fragmentShader
 
 	//Make Fragment Shader
 	shaderModules.push_back(makeModule(fragmentShader, GL_FRAGMENT_SHADER));
+
 
 	unsigned int shaderProgram = glCreateProgram();
 	for (unsigned int shaderModule : shaderModules)

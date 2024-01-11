@@ -10,9 +10,7 @@ public:
     App();
     ~App();
     void Run();
-    unsigned int MakeEntity();
-    unsigned int MakeCubeMesh(vec3 size);
-    unsigned int MakeTexture(const char* filename);
+
     void SetUpOpengl();
     void MakeSystems();
 
@@ -26,12 +24,7 @@ public:
 private:
     void SetUpGLFW();
 
-    unsigned int entityCount = 0;
     GLFWwindow* window;
-
-    std::vector<unsigned int> VAOs;
-    std::vector<unsigned int> VBOs;
-    std::vector<unsigned int> textures;
 
     unsigned int shader;
 

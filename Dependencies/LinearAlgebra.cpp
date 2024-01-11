@@ -94,11 +94,16 @@ ostream& operator<<(ostream& os, vec3 const& vec)
 	return os << "{ " << vec.x << ", " << vec.y << ", " << vec.z << " }" << endl;
 }
 
+ostream& operator<<(ostream& os, vec2 const& vec)
+{
+	return os << "{ " << vec.x << ", " << vec.y << " }" << endl;
+}
+
 ostream& operator<<(ostream& os, mat4 const& mat)
 {
 	return 
-	os << "| " << mat.entries[0] << ", " << mat.entries[4] << ", " << mat.entries[8] << ", " << mat.entries[12] << " |" << endl
-	   << "| " << mat.entries[1] << ", " << mat.entries[5] << ", " << mat.entries[9] << ", " << mat.entries[13] << " |" << endl
+	os << "| " << mat.entries[0] << ", " << mat.entries[4] << ", " << mat.entries[8]  << ", " << mat.entries[12] << " |" << endl
+	   << "| " << mat.entries[1] << ", " << mat.entries[5] << ", " << mat.entries[9]  << ", " << mat.entries[13] << " |" << endl
 	   << "| " << mat.entries[2] << ", " << mat.entries[6] << ", " << mat.entries[10] << ", " << mat.entries[14] << " |" << endl
 	   << "| " << mat.entries[3] << ", " << mat.entries[7] << ", " << mat.entries[11] << ", " << mat.entries[15] << " |" << endl;
 }
@@ -113,8 +118,8 @@ mat4 ProjectionMatrix(float fov, float aspect, float nearPlane, float farPlane, 
 	return mat4(
 		t/aspect, 0, 0, 0,
 		0, t, 0, 0,
-		0, 0, -(n+f)/(n-f), -1,
-		0, 0, 2 * n * f / (n-f), 0
+		0, 0, -(f+n)/(f-n), -1,
+		0, 0, 2 * f * n / (f-n), 0
 	);
 }
 
@@ -133,3 +138,7 @@ vec3 cross(vec3 a, vec3 b)
 	return a.cross(b);
 }
 
+vec3 vec2::cross(vec2 b)
+{
+	return vec3(x, y, 0).cross(vec3(b.x,b.y,0));
+}

@@ -88,7 +88,7 @@ vector<string> StringSplit(string toSplit, string splitAt)
             splitted.push_back(*it);
         it++;
     }
-    split.push_back(splitted);
+    if (splitted != "") split.push_back(splitted);
 
     return split;
 }
