@@ -56,10 +56,12 @@ void Factory::MakeRat(vec3 position, vec3 eulers)
     physics.velocity = vec3(); physics.eulerVelocity = {0,0,0};
     physicsComponents[entityCount] = physics;
 
-    RenderComponent render = MakeObjMesh("models/hand.obj");
-    render.materials[0] = MakeTexture("img/HAND_C.jpg");
-    render.materials[2] = MakeTexture("img/HAND_N.jpg");
-    render.materialMask = 5;
+    mat4 preTransform = mat4();
+
+    RenderComponent render = MakeObjMesh("models/rat.obj", preTransform);
+    render.materials[0] = MakeTexture("img/HANDC.jpg");
+    //render.materials[2] = MakeTexture("img/HAND_N.jpg");
+    render.materialMask = 0;
     renderComponents[entityCount++] = render;
 }
 
@@ -117,7 +119,7 @@ RenderComponent Factory::MakeCubeMesh(vec3 size)
     return sendMeshToGPU(vertices, 36);
 }
 
-RenderComponent Factory::MakeMesh(const char* filepath)
+RenderComponent Factory::MakeMesh(const char* filepath, mat4 preTransform)
 {
     int strSize = strlen(filepath);
     if (strSize > 3)
@@ -125,14 +127,14 @@ RenderComponent Factory::MakeMesh(const char* filepath)
         vector<string> fileData = StringSplit(filepath, ".");
         string extension = fileData[fileData.size() - 1];
 
-        if (extension == "obj")  return MakeObjMesh(filepath); 
-        else if (extension == "fbx")  return MakeFbxMesh(filepath); 
+        if (extension == "obj")  return MakeObjMesh(filepath, preTransform);
+        else if (extension == "fbx")  return MakeFbxMesh(filepath, preTransform);
 
     }
     return {0,0,0,0};
 }
 
-RenderComponent Factory::MakeObjMesh(const char* filepath)
+RenderComponent Factory::MakeObjMesh(const char* filepath, mat4 preTransform)
 {
     //Vectors to stroe .obj model info
     vector<vec3> v; 
@@ -178,9 +180,9 @@ RenderComponent Factory::MakeObjMesh(const char* filepath)
 
         if (data.size() != 0)
         {
-            if (!data[0].compare("v")) v.push_back(readVec3(data));
+            if (!data[0].compare("v")) v.push_back(readVec3(data, preTransform, 1));
             else if (!data[0].compare("vt")) vt.push_back(readVec2(data));
-            else if (!data[0].compare("vn")) vn.push_back(readVec3(data));
+            else if (!data[0].compare("vn")) vn.push_back(readVec3(data, preTransform, 0));
             else if (!data[0].compare("f"))
                 readFace(data, v, vt, vn, vertices);
         }
@@ -190,7 +192,7 @@ RenderComponent Factory::MakeObjMesh(const char* filepath)
    return sendMeshToGPU(vertices, vertices.size() / 8);
 }
 
-RenderComponent Factory::MakeFbxMesh(const char* filepath)
+RenderComponent Factory::MakeFbxMesh(const char* filepath, mat4 preTransform)
 {
     return { 0,0,0,0 };
 }
@@ -253,10 +255,16 @@ RenderComponent Factory::sendMeshToGPU(std::vector<float>& vertices, float verte
     return record;
 }
 
+vec3 Factory::readVec3(std::vector<std::string> strings, mat4 preTransform, float w)
+{
+    return (preTransform * vec4(stof(strings[1]), stof(strings[2]), stof(strings[3]), w)).xyz();
+}
+
 vec3 Factory::readVec3(std::vector<std::string> strings)
 {
     return vec3(stof(strings[1]), stof(strings[2]), stof(strings[3]));
 }
+
 
 vec2 Factory::readVec2(std::vector<std::string> strings)
 {

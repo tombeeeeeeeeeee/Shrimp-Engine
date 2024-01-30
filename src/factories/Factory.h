@@ -34,13 +34,14 @@ private:
 
     RenderComponent MakeCubeMesh(vec3 size);
 
-    RenderComponent MakeMesh(const char* filepath);
-    RenderComponent MakeObjMesh(const char* filepath);
-    RenderComponent MakeFbxMesh(const char* filepath);
+    RenderComponent MakeMesh(const char* filepath, mat4 preTransform);
+    RenderComponent MakeObjMesh(const char* filepath, mat4 preTransform);
+    RenderComponent MakeFbxMesh(const char* filepath, mat4 preTransform);
     unsigned int MakeTexture(const char* filename);
 
     RenderComponent sendMeshToGPU(std::vector<float>& vertices,float vertexCount);
 
+    vec3 readVec3(std::vector<std::string> strings, mat4 preTransform, float w);
     vec3 readVec3(std::vector<std::string> strings);
     vec2 readVec2(std::vector<std::string> strings);
     void readFace(vector<string>& data, vector<vec3>& v, vector<vec2>& vt, vector<vec3>& vn, vector<float>& vertices);

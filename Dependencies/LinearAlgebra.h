@@ -6,50 +6,57 @@
 /// </summary>
 const float LA_PI = 3.141596f;
 
-struct vec4
+struct vec2
 {
 	float x;
 	float y;
-	float z;
-	float w;
 
-	vec4()
+	vec2()
 	{
-		x = 0; y = 0; z = 0; w = 0;
+		x = 0; y = 0;
 	}
 
-	vec4(float _x, float _y, float _z, float _w)
+	vec2(float _x, float _y)
 	{
-		x = _x; y = _y; z = _z; w = _w;
+		x = _x; y = _y;
 	}
 
-	float magnitude{ sqrtf(x * x + y * y + z * z + w * w) };
-	 
+	float magnitude() { return sqrtf(x * x + y * y); }
+
+
 	/// <summary>
 	/// Returns the normal of the vector
 	/// </summary>
-	vec4 normal();
-
+	vec2 normal()
+	{
+		float mag = magnitude();
+		if (mag == 0)  return vec2(0, 0);
+		return vec2(x / mag, y / mag);
+	}
 
 	/// <summary>
-	/// Returns the dot product of two vector4s
+	/// Returns the dot product of two vector3s
 	/// </summary>
-	float dot(vec4 b) { return this->x * b.x + this->y * b.y + this->z * b.z + this->w * b.w; }
+	float dot(vec2 b)
+	{
+		return x * b.x + y * b.y;
+	}
 
-	vec4 operator+(const vec4& b) { return vec4(this->x + b.x, this->y + b.y, this->z + b.z, this->w + b.w); }
-	vec4 operator+=(const vec4& b) { return vec4(this->x + b.x, this->y + b.y, this->z + b.z, this->w + b.w); }
+	vec2 operator+(const vec2& b) { return vec2(x + b.x, y + b.y); }
+	vec2& operator+=(const vec2& b) { this->x += b.x; this->y += b.y; return *this; }
 
-	vec4 operator-(const vec4& b) { return vec4(this->x - b.x, this->y - b.y, this->z - b.z, this->w - b.w); }
-	vec4 operator-=(const vec4& b) { return vec4(this->x - b.x, this->y - b.y, this->z - b.z, this->w - b.w); }
+	vec2 operator-(const vec2& b) { return vec2(x - b.x, y - b.y); }
+	vec2& operator-=(const vec2& b) { this->x -= b.x; this->y -= b.y; return *this; }
 
-	vec4 operator*(const float b) { return vec4(x * b, y * b, z * b, w * b); }
-	vec4 operator*=(const float b) { return vec4(x * b, y * b, z * b, w * b); }
+	vec2 operator*(const float& b) { return vec2(x * b, y * b); }
+	vec2& operator*=(const float& b) { this->x *= b; this->y *= b; return *this; }
+	vec2 operator*(const int& b) { return vec2(x * b, y * b); }
+	vec2& operator*=(const int& b) { this->x *= b; this->y *= b; return *this; }
 
-	vec4 operator*(const int& b) { return vec4(x * b, y * b, z * b, w * b); }
-	vec4 operator*=(const int& b) { return vec4(x * b, y * b, z * b, w * b); }
+	friend vec2 operator*(const float& b, const vec2& a) { return vec2(a.x * b, a.y * b); }
+	friend vec2 operator*(const int& b, const vec2& a) { return vec2(a.x * b, a.y * b); }
 
-	friend vec4 operator*(const float& b, const vec4& a) { return vec4(a.x * b, a.y * b, a.z * b, a.w * b); }
-	friend vec4 operator*(const int& b, const vec4& a) { return vec4(a.x * b, a.y * b, a.z * b, a.w * b); }
+	friend ostream& operator<<(ostream& os, vec2 const& vec);
 };
 
 struct vec3
@@ -70,6 +77,7 @@ struct vec3
 
 	float magnitude() { return sqrtf(x * x + y * y + z * z); }
 
+	vec2 xy();
 
 	/// <summary>
 	/// Returns the normal of the vector
@@ -111,62 +119,130 @@ struct vec3
 	friend ostream& operator<<(ostream& os, vec3 const& vec);
 };
 
-struct vec2
+struct vec4
 {
 	float x;
 	float y;
+	float z;
+	float w;
 
-	vec2()
+	vec4()
 	{
-		x = 0; y = 0;
+		x = 0; y = 0; z = 0; w = 0;
 	}
 
-	vec2(float _x, float _y)
+	vec4(float _x, float _y, float _z, float _w)
 	{
-		x = _x; y = _y;
+		x = _x; y = _y; z = _z; w = _w;
 	}
 
-	float magnitude() { return sqrtf(x * x + y * y); }
+	vec2 xy();
+	vec3 xyz();
 
-
+	float magnitude() { return sqrtf(x * x + y * y + z * z + w * w); }
+	 
 	/// <summary>
 	/// Returns the normal of the vector
 	/// </summary>
-	vec2 normal()
-	{
-		float mag = magnitude();
-		if (mag == 0)  return vec2(0, 0);
-		return vec2(x / mag, y / mag);
-	}
+	vec4 normal();
+
 
 	/// <summary>
-	/// Returns the dot product of two vector3s
+	/// Returns the dot product of two vector4s
 	/// </summary>
-	float dot(vec2 b)
+	float dot(vec4 b) { return this->x * b.x + this->y * b.y + this->z * b.z + this->w * b.w; }
+
+	vec4 operator+(const vec4& b) { return vec4(this->x + b.x, this->y + b.y, this->z + b.z, this->w + b.w); }
+	vec4 operator+=(const vec4& b) { return vec4(this->x + b.x, this->y + b.y, this->z + b.z, this->w + b.w); }
+
+	vec4 operator-(const vec4& b) { return vec4(this->x - b.x, this->y - b.y, this->z - b.z, this->w - b.w); }
+	vec4 operator-=(const vec4& b) { return vec4(this->x - b.x, this->y - b.y, this->z - b.z, this->w - b.w); }
+
+	vec4 operator*(const float b) { return vec4(x * b, y * b, z * b, w * b); }
+	vec4 operator*=(const float b) { return vec4(x * b, y * b, z * b, w * b); }
+
+	vec4 operator*(const int& b) { return vec4(x * b, y * b, z * b, w * b); }
+	vec4 operator*=(const int& b) { return vec4(x * b, y * b, z * b, w * b); }
+
+	friend vec4 operator*(const float& b, const vec4& a) { return vec4(a.x * b, a.y * b, a.z * b, a.w * b); }
+	friend vec4 operator*(const int& b, const vec4& a) { return vec4(a.x * b, a.y * b, a.z * b, a.w * b); }
+};
+
+struct mat3
+{
+	//Column Major
+	float entries[9];
+
+	mat3()
 	{
-		return x * b.x + y * b.y;
+		entries[0] = 1;  entries[1] = 0;  entries[2] = 0; 
+		entries[3] = 0;	 entries[4] = 1;  entries[5] = 0; 
+		entries[6] = 0;	 entries[7] = 0;  entries[8] = 1;
 	}
 
-	/// <summary>
-	/// Returns the cross product of two vectors
-	/// </summary>
-	vec3 cross(vec2 b);
+	mat3(
+		float _m00, float _m10, float _m20, 
+		float _m01, float _m11, float _m21, 
+		float _m02, float _m12, float _m22
+	)
+	{
+		entries[0] = _m00;  entries[1] = _m10;  entries[2] = _m20; 
+		entries[3] = _m01;  entries[4] = _m11;  entries[5] = _m21; 
+		entries[6] = _m02;  entries[7] = _m12;  entries[8] = _m22;
+	}
 
-	vec2 operator+(const vec2& b) { return vec2(x + b.x, y + b.y); }
-	vec2& operator+=(const vec2& b) { this->x += b.x; this->y += b.y; return *this; }
 
-	vec2 operator-(const vec2& b) { return vec2(x - b.x, y - b.y); }
-	vec2& operator-=(const vec2& b) { this->x -= b.x; this->y -= b.y; return *this; }
+	mat3 operator*(const mat3& m)
+	{
+		mat3 mat;
 
-	vec2 operator*(const float& b) { return vec2(x * b, y * b); }
-	vec2& operator*=(const float& b) { this->x *= b; this->y *= b; return *this; }
-	vec2 operator*(const int& b) { return vec2(x * b, y * b); }
-	vec2& operator*=(const int& b) { this->x *= b; this->y *= b; return *this; }
+		//Colomn 1
+		mat.entries[0] = entries[0] * m.entries[0] + entries[3] * m.entries[1] + entries[6] * m.entries[2];
+		mat.entries[1] = entries[1] * m.entries[0] + entries[4] * m.entries[1] + entries[7] * m.entries[2];
+		mat.entries[2] = entries[2] * m.entries[0] + entries[5] * m.entries[1] + entries[8] * m.entries[2];
+		//Colomn 2
+		mat.entries[3] = entries[0] * m.entries[3] + entries[3] * m.entries[4] + entries[6] * m.entries[5];
+		mat.entries[4] = entries[1] * m.entries[3] + entries[4] * m.entries[4] + entries[7] * m.entries[5];
+		mat.entries[5] = entries[2] * m.entries[3] + entries[5] * m.entries[4] + entries[8] * m.entries[5];
+		//Colomn 3
+		mat.entries[6] = entries[0] * m.entries[6] + entries[3] * m.entries[7] + entries[6] * m.entries[8];
+		mat.entries[7] = entries[1] * m.entries[6] + entries[4] * m.entries[7] + entries[7] * m.entries[8];
+		mat.entries[8] = entries[2] * m.entries[6] + entries[5] * m.entries[7] + entries[8] * m.entries[8];
+		
+		return mat;
+	}
+	mat3& operator*=(const mat3& m)
+	{
+		mat3 mat;
 
-	friend vec2 operator*(const float& b, const vec2& a) { return vec2(a.x * b, a.y * b); }
-	friend vec2 operator*(const int& b, const vec2& a) { return vec2(a.x * b, a.y * b); }
+		//Colomn 1
+		mat.entries[0] = entries[0] * m.entries[0] + entries[3] * m.entries[1] + entries[6] * m.entries[2];
+		mat.entries[1] = entries[1] * m.entries[0] + entries[4] * m.entries[1] + entries[7] * m.entries[2];
+		mat.entries[2] = entries[2] * m.entries[0] + entries[5] * m.entries[1] + entries[8] * m.entries[2];
+		//Colomn 2
+		mat.entries[3] = entries[0] * m.entries[3] + entries[3] * m.entries[4] + entries[6] * m.entries[5];
+		mat.entries[4] = entries[1] * m.entries[3] + entries[4] * m.entries[4] + entries[7] * m.entries[5];
+		mat.entries[5] = entries[2] * m.entries[3] + entries[5] * m.entries[4] + entries[8] * m.entries[5];
+		//Colomn 3
+		mat.entries[6] = entries[0] * m.entries[6] + entries[3] * m.entries[7] + entries[6] * m.entries[8];
+		mat.entries[7] = entries[1] * m.entries[6] + entries[4] * m.entries[7] + entries[7] * m.entries[8];
+		mat.entries[8] = entries[2] * m.entries[6] + entries[5] * m.entries[7] + entries[8] * m.entries[8];
+		*this = mat;
 
-	friend ostream& operator<<(ostream& os, vec2 const& vec);
+		return *this;
+	}
+
+	friend ostream& operator<<(ostream& os, mat3 const& mat);
+
+	vec3 operator*(vec3 b)
+	{
+		return vec3
+		(
+			entries[0] * b.x + entries[3] * b.y + entries[6] * b.z,
+			entries[1] * b.x + entries[4] * b.y + entries[7] * b.z,
+			entries[2] * b.x + entries[5] * b.y + entries[8] * b.z
+		);
+	};
 };
 
 struct mat4
@@ -264,6 +340,17 @@ struct mat4
 	}
 
 	friend ostream& operator<<(ostream& os, mat4 const& mat);
+
+	vec4 operator*(vec4 b)
+	{
+		return vec4
+		(
+			entries[0] * b.x + entries[4] * b.y + entries[8] * b.z + entries[12] * b.w,
+			entries[1] * b.x + entries[5] * b.y + entries[9] * b.z + entries[13] * b.w,
+			entries[2] * b.x + entries[6] * b.y + entries[10] * b.z + entries[14] * b.w,
+			entries[3] * b.x + entries[7] * b.y + entries[11] * b.z + entries[15] * b.w
+		);
+	};
 };
 
 mat4 createTranslationMatrix(vec3 translation);

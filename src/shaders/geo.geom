@@ -6,13 +6,6 @@ layout (triangle_strip, max_vertices = 3) out;
 out vec2 fragmentTexCoord;
 out mat3 fragmentTBN;
 
-in DATA
-{
-	vec2 geoTexCoord;
-	vec3 geoNormal;
-    mat4 model;
-} data_in[];
-
 
 void main()
 {

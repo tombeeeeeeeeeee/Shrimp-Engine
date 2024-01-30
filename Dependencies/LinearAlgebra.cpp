@@ -15,21 +15,26 @@ mat4 mat4::inverse()
 	);
 }
 
+vec2 vec4::xy() { return vec2(x, y); }
+
+vec3 vec4::xyz() { return vec3(x, y, z); }
+
 vec4 vec4::normal()
 {
-	float mag = this->magnitude;
-	return vec4(this->x / mag, this->y / mag, this->z / mag, this->w / mag);
+	float mag = magnitude();
+	return vec4(x / mag, y / mag, z / mag, w / mag);
 }
+
+vec2 vec3::xy() { return vec2(x, y); }
 
 vec3 vec3::cross(vec3 b)
 {
 	return vec3(
-		this->y * b.z - b.y * this->z,
-		this->z * b.x - b.z * this->x,
-		this->x * b.y - b.x * this->y
+		y * b.z - b.y * z,
+		z * b.x - b.z * x,
+		x * b.y - b.x * y
 	);
 }
-
 
 mat4 createTranslationMatrix(vec3 translation)
 {
@@ -108,6 +113,14 @@ ostream& operator<<(ostream& os, mat4 const& mat)
 	   << "| " << mat.entries[3] << ", " << mat.entries[7] << ", " << mat.entries[11] << ", " << mat.entries[15] << " |" << endl;
 }
 
+ostream& operator<<(ostream& os, mat3 const& mat)
+{
+	return
+		os << "| " << mat.entries[0] << ", " << mat.entries[3] << ", " << mat.entries[6] << " |" << endl
+		<< "| " << mat.entries[1] << ", " << mat.entries[4] << ", " << mat.entries[7] << " |" << endl
+		<< "| " << mat.entries[2] << ", " << mat.entries[5] << ", " << mat.entries[8] << " |" << endl;
+}
+
 mat4 ProjectionMatrix(float fov, float aspect, float nearPlane, float farPlane, bool fovDegrees)
 {
 	fov = fovDegrees ? fov * LA_PI / 360 : fov / 2;
@@ -136,9 +149,4 @@ vec3 normalize(vec3 vec)
 vec3 cross(vec3 a, vec3 b)
 {
 	return a.cross(b);
-}
-
-vec3 vec2::cross(vec2 b)
-{
-	return vec3(x, y, 0).cross(vec3(b.x,b.y,0));
 }
