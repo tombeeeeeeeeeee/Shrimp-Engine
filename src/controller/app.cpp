@@ -16,12 +16,11 @@ App::~App()
 
 void App::Run() 
 {
-    while (!glfwWindowShouldClose(window)) 
+    bool shouldClose = false;
+    while (!glfwWindowShouldClose(window) && !shouldClose) 
     {
-        motionSystem->Update( transformComponents, physicsComponents, 16.67f / 1000.0f);
-        bool should_close = cameraSystem->Update( transformComponents, cameraID, *cameraComponent, 16.67f / 1000.0f);
-        
-        if (should_close) { break; }
+        motionSystem->Update( transformComponents, physicsComponents, 1.0f / 60.0f);
+        shouldClose = cameraSystem->Update(transformComponents, cameraID, *cameraComponent, 1.0f / 60.0f);
 
         renderSystem->Update(transformComponents, renderComponents);
     }

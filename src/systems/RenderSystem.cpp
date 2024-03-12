@@ -33,10 +33,17 @@ void RenderSystem::Update(unordered_map<unsigned int, TransformComponent>& trans
         unsigned int materialMask = 1;
         for (int i = 0; i < MATERIAL_MAPCOUNT; i++)
         {
-            if (entity.second.materials[i] != 0 && (entity.second.materialMask & materialMask == materialMask))
+            if ((entity.second.materialMask & materialMask == materialMask))
             {
                 glActiveTexture(GL_TEXTURE0 + i);
-                glBindTexture(GL_TEXTURE_2D, entity.second.materials[i]);
+                //if (entity.second.materials[i] == 0)
+                //{
+                //    glBindTexture(GL_TEXTURE_2D, magicPurpleTexture);
+                //}
+                //else
+                //{
+                    glBindTexture(GL_TEXTURE_2D, entity.second.materials[i]);
+                //}
             }
             materialMask *= 2;
         }
