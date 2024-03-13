@@ -6,9 +6,9 @@ RenderSystem::RenderSystem(unsigned int shader, GLFWwindow* window)
 	this->window = window;
 
     //Set material layers
-    glUniform3f(glGetUniformLocation(shader, "material"), 1, 0, 0.86);
+    glUniform1i(glGetUniformLocation(shader, "diffuse"), 0);
     glUniform1i(glGetUniformLocation(shader, "mask"), 1);
-    glUniform3i(glGetUniformLocation(shader, "normalMap"), 0,0,1);
+    glUniform1i(glGetUniformLocation(shader, "normalMap"), 2);
     glUniform3f(glGetUniformLocation(shader, "lightColor"), 0.86,0.7,0.73);
 
 

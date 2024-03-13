@@ -37,8 +37,9 @@ void Factory::MakeCube(vec3 position, vec3 eulers, vec3 eulerVelocity)
     physics.velocity = vec3(); physics.eulerVelocity = eulerVelocity;
 
     RenderComponent render = MakeCubeMesh({0.25,0.25,0.25});
-    render.materials[0] = MakeTexture("img/vignette.jpg");
-    render.materialMask = 1;
+    render.materials[0] = MakeTexture("img/me.PNG");
+    render.materials[2] = MakeTexture("img/cubeNormal.png");
+    render.materialMask = 5;
 
     transformComponents[entityCount] = transform;
     physicsComponents[entityCount] = physics;
