@@ -128,6 +128,9 @@ RenderComponent Factory::MakeMesh(const char* filepath, mat4 preTransform)
         vector<string> fileData = StringSplit(filepath, ".");
         string extension = fileData[fileData.size() - 1];
 
+        const aiScene* scene = aiImportFile(filepath, 0);
+        aiMesh* mesh = scene->mMeshes[0];
+
         if (extension == "obj")  return MakeObjMesh(filepath, preTransform);
         else if (extension == "fbx")  return MakeFbxMesh(filepath, preTransform);
 
@@ -137,7 +140,7 @@ RenderComponent Factory::MakeMesh(const char* filepath, mat4 preTransform)
 
 RenderComponent Factory::MakeObjMesh(const char* filepath, mat4 preTransform)
 {
-    //Vectors to stroe .obj model info
+    //Vectors to store .obj model info
     vector<vec3> v; 
     vector<vec2> vt; 
     vector<vec3> vn;
