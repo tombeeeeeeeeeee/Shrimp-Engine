@@ -24,5 +24,12 @@ void main()
 
 	float alpha = 1 - texture(mask, fragmentTexCoord).r;
 	screenColor.a = alpha;
+
+	vec3 fragmentPosCol = normalize(fragmentPos);
+	fragmentPosCol *= 0.2;
+
+	screenColor.x += fragmentPosCol.x;
+	screenColor.y += fragmentPosCol.y;
+	screenColor.z += fragmentPosCol.z;
 }
 
