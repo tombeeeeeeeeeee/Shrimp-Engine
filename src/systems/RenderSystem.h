@@ -1,5 +1,6 @@
 #pragma once
 #include <config.h>
+#include "../factories/AssetFactory.h"
 #include "../components/TransformComponent.h"
 #include "../components/RenderComponent.h"
 
@@ -14,8 +15,10 @@ public:
     );
 
 private:
-
+    unsigned int missingTextureTexture;
     unsigned int modelLocation;
     GLFWwindow* window;
+
+    void CreateMissingTexture();
 };
 

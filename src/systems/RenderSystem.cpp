@@ -15,6 +15,9 @@ RenderSystem::RenderSystem(unsigned int shader, GLFWwindow* window)
     //enable alpha blending
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    //create missing texture texture
+    CreateMissingTexture();
 }
 
 void RenderSystem::Update(unordered_map<unsigned int, TransformComponent>& transformComponents, unordered_map<unsigned int, RenderComponent>& renderComponents)
@@ -35,26 +38,47 @@ void RenderSystem::Update(unordered_map<unsigned int, TransformComponent>& trans
         unsigned int materialMask = 1;
         for (int i = 0; i < MATERIAL_MAPCOUNT; i++)
         {
-            if ((entity.second.materialMask & materialMask == materialMask))
+            if ((entity.second.material->materialMask & materialMask) == materialMask)
             {
                 glActiveTexture(GL_TEXTURE0 + i);
-                //if (entity.second.materials[i] == 0)
-                //{
-                //    glBindTexture(GL_TEXTURE_2D, magicPurpleTexture);
-                //}
-                //else
-                //{
-                    glBindTexture(GL_TEXTURE_2D, entity.second.materials[i]);
-                //}
+                if (entity.second.material->materials[i] == 0)
+                {
+                    glBindTexture(GL_TEXTURE_2D, missingTextureTexture);
+                }
+                else
+                {
+                  glBindTexture(GL_TEXTURE_2D, entity.second.material->materials[i]);
+                }
             }
             materialMask *= 2;
         }
 
-        glBindVertexArray(entity.second.VAO);
-        glDrawArrays(GL_TRIANGLES, 0, entity.second.vertexCount);
+        glBindVertexArray(entity.second.mesh->VAO);
+        glDrawArrays(GL_TRIANGLES, 0, entity.second.mesh->vertexCount);
 
 
     }
 
     glfwSwapBuffers(window);
+}
+
+void RenderSystem::CreateMissingTexture()
+{
+    int data = 0xff00ff;
+
+    //make the texture
+    unsigned int texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+
+    //load data
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_UNSIGNED_BYTE, (void*)&data);
+
+    //Configure sampler
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    missingTextureTexture = texture;
 }

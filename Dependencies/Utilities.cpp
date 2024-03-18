@@ -1,5 +1,6 @@
 #include "Utilities.h"
 
+
 bool FileToString(string path, string* file, bool fileToConsole)
 {
     fstream new_file;

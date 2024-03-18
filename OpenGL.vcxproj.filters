@@ -48,7 +48,10 @@
     <ClCompile Include="src\config.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\factories\Factory.cpp">
+    <ClCompile Include="src\factories\AssetFactory.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\factories\ComponentFactory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -971,7 +974,10 @@
     <ClInclude Include="src\systems\SystemInclude.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\factories\Factory.h">
+    <ClInclude Include="src\factories\AssetFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\factories\ComponentFactory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

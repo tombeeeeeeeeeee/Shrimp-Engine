@@ -1,24 +1,24 @@
-#include "Factory.h"
+#include "AssetFactory.h"
 #ifndef STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION
 #endif 
 #include "../stb_image.h"
 
-Factory::Factory(std::unordered_map<unsigned int, PhysicsComponent>& physicsComponents, std::unordered_map<unsigned int, RenderComponent>& renderComponents, std::unordered_map<unsigned int, TransformComponent>& transformComponents):
+AssetFactory::AssetFactory(std::unordered_map<unsigned int, PhysicsComponent>& physicsComponents, std::unordered_map<unsigned int, RenderComponent>& renderComponents, std::unordered_map<unsigned int, TransformComponent>& transformComponents):
     physicsComponents(physicsComponents),
     renderComponents(renderComponents),
     transformComponents(transformComponents) 
 { }
 
 
-Factory::~Factory()
+AssetFactory::~AssetFactory()
 {
     glDeleteBuffers(VBOs.size(), VBOs.data());
     glDeleteVertexArrays(VAOs.size(), VAOs.data());
     glDeleteTextures(textures.size(), textures.data());
 }
 
-unsigned int Factory::MakeCamera(vec3 position, vec3 eulers)
+unsigned int AssetFactory::MakeCamera(vec3 position, vec3 eulers)
 {
     TransformComponent transform;
     transform.position = position; transform.eulers = eulers;
@@ -28,7 +28,7 @@ unsigned int Factory::MakeCamera(vec3 position, vec3 eulers)
     return entityCount++;
 }
 
-void Factory::MakeCube(vec3 position, vec3 eulers, vec3 eulerVelocity)
+void AssetFactory::MakeCube(vec3 position, vec3 eulers, vec3 eulerVelocity)
 {
     TransformComponent transform;
     transform.position = position; transform.eulers = eulers;
@@ -47,7 +47,7 @@ void Factory::MakeCube(vec3 position, vec3 eulers, vec3 eulerVelocity)
     entityCount++;
 }
 
-void Factory::MakeRat(vec3 position, vec3 eulers)
+void AssetFactory::MakeRat(vec3 position, vec3 eulers)
 {
     TransformComponent transform;
     transform.position = position; transform.eulers = eulers;
@@ -66,7 +66,7 @@ void Factory::MakeRat(vec3 position, vec3 eulers)
     renderComponents[entityCount++] = render;
 }
 
-RenderComponent Factory::MakeCubeMesh(vec3 size)
+RenderComponent AssetFactory::MakeCubeMesh(vec3 size)
 {
     float l = size.x;
     float w = size.y;
@@ -120,7 +120,7 @@ RenderComponent Factory::MakeCubeMesh(vec3 size)
     return sendMeshToGPU(vertices, 36);
 }
 
-RenderComponent Factory::MakeMesh(const char* filepath, mat4 preTransform)
+RenderComponent AssetFactory::MakeMesh(const char* filepath, mat4 preTransform)
 {
     int strSize = strlen(filepath);
     if (strSize > 3)
@@ -138,7 +138,7 @@ RenderComponent Factory::MakeMesh(const char* filepath, mat4 preTransform)
     return {0,0,0,0};
 }
 
-RenderComponent Factory::MakeObjMesh(const char* filepath, mat4 preTransform)
+RenderComponent AssetFactory::MakeObjMesh(const char* filepath, mat4 preTransform)
 {
     //Vectors to store .obj model info
     vector<vec3> v; 
@@ -196,12 +196,12 @@ RenderComponent Factory::MakeObjMesh(const char* filepath, mat4 preTransform)
    return sendMeshToGPU(vertices, vertices.size() / 8);
 }
 
-RenderComponent Factory::MakeFbxMesh(const char* filepath, mat4 preTransform)
+RenderComponent AssetFactory::MakeFbxMesh(const char* filepath, mat4 preTransform)
 {
     return { 0,0,0,0 };
 }
 
-unsigned int Factory::MakeTexture(const char* filename)
+unsigned int AssetFactory::MakeTexture(const char* filename)
 {
     int width, height, channels;
     stbi_set_flip_vertically_on_load(true);
@@ -228,7 +228,7 @@ unsigned int Factory::MakeTexture(const char* filename)
     return texture;
 }
 
-RenderComponent Factory::sendMeshToGPU(std::vector<float>& vertices, float vertexCount)
+RenderComponent AssetFactory::sendMeshToGPU(std::vector<float>& vertices, float vertexCount)
 {
     unsigned int VAO;
     glGenVertexArrays(1, &VAO);
@@ -259,23 +259,23 @@ RenderComponent Factory::sendMeshToGPU(std::vector<float>& vertices, float verte
     return record;
 }
 
-vec3 Factory::readVec3(std::vector<std::string> strings, mat4 preTransform, float w)
+vec3 AssetFactory::readVec3(std::vector<std::string> strings, mat4 preTransform, float w)
 {
     return (preTransform * vec4(stof(strings[1]), stof(strings[2]), stof(strings[3]), w)).xyz();
 }
 
-vec3 Factory::readVec3(std::vector<std::string> strings)
+vec3 AssetFactory::readVec3(std::vector<std::string> strings)
 {
     return vec3(stof(strings[1]), stof(strings[2]), stof(strings[3]));
 }
 
 
-vec2 Factory::readVec2(std::vector<std::string> strings)
+vec2 AssetFactory::readVec2(std::vector<std::string> strings)
 {
     return vec2(stof(strings[1]), stof(strings[2]));
 }
 
-void Factory::readFace(vector<string>& data, vector<vec3>& v, vector<vec2>& vt, vector<vec3>& vn, vector<float>& vertices)
+void AssetFactory::readFace(vector<string>& data, vector<vec3>& v, vector<vec2>& vt, vector<vec3>& vn, vector<float>& vertices)
 {
     size_t triCount = data.size() - 3;
     if (vn.size() == 0)
@@ -307,7 +307,7 @@ void Factory::readFace(vector<string>& data, vector<vec3>& v, vector<vec2>& vt, 
     }
 }
 
-vec3 Factory::readTriCornerVertex(string& data, vector<vec3>& v)
+vec3 AssetFactory::readTriCornerVertex(string& data, vector<vec3>& v)
 {
     vector<string> cornerData = StringSplit(data, "/");
 
@@ -315,7 +315,7 @@ vec3 Factory::readTriCornerVertex(string& data, vector<vec3>& v)
 }
 
 
-void Factory::readTriCorner(string& data, vector<vec3>& v, vector<vec2>& vt, vector<vec3>& vn, vector<float>& vertices)
+void AssetFactory::readTriCorner(string& data, vector<vec3>& v, vector<vec2>& vt, vector<vec3>& vn, vector<float>& vertices)
 {
     vector<string> cornerData = StringSplit(data, "/");
 
@@ -335,7 +335,7 @@ void Factory::readTriCorner(string& data, vector<vec3>& v, vector<vec2>& vt, vec
     vertices.push_back(normals.z);
 }
 
-void Factory::readTriCorner(string& data, vector<vec3>& v, vector<vec2>& vt, vec3 normal, vector<float>& vertices)
+void AssetFactory::readTriCorner(string& data, vector<vec3>& v, vector<vec2>& vt, vec3 normal, vector<float>& vertices)
 {
     vector<string> cornerData = StringSplit(data, "/");
 

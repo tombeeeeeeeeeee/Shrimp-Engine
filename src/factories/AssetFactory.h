@@ -2,31 +2,32 @@
 #include "../config.h"
 #include "../components/ComponentInclude.h"
 
-class Factory {
+class AssetFactory {
 
 public:
-    Factory(
+    AssetFactory(
         std::unordered_map<unsigned int, PhysicsComponent>& physicsComponents,
         std::unordered_map<unsigned int, RenderComponent>& renderComponents,
         std::unordered_map<unsigned int, TransformComponent>& transformComponents);
 
-    ~Factory();
+    ~AssetFactory();
 
     unsigned int MakeCamera(vec3 position, vec3 eulers);
 
-    void MakeCube(vec3 position, vec3 eulers, vec3 eulerVelocity);
+    MaterialAsset CubeMaterial();
+    MeshAsset CubeMesh();
 
-    void MakeRat(vec3 position, vec3 eulers);
+    MaterialAsset RatMaterial();
+    MeshAsset RatMesh();
 
-    unsigned int MakeEntity() { return entityCount++; }
+    MaterialAsset GetMaterial(std::string filename);
+    MeshAsset GetMesh(std::string filename);
+
 
 private:
 
-    unsigned int entityCount = 0;
-
-    std::unordered_map<unsigned int, PhysicsComponent>& physicsComponents;
-    std::unordered_map<unsigned int, RenderComponent>& renderComponents;
-    std::unordered_map<unsigned int, TransformComponent>& transformComponents;
+    std::unordered_map<std::string, MaterialAsset>& materialAssets;
+    std::unordered_map<std::string, MeshAsset>& meshAssets;
 
     std::vector<unsigned int> VAOs;
     std::vector<unsigned int> VBOs;

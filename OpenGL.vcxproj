@@ -148,7 +148,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\config.cpp" />
-    <ClCompile Include="src\factories\Factory.cpp" />
+    <ClCompile Include="src\factories\AssetFactory.cpp" />
+    <ClCompile Include="src\factories\ComponentFactory.cpp" />
     <ClCompile Include="src\systems\MotionSystem.cpp" />
     <ClCompile Include="src\systems\RenderSystem.cpp" />
     <ClCompile Include="Dependencies\LinearAlgebra.cpp" />
@@ -161,7 +162,8 @@
     <ClCompile Include="src\view\shader.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\factories\Factory.h" />
+    <ClInclude Include="src\factories\AssetFactory.h" />
+    <ClInclude Include="src\factories\ComponentFactory.h" />
     <ClInclude Include="src\systems\MotionSystem.h" />
     <ClInclude Include="src\systems\RenderSystem.h" />
     <ClInclude Include="src\components\CameraComponent.h" />
