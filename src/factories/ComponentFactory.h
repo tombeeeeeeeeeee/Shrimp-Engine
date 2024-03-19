@@ -35,6 +35,5 @@ private:
 	std::unordered_map<unsigned int, RenderComponent>& renderComponents;
 	std::unordered_map<unsigned int, TransformComponent>& transformComponents;
 
-
 };
 

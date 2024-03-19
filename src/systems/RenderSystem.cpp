@@ -56,7 +56,6 @@ void RenderSystem::Update(unordered_map<unsigned int, TransformComponent>& trans
         glBindVertexArray(entity.second.mesh->VAO);
         glDrawArrays(GL_TRIANGLES, 0, entity.second.mesh->vertexCount);
 
-
     }
 
     glfwSwapBuffers(window);

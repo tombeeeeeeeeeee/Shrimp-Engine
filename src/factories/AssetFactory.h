@@ -5,10 +5,7 @@
 class AssetFactory {
 
 public:
-    AssetFactory(
-        std::unordered_map<unsigned int, PhysicsComponent>& physicsComponents,
-        std::unordered_map<unsigned int, RenderComponent>& renderComponents,
-        std::unordered_map<unsigned int, TransformComponent>& transformComponents);
+    AssetFactory(std::string assetFolder);
 
     ~AssetFactory();
 
@@ -20,11 +17,14 @@ public:
     MaterialAsset RatMaterial();
     MeshAsset RatMesh();
 
-    MaterialAsset GetMaterial(std::string filename);
-    MeshAsset GetMesh(std::string filename);
+    MaterialAsset* GetMaterial(std::string filenames[], int fileMask);
+    unsigned int GetTexture(std::string filename);
+    MeshAsset* GetMesh(std::string filename);
 
+    void GetAllAssetsInFolder();
 
 private:
+    std::string assetFolder;
 
     std::unordered_map<std::string, MaterialAsset>& materialAssets;
     std::unordered_map<std::string, MeshAsset>& meshAssets;
@@ -34,13 +34,11 @@ private:
     std::vector<unsigned int> textures;
 
     RenderComponent MakeCubeMesh(vec3 size);
-
-    RenderComponent MakeMesh(const char* filepath, mat4 preTransform);
     RenderComponent MakeObjMesh(const char* filepath, mat4 preTransform);
     RenderComponent MakeFbxMesh(const char* filepath, mat4 preTransform);
     unsigned int MakeTexture(const char* filename);
 
-    RenderComponent sendMeshToGPU(std::vector<float>& vertices,float vertexCount);
+    MeshAsset sendMeshToGPU(std::vector<float>& vertices,float vertexCount);
 
     vec3 readVec3(std::vector<std::string> strings, mat4 preTransform, float w);
     vec3 readVec3(std::vector<std::string> strings);

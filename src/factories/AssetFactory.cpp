@@ -4,11 +4,10 @@
 #endif 
 #include "../stb_image.h"
 
-AssetFactory::AssetFactory(std::unordered_map<unsigned int, PhysicsComponent>& physicsComponents, std::unordered_map<unsigned int, RenderComponent>& renderComponents, std::unordered_map<unsigned int, TransformComponent>& transformComponents):
-    physicsComponents(physicsComponents),
-    renderComponents(renderComponents),
-    transformComponents(transformComponents) 
-{ }
+AssetFactory::AssetFactory(std::string _assetFolder) : assetFolder(_assetFolder)
+{ 
+
+}
 
 
 AssetFactory::~AssetFactory()
@@ -18,15 +17,6 @@ AssetFactory::~AssetFactory()
     glDeleteTextures(textures.size(), textures.data());
 }
 
-unsigned int AssetFactory::MakeCamera(vec3 position, vec3 eulers)
-{
-    TransformComponent transform;
-    transform.position = position; transform.eulers = eulers;
-
-    transformComponents[entityCount] = transform;
-
-    return entityCount++;
-}
 
 void AssetFactory::MakeCube(vec3 position, vec3 eulers, vec3 eulerVelocity)
 {
@@ -68,6 +58,8 @@ void AssetFactory::MakeRat(vec3 position, vec3 eulers)
 
 RenderComponent AssetFactory::MakeCubeMesh(vec3 size)
 {
+
+
     float l = size.x;
     float w = size.y;
     float h = size.z;
@@ -131,8 +123,8 @@ RenderComponent AssetFactory::MakeMesh(const char* filepath, mat4 preTransform)
         const aiScene* scene = aiImportFile(filepath, 0);
         aiMesh* mesh = scene->mMeshes[0];
 
-        if (extension == "obj")  return MakeObjMesh(filepath, preTransform);
-        else if (extension == "fbx")  return MakeFbxMesh(filepath, preTransform);
+        //if (extension == "obj")  return MakeObjMesh(filepath, preTransform);
+        //else if (extension == "fbx")  return MakeFbxMesh(filepath, preTransform);
 
     }
     return {0,0,0,0};
@@ -198,7 +190,7 @@ RenderComponent AssetFactory::MakeObjMesh(const char* filepath, mat4 preTransfor
 
 RenderComponent AssetFactory::MakeFbxMesh(const char* filepath, mat4 preTransform)
 {
-    return { 0,0,0,0 };
+    //return { 0,0,0,0 };
 }
 
 unsigned int AssetFactory::MakeTexture(const char* filename)
@@ -228,7 +220,7 @@ unsigned int AssetFactory::MakeTexture(const char* filename)
     return texture;
 }
 
-RenderComponent AssetFactory::sendMeshToGPU(std::vector<float>& vertices, float vertexCount)
+MeshAsset AssetFactory::sendMeshToGPU(std::vector<float>& vertices, float vertexCount)
 {
     unsigned int VAO;
     glGenVertexArrays(1, &VAO);
@@ -253,10 +245,10 @@ RenderComponent AssetFactory::sendMeshToGPU(std::vector<float>& vertices, float 
     glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 32, (void*)20);
     glEnableVertexAttribArray(2);
 
-    RenderComponent record;
-    record.VAO = VAO;
-    record.vertexCount = vertexCount;
-    return record;
+    MeshAsset mesh;
+    mesh.VAO = VAO;
+    mesh.vertexCount = vertexCount;
+    return mesh;
 }
 
 vec3 AssetFactory::readVec3(std::vector<std::string> strings, mat4 preTransform, float w)
@@ -319,7 +311,6 @@ void AssetFactory::readTriCorner(string& data, vector<vec3>& v, vector<vec2>& vt
 {
     vector<string> cornerData = StringSplit(data, "/");
 
-
     vec3 vertexPos = v[stoll(cornerData[0], 0) - 1];
     vertices.push_back(vertexPos.x);
     vertices.push_back(vertexPos.y);
@@ -339,7 +330,6 @@ void AssetFactory::readTriCorner(string& data, vector<vec3>& v, vector<vec2>& vt
 {
     vector<string> cornerData = StringSplit(data, "/");
 
-
     vec3 vertexPos = v[stol(cornerData[0]) - 1];
     vertices.push_back(vertexPos.x);
     vertices.push_back(vertexPos.y);
@@ -352,4 +342,53 @@ void AssetFactory::readTriCorner(string& data, vector<vec3>& v, vector<vec2>& vt
     vertices.push_back(normal.x);
     vertices.push_back(normal.y);
     vertices.push_back(normal.z);
+}
+
+MaterialAsset* AssetFactory::GetMaterial(std::string fileNames[], int fileMask)
+{
+    MaterialAsset* mat = new MaterialAsset();
+
+    if (materialAssets.find(fileNames[0]) != materialAssets.end()) return &(materialAssets[fileNames[0]]);
+
+    int fileBinaryCheck = 1;
+    for (int i = 0; i < MATERIAL_MAPCOUNT; i++, fileBinaryCheck *= 2)
+    {
+        mat->materials[i] = MakeTexture((assetFolder + fileNames[i]).c_str());
+        if ((mat->materialMask & fileBinaryCheck) == 0 && mat->materials[i] != 0) mat->materialMask += fileBinaryCheck;
+    }
+    materialAssets[fileNames[0]] = *mat;
+
+    return mat;
+}
+
+MeshAsset* AssetFactory::GetMesh(std::string fileName)
+{
+    if (meshAssets.find(fileName) != meshAssets.end()) return &(meshAssets[fileName]);
+
+    const aiScene* scene = aiImportFile((assetFolder + fileName).c_str(), 0);
+    if (scene == nullptr) return nullptr;
+
+    aiMesh* mesh = scene->mMeshes[0];
+
+    int faceCount = mesh->mNumFaces;
+    std::vector<unsigned int> indices;
+    for (int i = 0; i < faceCount; i++)
+    {
+        indices.push_back(mesh->mFaces[i].mIndices[0]);
+        indices.push_back(mesh->mFaces[i].mIndices[2]);
+        indices.push_back(mesh->mFaces[i].mIndices[1]);
+
+        // generate a second triangle for quads
+        if (mesh->mFaces[i].mNumIndices == 4)
+        {
+            indices.push_back(mesh->mFaces[i].mIndices[0]);
+            indices.push_back(mesh->mFaces[i].mIndices[3]);
+            indices.push_back(mesh->mFaces[i].mIndices[2]);
+        }
+    }
+
+    int vertexCount = mesh->mNumVertices;
+    //Vertex* vertices = new Vertex[vertexCount];
+
+    return nullptr;
 }

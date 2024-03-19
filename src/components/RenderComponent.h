@@ -7,7 +7,7 @@ struct MeshAsset
 {
 	unsigned int VAO;
 	unsigned int IBO;
-	unsigned int vertCount;
+	unsigned int vertexCount;
 };
 
 struct MaterialAsset

@@ -4,16 +4,18 @@
 #include "components/ComponentInclude.h"
 
 #include "factories/AssetFactory.h"
+#include "factories/ComponentFactory.h"
 
 int main() {
 
 	App* app = new App();
 
-	AssetFactory* factory = new AssetFactory(app->physicsComponents, app->renderComponents, app->transformComponents);
+	AssetFactory* assetFactory = new AssetFactory(app->physicsComponents, app->renderComponents, app->transformComponents);
+	ComponentFactory* componentFactory = new ComponentFactory(app->physicsComponents, app->renderComponents, app->transformComponents);
 
-	factory->MakeCube({ 3.0f, 0.0f, 0.25f }, { 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 10.0f });
+	componentFactory->MakeCube({ 3.0f, 0.0f, 0.25f }, { 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 10.0f });
 
-	unsigned int cameraEntity = factory->MakeCamera({ 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f,0.0f });
+	unsigned int cameraEntity = componentFactory->MakeCamera({ 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f,0.0f });
 
 	CameraComponent* camera = new CameraComponent();
 	app->cameraComponent = camera;
@@ -24,7 +26,8 @@ int main() {
 
 	app->Run();
 
-	delete factory;
+	delete assetFactory;
+	delete componentFactory;
 	delete app;
 	return 0;
 }
