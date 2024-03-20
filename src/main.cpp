@@ -10,10 +10,11 @@ int main() {
 
 	App* app = new App();
 
-	AssetFactory* assetFactory = new AssetFactory(app->physicsComponents, app->renderComponents, app->transformComponents);
-	ComponentFactory* componentFactory = new ComponentFactory(app->physicsComponents, app->renderComponents, app->transformComponents);
+	AssetFactory* assetFactory = new AssetFactory("Assets/");
+	ComponentFactory* componentFactory = new ComponentFactory(app->physicsComponents, app->renderComponents, app->transformComponents, *assetFactory);
 
-	componentFactory->MakeCube({ 3.0f, 0.0f, 0.25f }, { 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 10.0f });
+	unsigned int cube1 = componentFactory->MakeCube({ 3.0f, 0.0f, 0.25f }, { 0.0f, 0.0f, 0.0f });
+	unsigned int cube2 = componentFactory->MakeCube({ -3.0f, 1.0f, 0.25f }, { 1.0f, 3.0f, 0.0f });
 
 	unsigned int cameraEntity = componentFactory->MakeCamera({ 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f,0.0f });
 

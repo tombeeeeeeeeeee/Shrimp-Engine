@@ -6,7 +6,6 @@
 
 AssetFactory::AssetFactory(std::string _assetFolder) : assetFolder(_assetFolder)
 { 
-
 }
 
 
@@ -17,52 +16,19 @@ AssetFactory::~AssetFactory()
     glDeleteTextures(textures.size(), textures.data());
 }
 
-
-void AssetFactory::MakeCube(vec3 position, vec3 eulers, vec3 eulerVelocity)
+MaterialAsset* AssetFactory::CubeMaterial()
 {
-    TransformComponent transform;
-    transform.position = position; transform.eulers = eulers;
-
-    PhysicsComponent physics;
-    physics.velocity = vec3(); physics.eulerVelocity = eulerVelocity;
-
-    RenderComponent render = MakeCubeMesh({0.25,0.25,0.25});
-    render.materials[0] = MakeTexture("img/me.PNG");
-    render.materials[2] = MakeTexture("img/cubeNormal.png");
-    render.materialMask = 5;
-
-    transformComponents[entityCount] = transform;
-    physicsComponents[entityCount] = physics;
-    renderComponents[entityCount] = render;
-    entityCount++;
+    string textureFiles[] = {"img/cubeTexture.jpg","img/cubeNormal.png"};
+    return GetMaterial(textureFiles, 3);
 }
 
-void AssetFactory::MakeRat(vec3 position, vec3 eulers)
+MeshAsset* AssetFactory::CubeMesh()
 {
-    TransformComponent transform;
-    transform.position = position; transform.eulers = eulers;
-    transformComponents[entityCount] = transform;
+    if (meshAssets.find("cube") != meshAssets.end()) return meshAssets["cube"];
 
-    PhysicsComponent physics;
-    physics.velocity = vec3(); physics.eulerVelocity = {0,0,0};
-    physicsComponents[entityCount] = physics;
-
-    mat4 preTransform = mat4();
-
-    RenderComponent render = MakeObjMesh("models/rat.obj", preTransform);
-    render.materials[0] = MakeTexture("img/HANDC.jpg");
-    //render.materials[2] = MakeTexture("img/HAND_N.jpg");
-    render.materialMask = 0;
-    renderComponents[entityCount++] = render;
-}
-
-RenderComponent AssetFactory::MakeCubeMesh(vec3 size)
-{
-
-
-    float l = size.x;
-    float w = size.y;
-    float h = size.z;
+    float l = 1.0f;
+    float w = 1.0f;
+    float h = 1.0f;
 
     std::vector<float> vertices = 
     {
@@ -109,28 +75,22 @@ RenderComponent AssetFactory::MakeCubeMesh(vec3 size)
      l,  w,  h, 1.0f, 1.0f,  0.0f,  1.0f,  0.0f
     };
 
-    return sendMeshToGPU(vertices, 36);
+    meshAssets["cube"] = sendMeshToVRAM(vertices, 36);
+
+    return  meshAssets["cube"];
 }
 
-RenderComponent AssetFactory::MakeMesh(const char* filepath, mat4 preTransform)
+MaterialAsset* AssetFactory::RatMaterial()
 {
-    int strSize = strlen(filepath);
-    if (strSize > 3)
-    {
-        vector<string> fileData = StringSplit(filepath, ".");
-        string extension = fileData[fileData.size() - 1];
-
-        const aiScene* scene = aiImportFile(filepath, 0);
-        aiMesh* mesh = scene->mMeshes[0];
-
-        //if (extension == "obj")  return MakeObjMesh(filepath, preTransform);
-        //else if (extension == "fbx")  return MakeFbxMesh(filepath, preTransform);
-
-    }
-    return {0,0,0,0};
+    return GetMaterial("NothinHere.png", 1);
 }
 
-RenderComponent AssetFactory::MakeObjMesh(const char* filepath, mat4 preTransform)
+MeshAsset* AssetFactory::RatMesh()
+{
+    return GetMesh("models/rat.obj");
+}
+
+MeshAsset* AssetFactory::MakeObjMesh(const char* filepath, mat4 preTransform)
 {
     //Vectors to store .obj model info
     vector<vec3> v; 
@@ -185,12 +145,12 @@ RenderComponent AssetFactory::MakeObjMesh(const char* filepath, mat4 preTransfor
     } model.close();
 
     //turn populated data into usable information
-   return sendMeshToGPU(vertices, vertices.size() / 8);
+   return sendMeshToVRAM(vertices, vertices.size() / 8);
 }
 
-RenderComponent AssetFactory::MakeFbxMesh(const char* filepath, mat4 preTransform)
+MeshAsset* AssetFactory::MakeFbxMesh(const char* filepath, mat4 preTransform)
 {
-    //return { 0,0,0,0 };
+    return nullptr;
 }
 
 unsigned int AssetFactory::MakeTexture(const char* filename)
@@ -220,7 +180,7 @@ unsigned int AssetFactory::MakeTexture(const char* filename)
     return texture;
 }
 
-MeshAsset AssetFactory::sendMeshToGPU(std::vector<float>& vertices, float vertexCount)
+MeshAsset* AssetFactory::sendMeshToVRAM(std::vector<float>& vertices, float vertexCount)
 {
     unsigned int VAO;
     glGenVertexArrays(1, &VAO);
@@ -245,9 +205,9 @@ MeshAsset AssetFactory::sendMeshToGPU(std::vector<float>& vertices, float vertex
     glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 32, (void*)20);
     glEnableVertexAttribArray(2);
 
-    MeshAsset mesh;
-    mesh.VAO = VAO;
-    mesh.vertexCount = vertexCount;
+    MeshAsset* mesh = new MeshAsset();
+    mesh->VAO = VAO;
+    mesh->vertexCount = vertexCount;
     return mesh;
 }
 
@@ -260,7 +220,6 @@ vec3 AssetFactory::readVec3(std::vector<std::string> strings)
 {
     return vec3(stof(strings[1]), stof(strings[2]), stof(strings[3]));
 }
-
 
 vec2 AssetFactory::readVec2(std::vector<std::string> strings)
 {
@@ -306,7 +265,6 @@ vec3 AssetFactory::readTriCornerVertex(string& data, vector<vec3>& v)
     return v[stoll(cornerData[0], 0) - 1];
 }
 
-
 void AssetFactory::readTriCorner(string& data, vector<vec3>& v, vector<vec2>& vt, vector<vec3>& vn, vector<float>& vertices)
 {
     vector<string> cornerData = StringSplit(data, "/");
@@ -344,11 +302,22 @@ void AssetFactory::readTriCorner(string& data, vector<vec3>& v, vector<vec2>& vt
     vertices.push_back(normal.z);
 }
 
-MaterialAsset* AssetFactory::GetMaterial(std::string fileNames[], int fileMask)
+MaterialAsset* AssetFactory::GetMaterial(std::string fileName, int fileMask)
 {
     MaterialAsset* mat = new MaterialAsset();
+    if (materialAssets.find(fileName) != materialAssets.end()) return (materialAssets[fileName]);
 
-    if (materialAssets.find(fileNames[0]) != materialAssets.end()) return &(materialAssets[fileNames[0]]);
+    mat->materials[0] = MakeTexture((assetFolder + fileName).c_str());
+    mat->materialMask = fileMask;
+
+    materialAssets[fileName] = mat;
+}
+
+MaterialAsset* AssetFactory::GetMaterial(std::string fileNames[], int fileMask)
+{
+    if (materialAssets.find(fileNames[0]) != materialAssets.end()) return (materialAssets[fileNames[0]]);
+
+    MaterialAsset* mat = new MaterialAsset();
 
     int fileBinaryCheck = 1;
     for (int i = 0; i < MATERIAL_MAPCOUNT; i++, fileBinaryCheck *= 2)
@@ -356,39 +325,41 @@ MaterialAsset* AssetFactory::GetMaterial(std::string fileNames[], int fileMask)
         mat->materials[i] = MakeTexture((assetFolder + fileNames[i]).c_str());
         if ((mat->materialMask & fileBinaryCheck) == 0 && mat->materials[i] != 0) mat->materialMask += fileBinaryCheck;
     }
-    materialAssets[fileNames[0]] = *mat;
+    materialAssets[fileNames[0]] = mat;
 
     return mat;
 }
 
 MeshAsset* AssetFactory::GetMesh(std::string fileName)
 {
-    if (meshAssets.find(fileName) != meshAssets.end()) return &(meshAssets[fileName]);
+    if (meshAssets.find(fileName) != meshAssets.end()) return meshAssets[fileName];
 
-    const aiScene* scene = aiImportFile((assetFolder + fileName).c_str(), 0);
-    if (scene == nullptr) return nullptr;
+    return MakeObjMesh((assetFolder + fileName).c_str(), mat4());
 
-    aiMesh* mesh = scene->mMeshes[0];
-
-    int faceCount = mesh->mNumFaces;
-    std::vector<unsigned int> indices;
-    for (int i = 0; i < faceCount; i++)
-    {
-        indices.push_back(mesh->mFaces[i].mIndices[0]);
-        indices.push_back(mesh->mFaces[i].mIndices[2]);
-        indices.push_back(mesh->mFaces[i].mIndices[1]);
-
-        // generate a second triangle for quads
-        if (mesh->mFaces[i].mNumIndices == 4)
-        {
-            indices.push_back(mesh->mFaces[i].mIndices[0]);
-            indices.push_back(mesh->mFaces[i].mIndices[3]);
-            indices.push_back(mesh->mFaces[i].mIndices[2]);
-        }
-    }
-
-    int vertexCount = mesh->mNumVertices;
+    //const aiScene* scene = aiImportFile((assetFolder + fileName).c_str(), 0);
+    //if (scene == nullptr) return nullptr;
+    //
+    //aiMesh* mesh = scene->mMeshes[0];
+    //
+    //int faceCount = mesh->mNumFaces;
+    //std::vector<unsigned int> indices;
+    //for (int i = 0; i < faceCount; i++)
+    //{
+    //    indices.push_back(mesh->mFaces[i].mIndices[0]);
+    //    indices.push_back(mesh->mFaces[i].mIndices[1]);
+    //    indices.push_back(mesh->mFaces[i].mIndices[2]);
+    //
+    //    // generate a second triangle for quads
+    //    if (mesh->mFaces[i].mNumIndices == 4)
+    //    {
+    //        indices.push_back(mesh->mFaces[i].mIndices[0]);
+    //        indices.push_back(mesh->mFaces[i].mIndices[2]);
+    //        indices.push_back(mesh->mFaces[i].mIndices[3]);
+    //    }
+    //}
+    //
+    //int vertexCount = mesh->mNumVertices;
     //Vertex* vertices = new Vertex[vertexCount];
-
-    return nullptr;
+    //
+    //return nullptr;
 }

@@ -1,6 +1,7 @@
 #pragma once
 #include "../config.h"
 #include "../components/ComponentInclude.h"
+#include "../factories/AssetFactory.h"
 
 class ComponentFactory
 {
@@ -9,7 +10,8 @@ public:
 	ComponentFactory(
 		std::unordered_map<unsigned int, PhysicsComponent>& physicsComponents,
 		std::unordered_map<unsigned int, RenderComponent>& renderComponents,
-		std::unordered_map<unsigned int, TransformComponent>& transformComponents
+		std::unordered_map<unsigned int, TransformComponent>& transformComponents,
+		AssetFactory& _assFact
 	);
 
 	~ComponentFactory();
@@ -22,18 +24,18 @@ public:
 	unsigned int MakeEmptyTransform(vec3 position, vec3 eulers);
 
 	unsigned int MakeRat(vec3 position, vec3 eulers);
-	unsigned int MakeCube(vec3 position, vec3 eulers, vec3 eulerVelocity);
+	unsigned int MakeCube(vec3 position, vec3 eulers);
 
-	void AddRenderComponent(unsigned int _entity);
-	void AddPhysicsComponent(unsigned int _entity);
-	void AddCameraComponent(unsigned int _enity);
+	RenderComponent* AddRenderComponent(unsigned int _entity);
+	PhysicsComponent* AddPhysicsComponent(unsigned int _entity);
 
 private:
-	unsigned int entityCount = 0;
+	unsigned int entityCount = 1;
 
 	std::unordered_map<unsigned int, PhysicsComponent>& physicsComponents;
 	std::unordered_map<unsigned int, RenderComponent>& renderComponents;
 	std::unordered_map<unsigned int, TransformComponent>& transformComponents;
 
+	AssetFactory& assFact;
 };
 

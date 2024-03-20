@@ -1,0 +1,22 @@
+﻿  config.cpp
+D:\documents\Projects\OpenGL\src\config.h(5,10): fatal  error C1083: Cannot open include file: 'glad.h': No such file or directory
+  Factory.cpp
+D:\documents\Projects\OpenGL\src\config.h(5,10): fatal  error C1083: Cannot open include file: 'glad.h': No such file or directory
+  MotionSystem.cpp
+D:\documents\Projects\OpenGL\src\systems\MotionSystem.h(2,10): fatal  error C1083: Cannot open include file: 'config.h': No such file or directory
+  RenderSystem.cpp
+D:\documents\Projects\OpenGL\src\systems\RenderSystem.h(2,10): fatal  error C1083: Cannot open include file: 'config.h': No such file or directory
+  LinearAlgebra.cpp
+D:\documents\Projects\OpenGL\Dependencies\LinearAlgebra.h(2,10): fatal  error C1083: Cannot open include file: '../Utilities.h': No such file or directory
+  glm.cpp
+D:\documents\Projects\OpenGL\Dependencies\glm\detail\glm.cpp(7,10): fatal  error C1083: Cannot open include file: 'glm/gtx/dual_quaternion.hpp': No such file or directory
+  main.cpp
+D:\documents\Projects\OpenGL\src\main.cpp(1,10): fatal  error C1083: Cannot open include file: 'config.h': No such file or directory
+  app.cpp
+D:\documents\Projects\OpenGL\src\controller\app.h(2,10): fatal  error C1083: Cannot open include file: 'config.h': No such file or directory
+  CameraSystem.cpp
+D:\documents\Projects\OpenGL\src\systems\CameraSystem.h(2,10): fatal  error C1083: Cannot open include file: 'config.h': No such file or directory
+  Utilities.cpp
+  shader.cpp
+D:\documents\Projects\OpenGL\src\view\shader.h(2,10): fatal  error C1083: Cannot open include file: 'config.h': No such file or directory
+  Generating Code...
