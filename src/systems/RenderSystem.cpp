@@ -29,10 +29,7 @@ void RenderSystem::Update(unordered_map<unsigned int, TransformComponent>& trans
         //if (entity.second.mesh == nullptr) continue;
         TransformComponent transform = transformComponents[entity.first];
         mat4 model;
-        model = createTranslationMatrix(transform.position);
-        model *= rotationZAxisMatrix(transform.eulers.z);
-        model *= rotationYAxisMatrix(transform.eulers.y);
-        model *= rotationXAxisMatrix(transform.eulers.x);
+        model = transform.globalTransform;
 
         glUniformMatrix4fv(modelLocation, 1, GL_FALSE, model.entries);
     

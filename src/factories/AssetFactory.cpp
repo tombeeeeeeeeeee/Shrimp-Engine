@@ -19,7 +19,7 @@ AssetFactory::~AssetFactory()
 MaterialAsset* AssetFactory::CubeMaterial()
 {
     string textureFiles[] = {"img/cubeTexture.jpg","img/cubeNormal.png"};
-    return GetMaterial(textureFiles, 3);
+    return GetMaterial(textureFiles, 1);
 }
 
 MeshAsset* AssetFactory::CubeMesh()
@@ -322,11 +322,11 @@ MaterialAsset* AssetFactory::GetMaterial(std::string fileNames[], int fileMask)
     int fileBinaryCheck = 1;
     for (int i = 0; i < MATERIAL_MAPCOUNT; i++, fileBinaryCheck *= 2)
     {
-        mat->materials[i] = MakeTexture((assetFolder + fileNames[i]).c_str());
-        if ((mat->materialMask & fileBinaryCheck) == 0 && mat->materials[i] != 0) mat->materialMask += fileBinaryCheck;
+        if((fileMask & fileBinaryCheck) == fileBinaryCheck)
+            mat->materials[i] = MakeTexture((assetFolder + fileNames[i]).c_str());
     }
     materialAssets[fileNames[0]] = mat;
-
+    mat->materialMask = fileMask;
     return mat;
 }
 

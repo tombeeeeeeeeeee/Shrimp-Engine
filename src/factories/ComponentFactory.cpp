@@ -21,7 +21,7 @@ unsigned int ComponentFactory::MakeCamera(vec3 position, vec3 eulers)
 unsigned int ComponentFactory::MakeEmptyTransform()
 {
     TransformComponent transform;
-    transform.position = {0,0,0};  transform.eulers = { 0,0,0 };
+    transform.globalTransform = createTranslationMatrix({ 0,0,0 });
     transformComponents[entityCount] = transform;
     return entityCount++;
 }
@@ -29,7 +29,10 @@ unsigned int ComponentFactory::MakeEmptyTransform()
 unsigned int ComponentFactory::MakeEmptyTransform(vec3 position, vec3 eulers)
 {
     TransformComponent transform;
-    transform.position = position;  transform.eulers = eulers;
+    transform.globalTransform = createTranslationMatrix({ 0,0,0 });
+    transform.globalTransform *= rotationZAxisMatrix(eulers.z);
+    transform.globalTransform *= rotationYAxisMatrix(eulers.y);
+    transform.globalTransform *= rotationXAxisMatrix(eulers.x);
     transformComponents[entityCount] = transform;
     return entityCount++;
 }
@@ -38,9 +41,10 @@ unsigned int ComponentFactory::MakeRat(vec3 position, vec3 eulers)
 {
     unsigned int rat = MakeEmptyTransform(position, eulers);
 
-    RenderComponent* ratRend = AddRenderComponent(rat);
+    RenderComponent* ratRend = new RenderComponent();
     ratRend->mesh = assFact.GetMesh("models/rat.obj");
     ratRend->material = assFact.GetMaterial("img/cubeTexture.jpg",1);
+    ratRend = AddRenderComponent(rat, ratRend);
     return rat;
 }
 
@@ -48,9 +52,10 @@ unsigned int ComponentFactory::MakeCube(vec3 position, vec3 eulers)
 {
     unsigned int cube = MakeEmptyTransform(position, eulers);
 
-    RenderComponent* cubeRend = AddRenderComponent(cube);
+    RenderComponent* cubeRend = new RenderComponent();
     cubeRend->mesh = assFact.CubeMesh();
     cubeRend->material = assFact.CubeMaterial();
+    AddRenderComponent(cube, cubeRend);
     return cube;
 }
 
@@ -60,6 +65,13 @@ RenderComponent* ComponentFactory::AddRenderComponent(unsigned int _entity)
 
     renderComponents[_entity] = *rend;
    
+    return rend;
+}
+
+RenderComponent* ComponentFactory::AddRenderComponent(unsigned int _entity, RenderComponent* rend)
+{
+    renderComponents[_entity] = *rend;
+
     return rend;
 }
 

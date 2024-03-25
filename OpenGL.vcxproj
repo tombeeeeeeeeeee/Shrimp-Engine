@@ -147,6 +147,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\components\TransformComponent.cpp" />
     <ClCompile Include="src\config.cpp" />
     <ClCompile Include="src\factories\AssetFactory.cpp" />
     <ClCompile Include="src\factories\ComponentFactory.cpp" />
