@@ -1,11 +1,11 @@
 #include "MotionSystem.h"
 
-void MotionSystem::Update(unordered_map<unsigned int, TransformComponent>& transformComponents, unordered_map<unsigned int, PhysicsComponent>& physicsComponents, float deltaTime)
+void MotionSystem::Update(unordered_map<unsigned int, TransformComponent*>& transformComponents, unordered_map<unsigned int, PhysicsComponent*>& physicsComponents, float deltaTime)
 {
-    for (std::pair<unsigned int, PhysicsComponent> entity : physicsComponents) {
+    for (std::pair<unsigned int, PhysicsComponent*> entity : physicsComponents) {
 
         //For each transform component, add its velocities
-        transformComponents[entity.first].globalTransform *= createTranslationMatrix(entity.second.velocity * deltaTime);
+        transformComponents[entity.first]->globalTransform *= TranslationMatrix(entity.second->velocity * deltaTime);
         //transformComponents[entity.first].eulers += entity.second.eulerVelocity * deltaTime;
     }
 }

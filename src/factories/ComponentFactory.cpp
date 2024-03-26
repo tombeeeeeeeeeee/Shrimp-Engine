@@ -1,6 +1,6 @@
 #include "ComponentFactory.h"
 
-ComponentFactory::ComponentFactory(std::unordered_map<unsigned int, PhysicsComponent>& physicsComponents, std::unordered_map<unsigned int, RenderComponent>& renderComponents, std::unordered_map<unsigned int, TransformComponent>& transformComponents, AssetFactory& _assFact) :
+ComponentFactory::ComponentFactory(std::unordered_map<unsigned int, PhysicsComponent*>& physicsComponents, std::unordered_map<unsigned int, RenderComponent*>& renderComponents, std::unordered_map<unsigned int, TransformComponent*>& transformComponents, AssetFactory& _assFact) :
     physicsComponents(physicsComponents),
     renderComponents(renderComponents),
     transformComponents(transformComponents),
@@ -20,19 +20,19 @@ unsigned int ComponentFactory::MakeCamera(vec3 position, vec3 eulers)
 
 unsigned int ComponentFactory::MakeEmptyTransform()
 {
-    TransformComponent transform;
-    transform.globalTransform = createTranslationMatrix({ 0,0,0 });
+    TransformComponent* transform = new TransformComponent();
+    transform->globalTransform = TranslationMatrix({ 0,0,0 });
     transformComponents[entityCount] = transform;
     return entityCount++;
 }
 
 unsigned int ComponentFactory::MakeEmptyTransform(vec3 position, vec3 eulers)
 {
-    TransformComponent transform;
-    transform.globalTransform = createTranslationMatrix({ 0,0,0 });
-    transform.globalTransform *= rotationZAxisMatrix(eulers.z);
-    transform.globalTransform *= rotationYAxisMatrix(eulers.y);
-    transform.globalTransform *= rotationXAxisMatrix(eulers.x);
+    TransformComponent* transform = new TransformComponent();
+    transform->globalTransform = TranslationMatrix(position);
+    transform->globalTransform *= rotationZAxisMatrix(eulers.z);
+    transform->globalTransform *= rotationYAxisMatrix(eulers.y);
+    transform->globalTransform *= rotationXAxisMatrix(eulers.x);
     transformComponents[entityCount] = transform;
     return entityCount++;
 }
@@ -63,14 +63,14 @@ RenderComponent* ComponentFactory::AddRenderComponent(unsigned int _entity)
 {
     RenderComponent* rend = new RenderComponent();
 
-    renderComponents[_entity] = *rend;
+    renderComponents[_entity] = rend;
    
     return rend;
 }
 
 RenderComponent* ComponentFactory::AddRenderComponent(unsigned int _entity, RenderComponent* rend)
 {
-    renderComponents[_entity] = *rend;
+    renderComponents[_entity] = rend;
 
     return rend;
 }
@@ -79,7 +79,7 @@ PhysicsComponent* ComponentFactory::AddPhysicsComponent(unsigned int _entity)
 {
     PhysicsComponent* physics = new PhysicsComponent();
 
-    physicsComponents[_entity] = *physics;
+    physicsComponents[_entity] = physics;
 
     return physics;
 }

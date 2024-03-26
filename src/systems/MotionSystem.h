@@ -8,8 +8,8 @@ class MotionSystem
 public:
 
     void Update(
-        unordered_map<unsigned int, TransformComponent>& transformComponents,
-        unordered_map<unsigned int, PhysicsComponent>& physicsComponents, float deltaTime
+        unordered_map<unsigned int, TransformComponent*>& transformComponents,
+        unordered_map<unsigned int, PhysicsComponent*>& physicsComponents, float deltaTime
     );
 };
 

@@ -9,10 +9,14 @@ public:
     CameraSystem(unsigned int shader, GLFWwindow* window);
 
     bool Update(
-        unordered_map<unsigned int, TransformComponent>& transformComponents,
-        unsigned int cameraID, CameraComponent& cameraComponent, float dt);
+        unordered_map<unsigned int, TransformComponent*>& transformComponents,
+        unsigned int cameraID, CameraComponent& cameraComponent, float dt,
+        unsigned int mouseInputMask);
 
 private:
+    void RotateCamera();
+
+    TransformComponent* cameraTransform;
     unsigned int viewLocation;
     vec3 globalUp = { 0.0f, 0.0f, 1.0f };
     GLFWwindow* window;

@@ -20,14 +20,14 @@ RenderSystem::RenderSystem(unsigned int shader, GLFWwindow* window)
     CreateMissingTexture();
 }
 
-void RenderSystem::Update(unordered_map<unsigned int, TransformComponent>& transformComponents, unordered_map<unsigned int, RenderComponent>& renderComponents)
+void RenderSystem::Update(unordered_map<unsigned int, TransformComponent*>& transformComponents, unordered_map<unsigned int, RenderComponent*>& renderComponents)
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
-    for (std::pair<unsigned int, RenderComponent> entity : renderComponents) {
+    for (std::pair<unsigned int, RenderComponent*> entity : renderComponents) {
     
         //if (entity.second.mesh == nullptr) continue;
-        TransformComponent transform = transformComponents[entity.first];
+        TransformComponent transform = *transformComponents[entity.first];
         mat4 model;
         model = transform.globalTransform;
 
@@ -36,28 +36,28 @@ void RenderSystem::Update(unordered_map<unsigned int, TransformComponent>& trans
         unsigned int materialMask = 1;
         for (int i = 0; i < MATERIAL_MAPCOUNT; i++)
         {
-            if (entity.second.material == nullptr)
+            if (entity.second->material == nullptr)
             {
                 glBindTexture(GL_TEXTURE_2D, missingTextureTexture);
                 break;
             }
 
-            else if ((entity.second.material->materialMask & materialMask) == materialMask)
+            else if ((entity.second->material->materialMask & materialMask) == materialMask)
             {
                 glActiveTexture(GL_TEXTURE0 + i);
-                if (entity.second.material->materials[i] == 0 && i == 0)
+                if (entity.second->material->materials[i] == 0 && i == 0)
                 {
                     glBindTexture(GL_TEXTURE_2D, missingTextureTexture);
                 }
                 else
                 {
-                  glBindTexture(GL_TEXTURE_2D, entity.second.material->materials[i]);
+                    glBindTexture(GL_TEXTURE_2D, entity.second->material->materials[i]);
                 }
             }
             materialMask *= 2;
         }
-        glBindVertexArray(entity.second.mesh->VAO);
-        glDrawArrays(GL_TRIANGLES, 0, entity.second.mesh->vertexCount);
+        glBindVertexArray(entity.second->mesh->VAO);
+        glDrawArrays(GL_TRIANGLES, 0, entity.second->mesh->vertexCount);
     }
 
     glfwSwapBuffers(window);

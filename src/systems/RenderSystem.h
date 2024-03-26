@@ -10,8 +10,8 @@ public:
     RenderSystem(unsigned int shader, GLFWwindow* window);
 
     void Update(
-        std::unordered_map<unsigned int, TransformComponent>& transformComponents,
-        std::unordered_map<unsigned int, RenderComponent>& renderComponents
+        std::unordered_map<unsigned int, TransformComponent*>& transformComponents,
+        std::unordered_map<unsigned int, RenderComponent*>& renderComponents
     );
 
 private:

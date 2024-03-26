@@ -9,5 +9,5 @@ struct TransformComponent
 	std::vector<unsigned int> children;
 
 	vec3 position();
-	vec3 eulers();
+	vec3 eulers(bool radians = true);
 };

@@ -1,25 +1,11 @@
 #include "LinearAlgebra.h"
 
-vec3 mat4::right() { return vec3(entries[1], entries[2], entries[2]); }
-vec3 mat4::up() { return vec3(entries[4], entries[5], entries[6]); }
-vec3 mat4::forward() { return vec3(entries[8], entries[9], entries[10]); }
-vec3 mat4::position() { return vec3(entries[12], entries[13], entries[14]); }
-
-mat4 mat4::inverse()
-{
-	return mat4(
-		this->right().x, this->up().x, -(this->forward().x), 0,
-		this->right().y, this->up().y, -(this->forward().y), 0,
-		this->right().z, this->up().z, -(this->forward().z), 0,
-		-(this->right().dot(position())), -(this->up().dot(position())), this->forward().dot(position()), 1
-	);
-}
 
 vec2 vec4::xy() { return vec2(x, y); }
 
 vec3 vec4::xyz() { return vec3(x, y, z); }
 
-vec4 vec4::normal()
+vec4 vec4::GetNormal()
 {
 	float mag = magnitude();
 	return vec4(x / mag, y / mag, z / mag, w / mag);
@@ -36,7 +22,7 @@ vec3 vec3::cross(vec3 b)
 	);
 }
 
-mat4 createTranslationMatrix(vec3 translation)
+mat4 TranslationMatrix(vec3 translation)
 {
 	return mat4(
 		1,0,0,0,
@@ -82,9 +68,9 @@ mat4 rotationZAxisMatrix(float angle, bool degrees)
 mat4 ViewMatrix(vec3 from, vec3 to, vec3 up)
 {
 
-	vec3 f = normalize(to - from);
-	vec3 r = normalize(cross(f, up));
-	vec3 u = normalize(cross(r, f));
+	vec3 f = GetNormal(to - from);
+	vec3 r = GetNormal(cross(f, up));
+	vec3 u = GetNormal(cross(r, f));
 
 	return mat4(
 		r.x, u.x, -f.x, 0,
@@ -136,17 +122,86 @@ mat4 ProjectionMatrix(float fov, float aspect, float nearPlane, float farPlane, 
 	);
 }
 
-vec4 normalize(vec4 vec)
+vec4 GetNormal(vec4 vec)
 {
-	return vec.normal();
+	return vec.GetNormal();
 }
 
-vec3 normalize(vec3 vec)
+vec3 GetNormal(vec3 vec)
 {
-	return vec.normal();
+	return vec.GetNormal();
 }
 
 vec3 cross(vec3 a, vec3 b)
 {
 	return a.cross(b);
 }
+
+mat3 mat3::GetInverse()
+{
+	float det = GetDeterminate();
+	if (det != 0)
+	{
+		return GetAdjugate() * (1 / det);
+	}
+	return *this;
+}
+
+mat3 mat3::GetAdjugate()
+{
+	return mat3(
+		(entries[4] * entries[8] - entries[7] * entries[5]), -(entries[1] * entries[8] - entries[7] * entries[2]), (entries[1] * entries[5] - entries[4] * entries[2]),
+		-(entries[3] * entries[8] - entries[6] * entries[5]), (entries[0] * entries[8] - entries[6] * entries[2]), -(entries[0] * entries[5] - entries[3] * entries[2]),
+		(entries[3] * entries[7] - entries[6] * entries[4]), -(entries[0] * entries[7] - entries[1] * entries[6]), (entries[0] * entries[4] - entries[3] * entries[1])
+	);
+}
+
+float mat3::GetDeterminate()
+{
+	return (entries[0] * (entries[4] * entries[8] - entries[7] * entries[5])) - (entries[3] * (entries[1] * entries[8] - entries[7] * entries[2])) + (entries[6] * (entries[1] * entries[5] - entries[4] * entries[2]));
+}
+
+mat4 mat4::GetInverse()
+{
+	mat3 m00 = mat3(entries[5], entries[6], entries[7], entries[9], entries[10], entries[11], entries[13], entries[14], entries[15]);
+	mat3 m01 = mat3(entries[1], entries[2], entries[3], entries[9], entries[10], entries[11], entries[13], entries[14], entries[15]);
+	mat3 m02 = mat3(entries[1], entries[2], entries[3], entries[5], entries[6], entries[7], entries[13], entries[14], entries[15]);
+	mat3 m03 = mat3(entries[1], entries[2], entries[3], entries[5], entries[6], entries[7], entries[9], entries[10], entries[11]);
+
+	mat3 m10 = mat3(entries[4], entries[6], entries[7], entries[8], entries[10], entries[11], entries[12], entries[14], entries[15]);
+	mat3 m11 = mat3(entries[0], entries[2], entries[3], entries[8], entries[10], entries[11], entries[12], entries[14], entries[15]);
+	mat3 m12 = mat3(entries[0], entries[2], entries[3], entries[4], entries[6], entries[7], entries[12], entries[14], entries[15]);
+	mat3 m13 = mat3(entries[0], entries[2], entries[3], entries[4], entries[6], entries[7], entries[8], entries[10], entries[11]);
+
+	mat3 m20 = mat3(entries[4], entries[5], entries[7], entries[8], entries[9], entries[11], entries[12], entries[13], entries[15]);
+	mat3 m21 = mat3(entries[0], entries[1], entries[3], entries[8], entries[9], entries[11], entries[12], entries[13], entries[15]);
+	mat3 m22 = mat3(entries[0], entries[1], entries[3], entries[4], entries[5], entries[7], entries[12], entries[13], entries[15]);
+	mat3 m23 = mat3(entries[0], entries[1], entries[3], entries[4], entries[5], entries[7], entries[8], entries[9], entries[11]);
+
+	mat3 m30 = mat3(entries[4], entries[5], entries[6], entries[8], entries[9], entries[10], entries[12], entries[13], entries[14]);
+	mat3 m31 = mat3(entries[0], entries[1], entries[2], entries[8], entries[9], entries[10], entries[12], entries[13], entries[14]);
+	mat3 m32 = mat3(entries[0], entries[1], entries[2], entries[4], entries[5], entries[6], entries[12], entries[13], entries[14]);
+	mat3 m33 = mat3(entries[0], entries[1], entries[2], entries[4], entries[5], entries[6], entries[8], entries[9], entries[10]);
+
+	float det = entries[0] * m00.GetDeterminate() - entries[4] * m01.GetDeterminate() + entries[8] * m02.GetDeterminate() - entries[12] * m03.GetDeterminate();
+	if (det != 0)
+	{
+		mat4 adj = mat4(
+			m00.GetDeterminate(), -m10.GetDeterminate(), m20.GetDeterminate(), -m30.GetDeterminate(),
+			-m01.GetDeterminate(), m11.GetDeterminate(), -m21.GetDeterminate(), m31.GetDeterminate(),
+			m02.GetDeterminate(), -m12.GetDeterminate(), m22.GetDeterminate(), -m32.GetDeterminate(),
+			-m03.GetDeterminate(), m13.GetDeterminate(), -m23.GetDeterminate(), m33.GetDeterminate()
+		);
+		return adj * (1 / det);
+	}
+	return *this;
+}
+
+
+vec3 mat4::right() 
+{
+	return vec3(entries[1], entries[2], entries[2]); 
+}
+vec3 mat4::up() { return vec3(entries[4], entries[5], entries[6]); }
+vec3 mat4::forward() { return vec3(entries[8], entries[9], entries[10]); }
+vec3 mat4::position() { return vec3(entries[12], entries[13], entries[14]); }

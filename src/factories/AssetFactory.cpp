@@ -238,12 +238,12 @@ void AssetFactory::readFace(vector<string>& data, vector<vec3>& v, vector<vec2>&
             vec3 b = readTriCornerVertex(data[2 + i], v);
             vec3 c = readTriCornerVertex(data[3 + i], v);
 
-            vec3 normal = cross(b - a, c - a);
-            normal = normal.normal();
+            vec3 GetNormal = cross(b - a, c - a);
+            GetNormal = GetNormal.GetNormal();
 
-            readTriCorner(data[1], v, vt, normal,  vertices);
-            readTriCorner(data[2 + i], v, vt, normal, vertices);
-            readTriCorner(data[3 + i], v, vt, normal, vertices);
+            readTriCorner(data[1], v, vt, GetNormal,  vertices);
+            readTriCorner(data[2 + i], v, vt, GetNormal, vertices);
+            readTriCorner(data[3 + i], v, vt, GetNormal, vertices);
         }
     }
     else
@@ -284,7 +284,7 @@ void AssetFactory::readTriCorner(string& data, vector<vec3>& v, vector<vec2>& vt
     vertices.push_back(normals.z);
 }
 
-void AssetFactory::readTriCorner(string& data, vector<vec3>& v, vector<vec2>& vt, vec3 normal, vector<float>& vertices)
+void AssetFactory::readTriCorner(string& data, vector<vec3>& v, vector<vec2>& vt, vec3 GetNormal, vector<float>& vertices)
 {
     vector<string> cornerData = StringSplit(data, "/");
 
@@ -297,9 +297,9 @@ void AssetFactory::readTriCorner(string& data, vector<vec3>& v, vector<vec2>& vt
     vertices.push_back(texturePos.x);
     vertices.push_back(texturePos.y);
 
-    vertices.push_back(normal.x);
-    vertices.push_back(normal.y);
-    vertices.push_back(normal.z);
+    vertices.push_back(GetNormal.x);
+    vertices.push_back(GetNormal.y);
+    vertices.push_back(GetNormal.z);
 }
 
 MaterialAsset* AssetFactory::GetMaterial(std::string fileName, int fileMask)

@@ -15,11 +15,14 @@ public:
     void MakeSystems();
 
     //Components
-    std::unordered_map<unsigned int, TransformComponent> transformComponents;
-    std::unordered_map<unsigned int, PhysicsComponent> physicsComponents;
+    std::unordered_map<unsigned int, TransformComponent*> transformComponents;
+    std::unordered_map<unsigned int, PhysicsComponent*> physicsComponents;
     CameraComponent* cameraComponent;
     unsigned int cameraID;
-    std::unordered_map<unsigned int, RenderComponent> renderComponents;
+    std::unordered_map<unsigned int, RenderComponent*> renderComponents;
+
+    //Inputs
+    unsigned int mouseInput = 0;
 
 private:
     void SetUpGLFW();
@@ -33,3 +36,5 @@ private:
     CameraSystem* cameraSystem;
     RenderSystem* renderSystem;
 };
+
+static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);

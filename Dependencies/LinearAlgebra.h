@@ -27,7 +27,7 @@ struct vec2
 	/// <summary>
 	/// Returns the normal of the vector
 	/// </summary>
-	vec2 normal()
+	vec2 GetNormal()
 	{
 		float mag = magnitude();
 		if (mag == 0)  return vec2(0, 0);
@@ -82,7 +82,7 @@ struct vec3
 	/// <summary>
 	/// Returns the normal of the vector
 	/// </summary>
-	vec3 normal()
+	vec3 GetNormal()
 	{ 
 		float mag = magnitude(); 
 		if (mag == 0)  return vec3(0, 0, 0);
@@ -144,7 +144,7 @@ struct vec4
 	/// <summary>
 	/// Returns the normal of the vector
 	/// </summary>
-	vec4 normal();
+	vec4 GetNormal();
 
 
 	/// <summary>
@@ -189,6 +189,26 @@ struct mat3
 		entries[0] = _m00;  entries[1] = _m10;  entries[2] = _m20; 
 		entries[3] = _m01;  entries[4] = _m11;  entries[5] = _m21; 
 		entries[6] = _m02;  entries[7] = _m12;  entries[8] = _m22;
+	}
+
+
+	mat3 operator*(const float& f)
+	{
+		mat3 mat;
+		//Colomn 1
+		mat.entries[0] = entries[0] * f;
+		mat.entries[1] = entries[1] * f;
+		mat.entries[2] = entries[2] * f;
+		//Colomn 2
+		mat.entries[3] = entries[3] * f;
+		mat.entries[4] = entries[4] * f;
+		mat.entries[5] = entries[5] * f;
+		//Colomn 3
+		mat.entries[6] = entries[6] * f;
+		mat.entries[7] = entries[7] * f;
+		mat.entries[8] = entries[8] * f;
+
+		return mat;
 	}
 
 
@@ -243,6 +263,10 @@ struct mat3
 			entries[2] * b.x + entries[5] * b.y + entries[8] * b.z
 		);
 	};
+
+	mat3 GetInverse();
+	mat3 GetAdjugate();
+	float GetDeterminate();
 };
 
 struct mat4
@@ -279,8 +303,34 @@ struct mat4
 
 	vec3 position();
 
-	mat4 inverse();
+	mat4 GetInverse();
 
+	mat4 operator*(const float& f)
+	{
+		mat4 mat;
+		//Colomn 1
+		mat.entries[0] = entries[0] * f;
+		mat.entries[1] = entries[1] * f;
+		mat.entries[2] = entries[2] * f;
+		mat.entries[3] = entries[3] * f;
+		//Colomn 2
+		mat.entries[4] = entries[4] * f;
+		mat.entries[5] = entries[5] * f;
+		mat.entries[6] = entries[6] * f;
+		mat.entries[7] = entries[7] * f;
+		//Colomn 3
+		mat.entries[8] = entries[8] * f;
+		mat.entries[9] = entries[9] * f;
+		mat.entries[10] = entries[10] * f;
+		mat.entries[11] = entries[11] * f;
+		//Colomn 4
+		mat.entries[12] = entries[12] * f;
+		mat.entries[13] = entries[13] * f;
+		mat.entries[14] = entries[14] * f;
+		mat.entries[15] = entries[15] * f;
+
+		return mat;
+	}
 
 	mat4 operator*(const mat4& m)
 	{
@@ -353,7 +403,7 @@ struct mat4
 	};
 };
 
-mat4 createTranslationMatrix(vec3 translation);
+mat4 TranslationMatrix(vec3 translation);
 mat4 rotationXAxisMatrix(float angle, bool degrees = true);
 mat4 rotationYAxisMatrix(float angle, bool degrees = true);
 mat4 rotationZAxisMatrix(float angle, bool degrees = true);
@@ -361,8 +411,8 @@ mat4 rotationZAxisMatrix(float angle, bool degrees = true);
 mat4 ViewMatrix(vec3 from, vec3 to, vec3 up = {0,1,0});
 mat4 ProjectionMatrix(float fov, float aspect, float nearPlane, float farPlane, bool fovDegrees = true);
 
-vec4 normalize(vec4 vec);
-vec3 normalize(vec3 vec);
+vec4 GetNormal(vec4 vec);
+vec3 GetNormal(vec3 vec);
 
 float length(vec4);
 float length(vec3);

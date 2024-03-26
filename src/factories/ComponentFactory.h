@@ -8,9 +8,9 @@ class ComponentFactory
 public:
 
 	ComponentFactory(
-		std::unordered_map<unsigned int, PhysicsComponent>& physicsComponents,
-		std::unordered_map<unsigned int, RenderComponent>& renderComponents,
-		std::unordered_map<unsigned int, TransformComponent>& transformComponents,
+		std::unordered_map<unsigned int, PhysicsComponent*>& physicsComponents,
+		std::unordered_map<unsigned int, RenderComponent*>& renderComponents,
+		std::unordered_map<unsigned int, TransformComponent*>& transformComponents,
 		AssetFactory& _assFact
 	);
 
@@ -33,9 +33,9 @@ public:
 private:
 	unsigned int entityCount = 0;
 
-	std::unordered_map<unsigned int, PhysicsComponent>& physicsComponents;
-	std::unordered_map<unsigned int, RenderComponent>& renderComponents;
-	std::unordered_map<unsigned int, TransformComponent>& transformComponents;
+	std::unordered_map<unsigned int, PhysicsComponent*>& physicsComponents;
+	std::unordered_map<unsigned int, RenderComponent*>& renderComponents;
+	std::unordered_map<unsigned int, TransformComponent*>& transformComponents;
 
 	AssetFactory& assFact;
 };
