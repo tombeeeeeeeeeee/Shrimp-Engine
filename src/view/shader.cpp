@@ -8,7 +8,7 @@ unsigned int makeModule(const string& filepath, unsigned int moduleType)
 
 	const char* shaderSrc = shaderSource.c_str();
 
-	//Create a shader module (What is a shader module?)
+	//Create a shader module
 	unsigned int shaderModule = glCreateShader(moduleType);
 	//Replaces shader module with the source code supplied
 	glShaderSource(shaderModule, 1, &shaderSrc, NULL);
