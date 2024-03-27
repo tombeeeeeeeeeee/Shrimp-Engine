@@ -8,7 +8,7 @@
 #include <cmath>
 #include <unordered_map>
 
-using namespace std;
+typedef std::string string;
 
 enum Colour
 {
@@ -44,7 +44,7 @@ bool FileToString(string path, string* file, bool fileToConsole = true);
 /// <param name="path"> file path for text</param>
 /// <param name="fileToConsole">whether the string should be outputted to the console</param>
 /// <returns> vector of strings read from the file</returns>
-bool FileToStringVector(string path, vector<string>* file, bool fileToConsole = true);
+bool FileToStringVector(string path, std::vector<string>* file, bool fileToConsole = true);
 
 /// <summary>
 /// Splits a string at provided characters.
@@ -52,7 +52,7 @@ bool FileToStringVector(string path, vector<string>* file, bool fileToConsole = 
 /// <param name="toSplit">string to split</param>
 /// <param name="splitAt">characters to split at</param>
 /// <returns>vector of split strings</returns>
-vector<string> StringSplit(string toSplit, string splitAt);
+std::vector<string> StringSplit(string toSplit, string splitAt);
 
 /// <summary>
 /// Returns a number from a string, ignores all non digits
@@ -66,7 +66,7 @@ bool StringToNumber(string str, int* result);
 /// </summary>
 /// <param name="str">vector of strings</param>
 /// <returns>a vector of ints, any string with no digits will be ignored</returns>
-bool StringVectorToIntVector(vector<string> str, vector<int>* ints);
+bool StringVectorToIntVector(std::vector<string> str, std::vector<int>* ints);
 
 /// <summary>
 /// Outputs string into the console with a colour
@@ -77,9 +77,9 @@ template <typename T> void ColouredOutput(T output, Colour colour, bool newLine 
 {
 	HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
 	SetConsoleTextAttribute(console, colour);
-	cout << output;
+	std::cout << output;
 	SetConsoleTextAttribute(console, 15);
-	if (newLine) cout << endl;
+	if (newLine) std::cout << std::endl;
 };
 
 

@@ -40,8 +40,8 @@ private:
     vec3 readVec3(std::vector<std::string> strings, mat4 preTransform, float w);
     vec3 readVec3(std::vector<std::string> strings);
     vec2 readVec2(std::vector<std::string> strings);
-    void readFace(vector<string>& data, vector<vec3>& v, vector<vec2>& vt, vector<vec3>& vn, vector<float>& vertices);
-    void readTriCorner(string& data, vector<vec3>& v, vector<vec2>& vt, vector<vec3>& vn, vector<float>& vertices);
-    void readTriCorner(string& data, vector<vec3>& v, vector<vec2>& vt, vec3 GetNormal, vector<float>& vertices);
-    vec3 readTriCornerVertex(string& data, vector<vec3>& v);
+    void readFace(std::vector<string>& data, std::vector<vec3>& v, std::vector<vec2>& vt, std::vector<vec3>& vn, std::vector<float>& vertices);
+    void readTriCorner(string& data, std::vector<vec3>& v, std::vector<vec2>& vt, std::vector<vec3>& vn, std::vector<float>& vertices);
+    void readTriCorner(string& data, std::vector<vec3>& v, std::vector<vec2>& vt, vec3 GetNormalised, std::vector<float>& vertices);
+    vec3 readTriCornerVertex(string& data, std::vector<vec3>& v);
 };

@@ -27,7 +27,7 @@ struct vec2
 	/// <summary>
 	/// Returns the normal of the vector
 	/// </summary>
-	vec2 GetNormal()
+	vec2 GetNormalised()
 	{
 		float mag = magnitude();
 		if (mag == 0)  return vec2(0, 0);
@@ -56,7 +56,7 @@ struct vec2
 	friend vec2 operator*(const float& b, const vec2& a) { return vec2(a.x * b, a.y * b); }
 	friend vec2 operator*(const int& b, const vec2& a) { return vec2(a.x * b, a.y * b); }
 
-	friend ostream& operator<<(ostream& os, vec2 const& vec);
+	friend std::ostream& operator<<(std::ostream& os, vec2 const& vec);
 };
 
 struct vec3
@@ -82,7 +82,7 @@ struct vec3
 	/// <summary>
 	/// Returns the normal of the vector
 	/// </summary>
-	vec3 GetNormal()
+	vec3 GetNormalised()
 	{ 
 		float mag = magnitude(); 
 		if (mag == 0)  return vec3(0, 0, 0);
@@ -116,7 +116,7 @@ struct vec3
 	friend vec3 operator*(const float& b, const vec3& a) { return vec3(a.x * b, a.y * b, a.z * b); }
 	friend vec3 operator*(const int& b, const vec3& a) { return vec3(a.x * b, a.y * b, a.z * b); }
 
-	friend ostream& operator<<(ostream& os, vec3 const& vec);
+	friend std::ostream& operator<<(std::ostream& os, vec3 const& vec);
 };
 
 struct vec4
@@ -144,7 +144,7 @@ struct vec4
 	/// <summary>
 	/// Returns the normal of the vector
 	/// </summary>
-	vec4 GetNormal();
+	vec4 GetNormalised();
 
 
 	/// <summary>
@@ -252,7 +252,7 @@ struct mat3
 		return *this;
 	}
 
-	friend ostream& operator<<(ostream& os, mat3 const& mat);
+	friend std::ostream& operator<<(std::ostream& os, mat3 const& mat);
 
 	vec3 operator*(vec3 b)
 	{
@@ -294,12 +294,6 @@ struct mat4
 		entries[8] = _m02;  entries[9] = _m12;  entries[10] = _m22; entries[11] = _m32;
 		entries[12] = _m03; entries[13] = _m13; entries[14] = _m23; entries[15] = _m33;
 	}
-
-	vec3 right();
-
-	vec3 up();
-
-	vec3 forward();
 
 	vec3 position();
 
@@ -389,7 +383,7 @@ struct mat4
 		return *this;
 	}
 
-	friend ostream& operator<<(ostream& os, mat4 const& mat);
+	friend std::ostream& operator<<(std::ostream& os, mat4 const& mat);
 
 	vec4 operator*(vec4 b)
 	{
@@ -404,15 +398,21 @@ struct mat4
 };
 
 mat4 TranslationMatrix(vec3 translation);
-mat4 rotationXAxisMatrix(float angle, bool degrees = true);
-mat4 rotationYAxisMatrix(float angle, bool degrees = true);
-mat4 rotationZAxisMatrix(float angle, bool degrees = true);
+mat4 RotationXMatrix(float angle, bool degrees = true);
+mat4 RotationYMatrix(float angle, bool degrees = true);
+mat4 RotationZMatrix(float angle, bool degrees = true);
+
+mat4 GetInverse(mat4 mat);
+mat3 GetInverse(mat3 mat);
+
 
 mat4 ViewMatrix(vec3 from, vec3 to, vec3 up = {0,1,0});
 mat4 ProjectionMatrix(float fov, float aspect, float nearPlane, float farPlane, bool fovDegrees = true);
 
-vec4 GetNormal(vec4 vec);
-vec3 GetNormal(vec3 vec);
+vec4 GetNormalised(vec4 vec);
+vec3 GetNormalised(vec3 vec);
+
+mat4 SetPosition(mat4 mat, vec3 pos);
 
 float length(vec4);
 float length(vec3);

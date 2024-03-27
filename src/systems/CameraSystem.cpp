@@ -13,6 +13,9 @@ bool CameraSystem::Update(std::unordered_map<unsigned int, TransformComponent*>&
 {
     if (cameraTransform == nullptr) cameraTransform = transformComponents[cameraID];
 
+    if ((mouseInputMask & 2) == 2) RotateCamera();
+    else glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+
     vec3 pos = transformComponents[cameraID]->position();
     vec3 eulers = transformComponents[cameraID]->eulers();
    
@@ -23,17 +26,14 @@ bool CameraSystem::Update(std::unordered_map<unsigned int, TransformComponent*>&
     vec3& up = cameraComponent.up;
     vec3& right = cameraComponent.right;
 
-    //cout << forwards << endl;
-
     forwards = {
-        glm::sin(theta) * glm::cos(phi),
-        glm::cos(theta) * glm::cos(phi),
+        -glm::cos(theta) * glm::cos(phi),
+        -glm::sin(theta) * glm::cos(phi),
         glm::sin(phi)
-    };
-   
+    }; 
      
-    right = GetNormal(cross(forwards, globalUp));
-    up = GetNormal(cross(right, forwards));
+    right = GetNormalised(cross(forwards, globalUp));
+    up = GetNormalised(cross(right, forwards));
 
     mat4 view = ViewMatrix(pos, pos + forwards, up);
 
@@ -57,16 +57,12 @@ bool CameraSystem::Update(std::unordered_map<unsigned int, TransformComponent*>&
         dPos.y += 1.0f;
     }
 
-    if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) {
-        transformComponents[cameraID]->globalTransform *= rotationZAxisMatrix(180);
-        cout << forwards << endl;
-    }
-
-
     if (dPos.magnitude() > 0.1f) {
-        dPos = GetNormal(dPos);
-        transformComponents[cameraID]->globalTransform *= TranslationMatrix(0.1f * dPos.x * forwards);
-        transformComponents[cameraID]->globalTransform *= TranslationMatrix(0.1f * dPos.y * right);
+        dPos = GetNormalised(dPos);
+        vec3 dForward = 0.1f * dPos.x * forwards;
+        vec3 dRight = 0.1f * dPos.y * right;
+        vec3 position = transformComponents[cameraID]->position() + dForward + dRight;
+        transformComponents[cameraID]->globalTransform = SetPosition(transformComponents[cameraID]->globalTransform, position);
     }
 
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
@@ -74,8 +70,7 @@ bool CameraSystem::Update(std::unordered_map<unsigned int, TransformComponent*>&
     }
     glfwPollEvents();
 
-    if ((mouseInputMask & 2) == 2) RotateCamera();
-    else glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+
     return false;
 }
 
@@ -94,8 +89,9 @@ void CameraSystem::RotateCamera()
     dEulers.z = -0.01f * static_cast<float>(mouse_x - w/2);
     dEulers.y = -0.01f * static_cast<float>(mouse_y - h/2);
 
-    cameraTransform->globalTransform *= rotationYAxisMatrix(fminf(89.0f, fmaxf(-89.0f, dEulers.y)));
-    cameraTransform->globalTransform *= rotationZAxisMatrix(-dEulers.z);
-
+    vec3 position = cameraTransform->position();
+     
+    cameraTransform->globalTransform *= RotationYMatrix(dEulers.y);
+    cameraTransform->globalTransform *= RotationZMatrix(dEulers.z);
 }
 

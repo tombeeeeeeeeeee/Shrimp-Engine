@@ -9,7 +9,10 @@ RenderSystem::RenderSystem(unsigned int shader, GLFWwindow* window)
     glUniform1i(glGetUniformLocation(shader, "diffuse"), 0);
     glUniform1i(glGetUniformLocation(shader, "mask"), 1);
     glUniform1i(glGetUniformLocation(shader, "normalMap"), 2);
-    glUniform3f(glGetUniformLocation(shader, "lightColor"), 0.86,0.7,0.73);
+    glUniform3f(glGetUniformLocation(shader, "directionalLightColor"), 0.98,0.89,0.8);
+    glUniform3f(glGetUniformLocation(shader, "directionalLightDirection"), 0.86,0.7,0.73);
+    glUniform3f(glGetUniformLocation(shader, "ambientLightColor"), 1,0,0.1);
+    glUniform1f(glGetUniformLocation(shader, "ambientLightStrength"), 0.2);
 
 
     //enable alpha blending
@@ -20,7 +23,7 @@ RenderSystem::RenderSystem(unsigned int shader, GLFWwindow* window)
     CreateMissingTexture();
 }
 
-void RenderSystem::Update(unordered_map<unsigned int, TransformComponent*>& transformComponents, unordered_map<unsigned int, RenderComponent*>& renderComponents)
+void RenderSystem::Update(std::unordered_map<unsigned int, TransformComponent*>& transformComponents, std::unordered_map<unsigned int, RenderComponent*>& renderComponents)
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     

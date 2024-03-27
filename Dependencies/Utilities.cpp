@@ -3,9 +3,9 @@
 
 bool FileToString(string path, string* file, bool fileToConsole)
 {
-    fstream new_file;
+    std::fstream new_file;
 
-    new_file.open(path, ios::in);
+    new_file.open(path, std::ios::in);
     // Checking whether the file is open.
     if (new_file.is_open()) {
 
@@ -20,7 +20,7 @@ bool FileToString(string path, string* file, bool fileToConsole)
         // Read data from the file object and put it into a string.
         while (getline(new_file, line)) {
             // Print the data of the string.
-            if (fileToConsole) cout << line << "\n";
+            if (fileToConsole) std::cout << line << "\n";
             *file += line + "\n";
         }
 
@@ -32,13 +32,13 @@ bool FileToString(string path, string* file, bool fileToConsole)
     return false;
 }
 
- bool FileToStringVector(string path, vector<string>* file, bool fileToConsole)
+ bool FileToStringVector(string path, std::vector<string>* file, bool fileToConsole)
 {
-    vector<string> textFromFile;
+     std::vector<string> textFromFile;
 
-    fstream new_file;
+     std::fstream new_file;
     
-    new_file.open(path, ios::in);
+    new_file.open(path, std::ios::in);
 
     // Checking whether the file is open.
     if (new_file.is_open()) {
@@ -53,7 +53,7 @@ bool FileToString(string path, string* file, bool fileToConsole)
         // Read data from the file object and put it into a string.
         while (getline(new_file, line)) {
             // Print the data of the string.
-            if(fileToConsole) cout << line << "\n";
+            if(fileToConsole) std::cout << line << "\n";
             file->push_back(line);
         }
 
@@ -67,9 +67,9 @@ bool FileToString(string path, string* file, bool fileToConsole)
 
 
 
-vector<string> StringSplit(string toSplit, string splitAt)
+ std::vector<string> StringSplit(string toSplit, string splitAt)
 {
-    vector<string> split;
+     std::vector<string> split;
 
     //begin iterating through string
     string::iterator it = toSplit.begin();
@@ -97,12 +97,12 @@ vector<string> StringSplit(string toSplit, string splitAt)
 bool StringToNumber(string str, int* result)
 {
     //Removes non numbers from string
-    str = regex_replace(str, regex(R"([^0-9])") , "");
+    str = regex_replace(str, std::regex(R"([^0-9])") , "");
     if (str != "") *result = stoi(str);
     return str != "";
 }
 
-bool StringVectorToIntVector(vector<string> str, vector<int>* ints)
+bool StringVectorToIntVector(std::vector<string> str, std::vector<int>* ints)
 {
     for (string toDigitise : str)
     {

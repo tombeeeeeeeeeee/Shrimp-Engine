@@ -93,10 +93,10 @@ MeshAsset* AssetFactory::RatMesh()
 MeshAsset* AssetFactory::MakeObjMesh(const char* filepath, mat4 preTransform)
 {
     //Vectors to store .obj model info
-    vector<vec3> v; 
-    vector<vec2> vt; 
-    vector<vec3> vn;
-    vector<float> vertices;
+    std::vector<vec3> v; 
+    std::vector<vec2> vt; 
+    std::vector<vec3> vn;
+    std::vector<float> vertices;
 
     //number of attributes in each vector for resizing to avoid dynamic memory allocation
     size_t vertexCount = 0; 
@@ -105,9 +105,9 @@ MeshAsset* AssetFactory::MakeObjMesh(const char* filepath, mat4 preTransform)
     size_t triCount = 0;
 
     //First run through to get count
-    string line; ifstream model; vector<string> data;
+    string line; std::ifstream model; std::vector<string> data;
     model.open(filepath);
-    if (!model.is_open()) cout << "Failed to open: " << filepath << endl;
+    if (!model.is_open()) std::cout << "Failed to open: " << filepath << std::endl;
     while (getline(model, line))
     {
         data = StringSplit(line, " ");
@@ -226,7 +226,7 @@ vec2 AssetFactory::readVec2(std::vector<std::string> strings)
     return vec2(stof(strings[1]), stof(strings[2]));
 }
 
-void AssetFactory::readFace(vector<string>& data, vector<vec3>& v, vector<vec2>& vt, vector<vec3>& vn, vector<float>& vertices)
+void AssetFactory::readFace(std::vector<string>& data, std::vector<vec3>& v, std::vector<vec2>& vt, std::vector<vec3>& vn, std::vector<float>& vertices)
 {
     size_t triCount = data.size() - 3;
     if (vn.size() == 0)
@@ -238,12 +238,12 @@ void AssetFactory::readFace(vector<string>& data, vector<vec3>& v, vector<vec2>&
             vec3 b = readTriCornerVertex(data[2 + i], v);
             vec3 c = readTriCornerVertex(data[3 + i], v);
 
-            vec3 GetNormal = cross(b - a, c - a);
-            GetNormal = GetNormal.GetNormal();
+            vec3 GetNormalised = cross(b - a, c - a);
+            GetNormalised = GetNormalised.GetNormalised();
 
-            readTriCorner(data[1], v, vt, GetNormal,  vertices);
-            readTriCorner(data[2 + i], v, vt, GetNormal, vertices);
-            readTriCorner(data[3 + i], v, vt, GetNormal, vertices);
+            readTriCorner(data[1], v, vt, GetNormalised,  vertices);
+            readTriCorner(data[2 + i], v, vt, GetNormalised, vertices);
+            readTriCorner(data[3 + i], v, vt, GetNormalised, vertices);
         }
     }
     else
@@ -258,16 +258,16 @@ void AssetFactory::readFace(vector<string>& data, vector<vec3>& v, vector<vec2>&
     }
 }
 
-vec3 AssetFactory::readTriCornerVertex(string& data, vector<vec3>& v)
+vec3 AssetFactory::readTriCornerVertex(string& data, std::vector<vec3>& v)
 {
-    vector<string> cornerData = StringSplit(data, "/");
+    std::vector<string> cornerData = StringSplit(data, "/");
 
     return v[stoll(cornerData[0], 0) - 1];
 }
 
-void AssetFactory::readTriCorner(string& data, vector<vec3>& v, vector<vec2>& vt, vector<vec3>& vn, vector<float>& vertices)
+void AssetFactory::readTriCorner(string& data, std::vector<vec3>& v, std::vector<vec2>& vt, std::vector<vec3>& vn, std::vector<float>& vertices)
 {
-    vector<string> cornerData = StringSplit(data, "/");
+    std::vector<string> cornerData = StringSplit(data, "/");
 
     vec3 vertexPos = v[stoll(cornerData[0], 0) - 1];
     vertices.push_back(vertexPos.x);
@@ -284,9 +284,9 @@ void AssetFactory::readTriCorner(string& data, vector<vec3>& v, vector<vec2>& vt
     vertices.push_back(normals.z);
 }
 
-void AssetFactory::readTriCorner(string& data, vector<vec3>& v, vector<vec2>& vt, vec3 GetNormal, vector<float>& vertices)
+void AssetFactory::readTriCorner(string& data, std::vector<vec3>& v, std::vector<vec2>& vt, vec3 GetNormalised, std::vector<float>& vertices)
 {
-    vector<string> cornerData = StringSplit(data, "/");
+    std::vector<string> cornerData = StringSplit(data, "/");
 
     vec3 vertexPos = v[stol(cornerData[0]) - 1];
     vertices.push_back(vertexPos.x);
@@ -297,9 +297,9 @@ void AssetFactory::readTriCorner(string& data, vector<vec3>& v, vector<vec2>& vt
     vertices.push_back(texturePos.x);
     vertices.push_back(texturePos.y);
 
-    vertices.push_back(GetNormal.x);
-    vertices.push_back(GetNormal.y);
-    vertices.push_back(GetNormal.z);
+    vertices.push_back(GetNormalised.x);
+    vertices.push_back(GetNormalised.y);
+    vertices.push_back(GetNormalised.z);
 }
 
 MaterialAsset* AssetFactory::GetMaterial(std::string fileName, int fileMask)

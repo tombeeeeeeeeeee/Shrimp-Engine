@@ -9,9 +9,10 @@ uniform sampler2D diffuse; //0
 uniform sampler2D mask;		//1
 uniform sampler2D normalMap;//2
 
-uniform vec3 lightColor;    
-
-const vec3 sunDirection = normalize(vec3(-1.0, -1.0, -1.0));
+uniform vec3 directionalLightColor;    
+uniform vec3 directionalLightDirection;
+uniform vec3 ambientLightColor;
+uniform float ambientLightStrength;
 
 void main()
 {
@@ -19,8 +20,8 @@ void main()
 
 	vec3 normalMapColor = texture(normalMap, fragmentTexCoord).rgb;
 
-	float lightStrength = max(0.2, dot(fragmentNormal, sunDirection));
-	screenColor = lightStrength * vec4(lightColor * baseColor, 1);
+	float directionalLightStrength = max(0, dot(fragmentNormal, directionalLightDirection));
+	screenColor = directionalLightStrength * vec4(directionalLightColor * baseColor, 1) + ambientLightStrength * vec4(ambientLightColor * baseColor, 0);
 
 	float alpha = 1 - texture(mask, fragmentTexCoord).r;
 	screenColor.a = alpha;

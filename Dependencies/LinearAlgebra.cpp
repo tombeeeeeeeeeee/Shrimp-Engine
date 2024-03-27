@@ -5,7 +5,7 @@ vec2 vec4::xy() { return vec2(x, y); }
 
 vec3 vec4::xyz() { return vec3(x, y, z); }
 
-vec4 vec4::GetNormal()
+vec4 vec4::GetNormalised()
 {
 	float mag = magnitude();
 	return vec4(x / mag, y / mag, z / mag, w / mag);
@@ -32,7 +32,7 @@ mat4 TranslationMatrix(vec3 translation)
 	);
 }
 
-mat4 rotationXAxisMatrix(float angle, bool degrees)
+mat4 RotationXMatrix(float angle, bool degrees)
 {
 	float radiansAngle = degrees ? LA_PI * angle / 180 : angle;
 	mat4 rot;
@@ -43,7 +43,7 @@ mat4 rotationXAxisMatrix(float angle, bool degrees)
 	return rot;
 }
 
-mat4 rotationYAxisMatrix(float angle, bool degrees)
+mat4 RotationYMatrix(float angle, bool degrees)
 {
 	float radiansAngle = degrees ? LA_PI * angle / 180 : angle;
 	mat4 rot;
@@ -54,7 +54,7 @@ mat4 rotationYAxisMatrix(float angle, bool degrees)
 	return rot;
 }
 
-mat4 rotationZAxisMatrix(float angle, bool degrees)
+mat4 RotationZMatrix(float angle, bool degrees)
 {
 	float radiansAngle = degrees ? LA_PI * angle / 180 : angle;
 	mat4 rot;
@@ -65,12 +65,30 @@ mat4 rotationZAxisMatrix(float angle, bool degrees)
 	return rot;
 }
 
+mat4 GetInverse(mat4 mat)
+{
+	return mat.GetInverse();
+}
+
+mat3 GetInverse(mat3 mat)
+{
+	return mat.GetInverse();
+}
+
 mat4 ViewMatrix(vec3 from, vec3 to, vec3 up)
 {
 
-	vec3 f = GetNormal(to - from);
-	vec3 r = GetNormal(cross(f, up));
-	vec3 u = GetNormal(cross(r, f));
+	vec3 f = GetNormalised(to - from);
+	vec3 r = GetNormalised(cross(f, up));
+	vec3 u = GetNormalised(cross(r, f));
+
+	 //Weird
+	//return GetInverse(mat4(
+	//	r.x, u.x, -f.x, 0,
+	//	r.y, u.y, -f.y, 0,
+	//	r.z, u.z, -f.z, 0,
+	//	-(r.dot(from)), -(u.dot(from)), f.dot(from), 1
+	//));
 
 	return mat4(
 		r.x, u.x, -f.x, 0,
@@ -80,31 +98,31 @@ mat4 ViewMatrix(vec3 from, vec3 to, vec3 up)
 	);
 }
 
-ostream& operator<<(ostream& os, vec3 const& vec)
+std::ostream& operator<<(std::ostream& os, vec3 const& vec)
 {
-	return os << "{ " << vec.x << ", " << vec.y << ", " << vec.z << " }" << endl;
+	return os << "{ " << vec.x << ", " << vec.y << ", " << vec.z << " }" << std::endl;
 }
 
-ostream& operator<<(ostream& os, vec2 const& vec)
+std::ostream& operator<<(std::ostream& os, vec2 const& vec)
 {
-	return os << "{ " << vec.x << ", " << vec.y << " }" << endl;
+	return os << "{ " << vec.x << ", " << vec.y << " }" << std::endl;
 }
 
-ostream& operator<<(ostream& os, mat4 const& mat)
+std::ostream& operator<<(std::ostream& os, mat4 const& mat)
 {
 	return 
-	os << "| " << mat.entries[0] << ", " << mat.entries[4] << ", " << mat.entries[8]  << ", " << mat.entries[12] << " |" << endl
-	   << "| " << mat.entries[1] << ", " << mat.entries[5] << ", " << mat.entries[9]  << ", " << mat.entries[13] << " |" << endl
-	   << "| " << mat.entries[2] << ", " << mat.entries[6] << ", " << mat.entries[10] << ", " << mat.entries[14] << " |" << endl
-	   << "| " << mat.entries[3] << ", " << mat.entries[7] << ", " << mat.entries[11] << ", " << mat.entries[15] << " |" << endl;
+	os << "| " << mat.entries[0] << ", " << mat.entries[4] << ", " << mat.entries[8]  << ", " << mat.entries[12] << " |" << std::endl
+	   << "| " << mat.entries[1] << ", " << mat.entries[5] << ", " << mat.entries[9]  << ", " << mat.entries[13] << " |" << std::endl
+	   << "| " << mat.entries[2] << ", " << mat.entries[6] << ", " << mat.entries[10] << ", " << mat.entries[14] << " |" << std::endl
+	   << "| " << mat.entries[3] << ", " << mat.entries[7] << ", " << mat.entries[11] << ", " << mat.entries[15] << " |" << std::endl;
 }
 
-ostream& operator<<(ostream& os, mat3 const& mat)
+std::ostream& operator<<(std::ostream& os, mat3 const& mat)
 {
 	return
-		os << "| " << mat.entries[0] << ", " << mat.entries[3] << ", " << mat.entries[6] << " |" << endl
-		<< "| " << mat.entries[1] << ", " << mat.entries[4] << ", " << mat.entries[7] << " |" << endl
-		<< "| " << mat.entries[2] << ", " << mat.entries[5] << ", " << mat.entries[8] << " |" << endl;
+		os << "| " << mat.entries[0] << ", " << mat.entries[3] << ", " << mat.entries[6] << " |" << std::endl
+		<< "| " << mat.entries[1] << ", " << mat.entries[4] << ", " << mat.entries[7] << " |" << std::endl
+		<< "| " << mat.entries[2] << ", " << mat.entries[5] << ", " << mat.entries[8] << " |" << std::endl;
 }
 
 mat4 ProjectionMatrix(float fov, float aspect, float nearPlane, float farPlane, bool fovDegrees)
@@ -122,14 +140,22 @@ mat4 ProjectionMatrix(float fov, float aspect, float nearPlane, float farPlane, 
 	);
 }
 
-vec4 GetNormal(vec4 vec)
+vec4 GetNormalised(vec4 vec)
 {
-	return vec.GetNormal();
+	return vec.GetNormalised();
 }
 
-vec3 GetNormal(vec3 vec)
+vec3 GetNormalised(vec3 vec)
 {
-	return vec.GetNormal();
+	return vec.GetNormalised();
+}
+
+mat4 SetPosition(mat4 mat, vec3 pos)
+{
+	mat.entries[12] = pos.x;
+	mat.entries[13] = pos.y;
+	mat.entries[14] = pos.z;
+	return mat;
 }
 
 vec3 cross(vec3 a, vec3 b)
@@ -197,11 +223,4 @@ mat4 mat4::GetInverse()
 	return *this;
 }
 
-
-vec3 mat4::right() 
-{
-	return vec3(entries[1], entries[2], entries[2]); 
-}
-vec3 mat4::up() { return vec3(entries[4], entries[5], entries[6]); }
-vec3 mat4::forward() { return vec3(entries[8], entries[9], entries[10]); }
 vec3 mat4::position() { return vec3(entries[12], entries[13], entries[14]); }

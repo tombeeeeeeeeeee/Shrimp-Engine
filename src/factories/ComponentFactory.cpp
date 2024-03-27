@@ -30,9 +30,9 @@ unsigned int ComponentFactory::MakeEmptyTransform(vec3 position, vec3 eulers)
 {
     TransformComponent* transform = new TransformComponent();
     transform->globalTransform = TranslationMatrix(position);
-    transform->globalTransform *= rotationZAxisMatrix(eulers.z);
-    transform->globalTransform *= rotationYAxisMatrix(eulers.y);
-    transform->globalTransform *= rotationXAxisMatrix(eulers.x);
+    transform->globalTransform *= RotationZMatrix(eulers.z);
+    transform->globalTransform *= RotationYMatrix(eulers.y);
+    transform->globalTransform *= RotationXMatrix(eulers.x);
     transformComponents[entityCount] = transform;
     return entityCount++;
 }

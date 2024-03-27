@@ -36,7 +36,7 @@ void App::SetUpGLFW()
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
 
-    window = glfwCreateWindow(1000, 1000, "Shrimp Engine", NULL, NULL);
+    window = glfwCreateWindow(1920, 1080, "Shrimp Engine", NULL, NULL);
     glfwMakeContextCurrent(window);
 
     glfwSetWindowUserPointer(window, reinterpret_cast<void*>(this));
