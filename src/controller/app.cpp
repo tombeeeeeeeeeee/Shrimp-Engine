@@ -84,10 +84,13 @@ void App::Start()
 
         unsigned int cubeEntity = componentFactory->MakeCube({ x, y, z }, { xRot, yRot, zRot });
         gameObjects.push_back(cubeEntity);
-
+        hierarchySystem->SetParent(cubeEntity, cubeEntity - 1);
         //else
         //	gameObjects.push_back(componentFactory->MakeRat({x, y, z}, {xRot, yRot, zRot}));
     }
+
+    //componentFactory->AddPhysicsComponent(1);
+    //physicsComponents[1]->eulerVelocity = { 20,5,-16 };
 
     unsigned int cameraEntity = componentFactory->MakeCamera({ 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f,0.0f });
 
