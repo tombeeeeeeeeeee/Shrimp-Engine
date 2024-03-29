@@ -16,8 +16,8 @@ bool CameraSystem::Update(std::unordered_map<unsigned int, TransformComponent*>&
     if ((mouseInputMask & 2) == 2) RotateCamera();
     else glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
-    vec3 pos = transformComponents[cameraID]->position();
-    vec3 eulers = transformComponents[cameraID]->eulers();
+    vec3 pos = transformComponents[cameraID]->Position();
+    vec3 eulers = transformComponents[cameraID]->LocalEulers();
    
     float theta = eulers.z;
     float phi = eulers.y;
@@ -61,7 +61,7 @@ bool CameraSystem::Update(std::unordered_map<unsigned int, TransformComponent*>&
         dPos = GetNormalised(dPos);
         vec3 dForward = 0.1f * dPos.x * forwards;
         vec3 dRight = 0.1f * dPos.y * right;
-        vec3 position = transformComponents[cameraID]->localPosition() + dForward + dRight;
+        vec3 position = transformComponents[cameraID]->LocalPosition() + dForward + dRight;
         transformComponents[cameraID]->localTransform = SetPosition(transformComponents[cameraID]->localTransform, position);
     }
 
@@ -89,9 +89,9 @@ void CameraSystem::RotateCamera()
     dEulers.z = -0.01f * static_cast<float>(mouse_x - w/2);
     dEulers.y = -0.01f * static_cast<float>(mouse_y - h/2);
 
-    vec3 position = cameraTransform->position();
-     
     cameraTransform->localTransform *= RotationYMatrix(dEulers.y);
     cameraTransform->localTransform *= RotationZMatrix(dEulers.z);
+
+
 }
 

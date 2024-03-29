@@ -31,7 +31,7 @@ public:
 	PhysicsComponent* AddPhysicsComponent(unsigned int _entity);
 
 private:
-	unsigned int entityCount = 0;
+	unsigned int entityCount = 1;
 
 	std::unordered_map<unsigned int, PhysicsComponent*>& physicsComponents;
 	std::unordered_map<unsigned int, RenderComponent*>& renderComponents;

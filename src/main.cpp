@@ -1,17 +1,10 @@
 #include <config.h>
 #include "controller/app.h"
 
-#include "components/ComponentInclude.h"
-
-#include "factories/AssetFactory.h"
-#include "factories/ComponentFactory.h"
 
 int main() {
 
 	App* app = new App();
-
-	AssetFactory* assetFactory = new AssetFactory("Assets/");
-	ComponentFactory* componentFactory = new ComponentFactory(app->physicsComponents, app->renderComponents, app->transformComponents, *assetFactory);
 
 	std::vector<unsigned int> gameObjects;
 	int cubeCount = 20;
@@ -40,11 +33,10 @@ int main() {
 
 	app->SetUpOpengl();
 	app->MakeSystems();
+	app->MakeFactories();
 
 	app->Run();
 
-	delete assetFactory;
-	delete componentFactory;
 	delete app;
 	return 0;
 }

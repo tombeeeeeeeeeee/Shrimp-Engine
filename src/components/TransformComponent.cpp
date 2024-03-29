@@ -2,17 +2,17 @@
 
 
 
-vec3 TransformComponent::position()
+vec3 TransformComponent::Position()
 {
 	return { globalTransform.entries[12], globalTransform.entries[13] , globalTransform.entries[14] };
 }
 
-vec3 TransformComponent::localPosition()
+vec3 TransformComponent::LocalPosition()
 {
 	return { localTransform.entries[12], localTransform.entries[13] , localTransform.entries[14] };
 }
 
-vec3 TransformComponent::eulers(bool radians)
+vec3 TransformComponent::LocalEulers(bool radians)
 {
 	float eulX = 0;
 	float eulY = 0;
@@ -63,7 +63,7 @@ vec3 TransformComponent::eulers(bool radians)
 	return eul; 
 }
 
-vec3 TransformComponent::eulersGlobal(bool radians)
+vec3 TransformComponent::Eulers(bool radians)
 {
 	float eulX = 0;
 	float eulY = 0;

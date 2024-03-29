@@ -1,6 +1,6 @@
 #include "HierarchySystem.h"
 
-void HierarchySystem::Update(std::unordered_map<unsigned int, TransformComponent*>& transformComponents)
+void HierarchySystem::Update()
 {
 	std::unordered_map<unsigned int, TransformComponent*>::iterator iter;
 	
@@ -8,12 +8,12 @@ void HierarchySystem::Update(std::unordered_map<unsigned int, TransformComponent
 		updated[iter->first] = false;
 
 	for (iter = transformComponents.begin(); iter != transformComponents.end(); iter++)
-			globalTransformUpdate(iter->first, transformComponents);
+			GlobalTransformUpdate(iter->first, transformComponents);
 
 	updated.clear();
 }
 
-void HierarchySystem::globalTransformUpdate(unsigned int entity, std::unordered_map<unsigned int, TransformComponent*>& transformComponents)
+void HierarchySystem::GlobalTransformUpdate(unsigned int entity, std::unordered_map<unsigned int, TransformComponent*>& transformComponents)
 {
 	if (!updated[entity])
 	{
@@ -21,13 +21,25 @@ void HierarchySystem::globalTransformUpdate(unsigned int entity, std::unordered_
 
 		TransformComponent* tc = transformComponents[entity];
 
-		if (tc->parent != 0)
+		if (tc->parent > 0)
 			tc->globalTransform = transformComponents[tc->parent]->globalTransform * tc->localTransform;
 		else
 			tc->globalTransform = tc->localTransform;
 
 		std::vector<unsigned int>::iterator iter;
 		for (iter = tc->children.begin(); iter != tc->children.end(); iter++)
-			globalTransformUpdate(*iter, transformComponents);
+			GlobalTransformUpdate(*iter, transformComponents);
 	}
+}
+
+void HierarchySystem::SetParent(unsigned int child, unsigned int parent)
+{
+	bool realParent = transformComponents.find(parent) != transformComponents.end();
+	if ((realParent || parent == 0) && transformComponents.find(child) != transformComponents.end())
+	{
+		transformComponents[child]->parent = parent;
+		if (realParent)
+			transformComponents[parent]->children.push_back(child);
+	}
+	
 }

@@ -1,6 +1,9 @@
 #include "app.h"
 
-App::App() { SetUpGLFW(); }
+App::App() 
+{ 
+    SetUpGLFW();
+}
 
 App::~App() 
 {
@@ -10,6 +13,9 @@ App::~App()
     delete cameraSystem;
     delete renderSystem;
 
+    delete assetFactory;
+    delete componentFactory;
+
     glfwTerminate();
 }
 
@@ -18,22 +24,20 @@ void App::Run()
 {
     bool shouldClose = false;
 
+    Start();
+
     while (!glfwWindowShouldClose(window) && !shouldClose) 
     {
         motionSystem->Update( transformComponents, physicsComponents, 1.0f / 60.0f);
-        hierarchySystem->Update(transformComponents);
+        hierarchySystem->Update();
         shouldClose = cameraSystem->Update(transformComponents, cameraID, *cameraComponent, 1.0f / 60.0f, mouseInput);
 
-        for (int i = 1; i < 64; i *= 2)
-        {
-            if ((mouseInput & i) == i)
-                std::cout << 1;
-            else std::cout << 0;
-        }
-        std::cout << std::endl;
-
         renderSystem->Update(transformComponents, renderComponents);
+
+        Update();
     }
+
+    End();
 }
 
 void App::SetUpGLFW() 
@@ -60,6 +64,46 @@ void App::SetUpGLFW()
         glfwTerminate();
     }
 
+}
+
+void App::Start()
+{
+    //Space to add things for the start
+    std::vector<unsigned int> gameObjects;
+    int cubeCount = 20;
+    srand(time(NULL));
+    for (int i = 0; i < cubeCount; i++)
+    {
+        float x = (20.0f * (float)rand() / RAND_MAX) - 10.0f;
+        float y = (20.0f * (float)rand() / RAND_MAX) - 10.0f;
+        float z = (20.0f * (float)rand() / RAND_MAX) - 10.0f;
+
+        float xRot = (360.0f * (float)rand() / RAND_MAX) - 180.0f;
+        float yRot = (360.0f * (float)rand() / RAND_MAX) - 180.0f;
+        float zRot = (360.0f * (float)rand() / RAND_MAX) - 180.0f;
+
+        unsigned int cubeEntity = componentFactory->MakeCube({ x, y, z }, { xRot, yRot, zRot });
+        gameObjects.push_back(cubeEntity);
+
+        //else
+        //	gameObjects.push_back(componentFactory->MakeRat({x, y, z}, {xRot, yRot, zRot}));
+    }
+
+    unsigned int cameraEntity = componentFactory->MakeCamera({ 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f,0.0f });
+
+    CameraComponent* camera = new CameraComponent();
+    cameraComponent = camera;
+    cameraID = cameraEntity;
+}
+
+void App::Update()
+{
+    //Space to add things to run on update
+}
+
+void App::End()
+{
+    //space to add things for the end
 }
 
 void App::SetUpOpengl() 
@@ -91,7 +135,13 @@ void App::MakeSystems()
     motionSystem = new MotionSystem();
     cameraSystem = new CameraSystem(shader, window);
     renderSystem = new RenderSystem(shader, window);
-    hierarchySystem = new HierarchySystem(window);
+    hierarchySystem = new HierarchySystem(transformComponents);
+}
+
+void App::MakeFactories()
+{
+    assetFactory = new AssetFactory("Assets/");
+    componentFactory = new ComponentFactory(physicsComponents, renderComponents, transformComponents, *assetFactory);
 }
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)

@@ -5,13 +5,15 @@
 class HierarchySystem
 {
 public: 
-	HierarchySystem(GLFWwindow* _window) : window(_window){}
+	HierarchySystem(std::unordered_map<unsigned int, TransformComponent*>& _transformComponents) : transformComponents(_transformComponents){}
 
-	void Update(std::unordered_map<unsigned int, TransformComponent*>& transformComponents);
-	void globalTransformUpdate(unsigned int entity, std::unordered_map<unsigned int, TransformComponent*>& transformComponents);
+	void Update();
+	void GlobalTransformUpdate(unsigned int entity, std::unordered_map<unsigned int, TransformComponent*>& transformComponents);
+
+	void SetParent(unsigned int child, unsigned int parent = 0);
 
 private: 
-	GLFWwindow* window;
+	std::unordered_map<unsigned int, TransformComponent*>& transformComponents;
 	std::unordered_map<unsigned int, bool> updated;
 };
 

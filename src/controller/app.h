@@ -5,6 +5,9 @@
 #include "../systems/SystemInclude.h"
 #include "../view/shader.h"
 
+#include "../factories/AssetFactory.h"
+#include "../factories/ComponentFactory.h"
+
 class App {
 public:
     App();
@@ -13,6 +16,8 @@ public:
 
     void SetUpOpengl();
     void MakeSystems();
+
+    void MakeFactories();
 
     //Components
     std::unordered_map<unsigned int, TransformComponent*> transformComponents;
@@ -27,6 +32,11 @@ public:
 private:
     void SetUpGLFW();
 
+    //WorkSpaces
+    void Start();
+    void Update();
+    void End();
+
     GLFWwindow* window;
 
     unsigned int shader;
@@ -36,6 +46,10 @@ private:
     CameraSystem* cameraSystem;
     RenderSystem* renderSystem;
     HierarchySystem* hierarchySystem;
+
+    //Factories
+    AssetFactory* assetFactory;
+    ComponentFactory* componentFactory;
 };
 
 static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
