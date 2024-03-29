@@ -21,7 +21,16 @@ void App::Run()
     while (!glfwWindowShouldClose(window) && !shouldClose) 
     {
         motionSystem->Update( transformComponents, physicsComponents, 1.0f / 60.0f);
+        hierarchySystem->Update(transformComponents);
         shouldClose = cameraSystem->Update(transformComponents, cameraID, *cameraComponent, 1.0f / 60.0f, mouseInput);
+
+        for (int i = 1; i < 64; i *= 2)
+        {
+            if ((mouseInput & i) == i)
+                std::cout << 1;
+            else std::cout << 0;
+        }
+        std::cout << std::endl;
 
         renderSystem->Update(transformComponents, renderComponents);
     }
@@ -35,6 +44,8 @@ void App::SetUpGLFW()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+    glfwWindowHint(GLFW_SAMPLES, 16); //MSAA
+
 
     window = glfwCreateWindow(1920, 1080, "Shrimp Engine", NULL, NULL);
     glfwMakeContextCurrent(window);
@@ -64,6 +75,7 @@ void App::SetUpOpengl()
     glDepthFunc(GL_LESS);
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
+    glEnable(GL_MULTISAMPLE);
 
     shader = MakeShader();
 
@@ -79,6 +91,7 @@ void App::MakeSystems()
     motionSystem = new MotionSystem();
     cameraSystem = new CameraSystem(shader, window);
     renderSystem = new RenderSystem(shader, window);
+    hierarchySystem = new HierarchySystem(window);
 }
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
@@ -91,7 +104,7 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
     {
         app->mouseInput -= buttonBinary;
     }
-    else if(action == 1 && (mouseMask & buttonBinary) == 0)
+    else if (action == 1 && (mouseMask & buttonBinary) == 0)
     {
         app->mouseInput += buttonBinary;
     }

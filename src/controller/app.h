@@ -35,6 +35,7 @@ private:
     MotionSystem* motionSystem;
     CameraSystem* cameraSystem;
     RenderSystem* renderSystem;
+    HierarchySystem* hierarchySystem;
 };
 
 static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);

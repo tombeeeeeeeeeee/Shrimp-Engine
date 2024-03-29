@@ -61,8 +61,8 @@ bool CameraSystem::Update(std::unordered_map<unsigned int, TransformComponent*>&
         dPos = GetNormalised(dPos);
         vec3 dForward = 0.1f * dPos.x * forwards;
         vec3 dRight = 0.1f * dPos.y * right;
-        vec3 position = transformComponents[cameraID]->position() + dForward + dRight;
-        transformComponents[cameraID]->globalTransform = SetPosition(transformComponents[cameraID]->globalTransform, position);
+        vec3 position = transformComponents[cameraID]->localPosition() + dForward + dRight;
+        transformComponents[cameraID]->localTransform = SetPosition(transformComponents[cameraID]->localTransform, position);
     }
 
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
@@ -91,7 +91,7 @@ void CameraSystem::RotateCamera()
 
     vec3 position = cameraTransform->position();
      
-    cameraTransform->globalTransform *= RotationYMatrix(dEulers.y);
-    cameraTransform->globalTransform *= RotationZMatrix(dEulers.z);
+    cameraTransform->localTransform *= RotationYMatrix(dEulers.y);
+    cameraTransform->localTransform *= RotationZMatrix(dEulers.z);
 }
 

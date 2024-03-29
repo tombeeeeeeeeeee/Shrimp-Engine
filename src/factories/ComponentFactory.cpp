@@ -21,7 +21,7 @@ unsigned int ComponentFactory::MakeCamera(vec3 position, vec3 eulers)
 unsigned int ComponentFactory::MakeEmptyTransform()
 {
     TransformComponent* transform = new TransformComponent();
-    transform->globalTransform = TranslationMatrix({ 0,0,0 });
+    transform->localTransform = TranslationMatrix({ 0,0,0 });
     transformComponents[entityCount] = transform;
     return entityCount++;
 }
@@ -29,10 +29,10 @@ unsigned int ComponentFactory::MakeEmptyTransform()
 unsigned int ComponentFactory::MakeEmptyTransform(vec3 position, vec3 eulers)
 {
     TransformComponent* transform = new TransformComponent();
-    transform->globalTransform = TranslationMatrix(position);
-    transform->globalTransform *= RotationZMatrix(eulers.z);
-    transform->globalTransform *= RotationYMatrix(eulers.y);
-    transform->globalTransform *= RotationXMatrix(eulers.x);
+    transform->localTransform = TranslationMatrix(position);
+    transform->localTransform *= RotationZMatrix(eulers.z);
+    transform->localTransform *= RotationYMatrix(eulers.y);
+    transform->localTransform *= RotationXMatrix(eulers.x);
     transformComponents[entityCount] = transform;
     return entityCount++;
 }

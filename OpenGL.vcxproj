@@ -147,6 +147,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\systems\HierarchySystem.cpp" />
     <ClCompile Include="src\components\TransformComponent.cpp" />
     <ClCompile Include="src\config.cpp" />
     <ClCompile Include="src\factories\AssetFactory.cpp" />
@@ -163,6 +164,7 @@
     <ClCompile Include="src\view\shader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\systems\HierarchySystem.h" />
     <ClInclude Include="src\factories\AssetFactory.h" />
     <ClInclude Include="src\factories\ComponentFactory.h" />
     <ClInclude Include="src\systems\MotionSystem.h" />
