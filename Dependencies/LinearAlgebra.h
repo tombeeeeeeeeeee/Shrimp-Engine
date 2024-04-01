@@ -405,6 +405,7 @@ mat4 RotationZMatrix(float angle, bool degrees = true);
 mat4 GetInverse(mat4 mat);
 mat3 GetInverse(mat3 mat);
 
+mat4 ScaleMatrix(float uni);
 mat4 ScaleMatrix(float x, float y, float z);
 
 mat4 ViewMatrix(vec3 from, vec3 to, vec3 up = {0,1,0});

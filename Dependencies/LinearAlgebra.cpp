@@ -75,6 +75,16 @@ mat3 GetInverse(mat3 mat)
 	return mat.GetInverse();
 }
 
+mat4 ScaleMatrix(float uni)
+{
+	return mat4(
+		uni, 0, 0, 0,
+		0, uni, 0, 0,
+		0, 0, uni, 0,
+		0,  0,  0, 1
+	);
+}
+
 mat4 ScaleMatrix(float x, float y, float z)
 {
 	return mat4(
