@@ -75,6 +75,16 @@ mat3 GetInverse(mat3 mat)
 	return mat.GetInverse();
 }
 
+mat4 ScaleMatrix(float x, float y, float z)
+{
+	return mat4(
+		x, 0, 0, 0,
+		0, y, 0, 0,
+		0, 0, z, 0,
+		0, 0, 0, 1
+	);
+}
+
 mat4 ViewMatrix(vec3 from, vec3 to, vec3 up)
 {
 
@@ -223,4 +233,4 @@ mat4 mat4::GetInverse()
 	return *this;
 }
 
-vec3 mat4::position() { return vec3(entries[12], entries[13], entries[14]); }
+vec3 mat4::Position() { return vec3(entries[12], entries[13], entries[14]); }

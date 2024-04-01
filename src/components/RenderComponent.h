@@ -13,7 +13,7 @@ struct MeshAsset
 struct MaterialAsset
 {
 	unsigned int materials[MATERIAL_MAPCOUNT];
-	unsigned int materialMask = 3;
+	unsigned int materialMask = 1;
 	unsigned int shaderProgram = 0;
 };
 

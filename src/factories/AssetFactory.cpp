@@ -14,12 +14,15 @@ AssetFactory::~AssetFactory()
     glDeleteBuffers(VBOs.size(), VBOs.data());
     glDeleteVertexArrays(VAOs.size(), VAOs.data());
     glDeleteTextures(textures.size(), textures.data());
+
+    meshAssets.clear();
+    materialAssets.clear();
 }
 
 MaterialAsset* AssetFactory::CubeMaterial()
 {
     string textureFiles[] = {"img/cubeTexture.jpg","img/cubeNormal.png"};
-    return GetMaterial(textureFiles, 1);
+    return GetMaterial(textureFiles, 5);
 }
 
 MeshAsset* AssetFactory::CubeMesh()
@@ -82,7 +85,7 @@ MeshAsset* AssetFactory::CubeMesh()
 
 MaterialAsset* AssetFactory::RatMaterial()
 {
-    return GetMaterial("NothinHere.png", 1);
+    return GetMaterial("img/me.PNG", 1);
 }
 
 MeshAsset* AssetFactory::RatMesh()
@@ -157,7 +160,11 @@ unsigned int AssetFactory::MakeTexture(const char* filename)
 {
     int width, height, channels;
     stbi_set_flip_vertically_on_load(true);
+
+    
     unsigned char* data = stbi_load( filename, &width, &height, &channels, STBI_rgb_alpha);
+
+    if (data == NULL) return 0;
 
     //make the texture
     unsigned int texture;
@@ -304,13 +311,15 @@ void AssetFactory::readTriCorner(string& data, std::vector<vec3>& v, std::vector
 
 MaterialAsset* AssetFactory::GetMaterial(std::string fileName, int fileMask)
 {
-    MaterialAsset* mat = new MaterialAsset();
     if (materialAssets.find(fileName) != materialAssets.end()) return (materialAssets[fileName]);
+
+    MaterialAsset* mat = new MaterialAsset();
 
     mat->materials[0] = MakeTexture((assetFolder + fileName).c_str());
     mat->materialMask = fileMask;
 
     materialAssets[fileName] = mat;
+    return mat;
 }
 
 MaterialAsset* AssetFactory::GetMaterial(std::string fileNames[], int fileMask)

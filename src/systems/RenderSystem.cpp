@@ -39,7 +39,7 @@ void RenderSystem::Update(std::unordered_map<unsigned int, TransformComponent*>&
         unsigned int materialMask = 1;
         for (int i = 0; i < MATERIAL_MAPCOUNT; i++)
         {
-            if (entity.second->material == nullptr)
+            if (entity.second->material == nullptr || entity.second->material->materials[0] == 0)
             {
                 glBindTexture(GL_TEXTURE_2D, missingTextureTexture);
                 break;

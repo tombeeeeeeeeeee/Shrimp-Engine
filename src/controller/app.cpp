@@ -16,6 +16,8 @@ App::~App()
     delete assetFactory;
     delete componentFactory;
 
+    delete cameraComponent;
+
     glfwTerminate();
 }
 
@@ -70,29 +72,28 @@ void App::Start()
 {
     //Space to add things for the start
     std::vector<unsigned int> gameObjects;
-    int cubeCount = 20;
+    int cubeCount = 5;
     srand(time(NULL));
     for (int i = 0; i < cubeCount; i++)
     {
-        float x = (20.0f * (float)rand() / RAND_MAX) - 10.0f;
-        float y = (20.0f * (float)rand() / RAND_MAX) - 10.0f;
-        float z = (20.0f * (float)rand() / RAND_MAX) - 10.0f;
+        float x = (10.0f * (float)rand() / RAND_MAX) - 5.0f;
+        float y = (10.0f * (float)rand() / RAND_MAX) - 5.0f;
+        float z = (10.0f * (float)rand() / RAND_MAX) - 5.0f;
 
         float xRot = (360.0f * (float)rand() / RAND_MAX) - 180.0f;
         float yRot = (360.0f * (float)rand() / RAND_MAX) - 180.0f;
         float zRot = (360.0f * (float)rand() / RAND_MAX) - 180.0f;
 
-        unsigned int cubeEntity = componentFactory->MakeCube({ x, y, z }, { xRot, yRot, zRot });
+        unsigned int cubeEntity = componentFactory->MakeRat({ x, y, z }, { xRot, yRot, zRot });
         gameObjects.push_back(cubeEntity);
         hierarchySystem->SetParent(cubeEntity, cubeEntity - 1);
-        //else
-        //	gameObjects.push_back(componentFactory->MakeRat({x, y, z}, {xRot, yRot, zRot}));
     }
+    transformComponents[1]->localTransform *= ScaleMatrix(0.05, 0.05, 0.05);
 
-    //componentFactory->AddPhysicsComponent(1);
-    //physicsComponents[1]->eulerVelocity = { 20,5,-16 };
+    //componentFactory->AddPhysicsComponent(3);
+    //physicsComponents[3]->eulerVelocity = { 30, 50, -60};
 
-    unsigned int cameraEntity = componentFactory->MakeCamera({ 0.0f, 0.0f, 1.0f }, { 0.0f, 0.0f,0.0f });
+    unsigned int cameraEntity = componentFactory->MakeCamera({ 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f,0.0f });
 
     CameraComponent* camera = new CameraComponent();
     cameraComponent = camera;

@@ -10,7 +10,9 @@ ComponentFactory::ComponentFactory(std::unordered_map<unsigned int, PhysicsCompo
 
 ComponentFactory::~ComponentFactory()
 {
-    
+    physicsComponents.clear();
+    transformComponents.clear();
+    renderComponents.clear();
 }
 
 unsigned int ComponentFactory::MakeCamera(vec3 position, vec3 eulers)
@@ -43,8 +45,8 @@ unsigned int ComponentFactory::MakeRat(vec3 position, vec3 eulers)
 
     RenderComponent* ratRend = new RenderComponent();
     ratRend->mesh = assFact.GetMesh("models/rat.obj");
-    ratRend->material = assFact.GetMaterial("img/cubeTexture.jpg",1);
-    ratRend = AddRenderComponent(rat, ratRend);
+    ratRend->material = assFact.RatMaterial();
+    AddRenderComponent(rat, ratRend);
     return rat;
 }
 

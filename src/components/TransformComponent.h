@@ -5,7 +5,7 @@ struct TransformComponent
 {
 	mat4 globalTransform;
 	mat4 localTransform;
-	unsigned int parent = -1;
+	unsigned int parent = 0;
 	std::vector<unsigned int> children;
 
 	vec3 Position();

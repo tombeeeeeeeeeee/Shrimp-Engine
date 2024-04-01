@@ -295,7 +295,7 @@ struct mat4
 		entries[12] = _m03; entries[13] = _m13; entries[14] = _m23; entries[15] = _m33;
 	}
 
-	vec3 position();
+	vec3 Position();
 
 	mat4 GetInverse();
 
@@ -405,6 +405,7 @@ mat4 RotationZMatrix(float angle, bool degrees = true);
 mat4 GetInverse(mat4 mat);
 mat3 GetInverse(mat3 mat);
 
+mat4 ScaleMatrix(float x, float y, float z);
 
 mat4 ViewMatrix(vec3 from, vec3 to, vec3 up = {0,1,0});
 mat4 ProjectionMatrix(float fov, float aspect, float nearPlane, float farPlane, bool fovDegrees = true);
