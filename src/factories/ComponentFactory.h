@@ -13,8 +13,13 @@ public:
 		std::unordered_map<unsigned int, TransformComponent*>& transformComponents,
 		AssetFactory& _assFact
 	);
-
 	~ComponentFactory();
+	ComponentFactory(ComponentFactory& compFact) :
+		entityCount(compFact.entityCount),
+		physicsComponents(compFact.physicsComponents),
+		transformComponents(compFact.transformComponents),
+		renderComponents(compFact.renderComponents),
+		assFact(compFact.assFact) {}
 
 	unsigned int MakeEntity() { return entityCount++; }
 

@@ -19,6 +19,18 @@ AssetFactory::~AssetFactory()
     materialAssets.clear();
 }
 
+AssetFactory::AssetFactory(AssetFactory& assFact)
+{
+    assetFolder = assFact.assetFolder;
+
+    VBOs = assFact.VBOs;
+    VAOs = assFact.VAOs;
+    textures = assFact.textures;
+
+    meshAssets = assFact.meshAssets;
+    materialAssets = assFact.materialAssets;
+}
+
 MaterialAsset* AssetFactory::CubeMaterial()
 {
     string textureFiles[] = {"img/cubeTexture.jpg","img/cubeNormal.png"};

@@ -15,6 +15,14 @@ ComponentFactory::~ComponentFactory()
     renderComponents.clear();
 }
 
+ComponentFactory::ComponentFactory(ComponentFactory& compFact)
+{
+    entityCount = compFact.entityCount;
+    physicsComponents = compFact.physicsComponents;
+    transformComponents = compFact.transformComponents;
+    renderComponents = compFact.renderComponents;
+}
+
 unsigned int ComponentFactory::MakeCamera(vec3 position, vec3 eulers)
 {
     return MakeEmptyTransform(position, eulers);

@@ -21,6 +21,20 @@ App::~App()
     glfwTerminate();
 }
 
+App::App(App& app)
+{
+    shader = app.shader;
+    motionSystem = app.motionSystem;
+    cameraSystem = app.cameraSystem;
+    renderSystem = app.renderSystem;
+
+    assetFactory = app.assetFactory;
+    componentFactory = app.componentFactory;
+
+    cameraComponent = app.cameraComponent;
+    window = app.window;
+}
+
 
 void App::Run() 
 {

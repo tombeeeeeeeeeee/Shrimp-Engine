@@ -6,8 +6,8 @@ class AssetFactory {
 
 public:
     AssetFactory(std::string assetFolder);
-
     ~AssetFactory();
+    AssetFactory(AssetFactory& assFact);
 
     MaterialAsset* CubeMaterial();
     MeshAsset* CubeMesh();

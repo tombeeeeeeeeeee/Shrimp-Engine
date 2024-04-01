@@ -12,6 +12,7 @@ class App {
 public:
     App();
     ~App();
+    App(App& app);
     void Run();
 
     void SetUpOpengl();
