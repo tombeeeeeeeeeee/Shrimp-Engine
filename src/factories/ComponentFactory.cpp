@@ -15,14 +15,6 @@ ComponentFactory::~ComponentFactory()
     renderComponents.clear();
 }
 
-ComponentFactory::ComponentFactory(ComponentFactory& compFact)
-{
-    entityCount = compFact.entityCount;
-    physicsComponents = compFact.physicsComponents;
-    transformComponents = compFact.transformComponents;
-    renderComponents = compFact.renderComponents;
-}
-
 unsigned int ComponentFactory::MakeCamera(vec3 position, vec3 eulers)
 {
     return MakeEmptyTransform(position, eulers);
@@ -31,7 +23,6 @@ unsigned int ComponentFactory::MakeCamera(vec3 position, vec3 eulers)
 unsigned int ComponentFactory::MakeEmptyTransform()
 {
     TransformComponent* transform = new TransformComponent();
-    transform->localTransform = TranslationMatrix({ 0,0,0 });
     transformComponents[entityCount] = transform;
     return entityCount++;
 }
@@ -39,10 +30,8 @@ unsigned int ComponentFactory::MakeEmptyTransform()
 unsigned int ComponentFactory::MakeEmptyTransform(vec3 position, vec3 eulers)
 {
     TransformComponent* transform = new TransformComponent();
-    transform->localTransform = TranslationMatrix(position);
-    transform->localTransform *= RotationZMatrix(eulers.z);
-    transform->localTransform *= RotationYMatrix(eulers.y);
-    transform->localTransform *= RotationXMatrix(eulers.x);
+    transform->position = position;
+    transform->eulers = eulers;
     transformComponents[entityCount] = transform;
     return entityCount++;
 }

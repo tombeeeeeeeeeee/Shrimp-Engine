@@ -407,6 +407,7 @@ mat3 GetInverse(mat3 mat);
 
 mat4 ScaleMatrix(float uni);
 mat4 ScaleMatrix(float x, float y, float z);
+mat4 ScaleMatrix(vec3 scale);
 
 mat4 ViewMatrix(vec3 from, vec3 to, vec3 up = {0,1,0});
 mat4 ProjectionMatrix(float fov, float aspect, float nearPlane, float farPlane, bool fovDegrees = true);

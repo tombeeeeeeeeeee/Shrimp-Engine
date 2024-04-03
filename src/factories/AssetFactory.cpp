@@ -47,6 +47,7 @@ MeshAsset* AssetFactory::CubeMesh()
 
     std::vector<float> vertices = 
     {
+    //Pos,     //Texture Pos, //Normals
      l,  w, -h, 1.0f, 1.0f,  0.0f,  0.0f, -1.0f,
      l, -w, -h, 1.0f, 0.0f,  0.0f,  0.0f, -1.0f,
     -l, -w, -h, 0.0f, 0.0f,  0.0f,  0.0f, -1.0f,
@@ -199,7 +200,7 @@ unsigned int AssetFactory::MakeTexture(const char* filename)
     return texture;
 }
 
-MeshAsset* AssetFactory::sendMeshToVRAM(std::vector<float>& vertices, float vertexCount)
+MeshAsset* AssetFactory::sendMeshToVRAM(std::vector<float>& vertices, int vertexCount, int indexCount, unsigned int* indices)
 {
     unsigned int VAO;
     glGenVertexArrays(1, &VAO);
@@ -223,6 +224,16 @@ MeshAsset* AssetFactory::sendMeshToVRAM(std::vector<float>& vertices, float vert
     //normal
     glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 32, (void*)20);
     glEnableVertexAttribArray(2);
+
+    //unsigned int IBO;
+    //if (indexCount > 0)
+    //{
+    //    glGenBuffers(1, &IBO);
+    //    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
+    //    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexCount * sizeof(unsigned int), indices, GL_STATIC_DRAW);
+    //
+    //}
+
 
     MeshAsset* mesh = new MeshAsset();
     mesh->VAO = VAO;
@@ -355,32 +366,45 @@ MeshAsset* AssetFactory::GetMesh(std::string fileName)
 {
     if (meshAssets.find(fileName) != meshAssets.end()) return meshAssets[fileName];
 
-    return MakeObjMesh((assetFolder + fileName).c_str(), mat4());
+    //return MakeObjMesh((assetFolder + fileName).c_str(), mat4());
 
-    //const aiScene* scene = aiImportFile((assetFolder + fileName).c_str(), 0);
-    //if (scene == nullptr) return nullptr;
-    //
-    //aiMesh* mesh = scene->mMeshes[0];
-    //
-    //int faceCount = mesh->mNumFaces;
-    //std::vector<unsigned int> indices;
-    //for (int i = 0; i < faceCount; i++)
-    //{
-    //    indices.push_back(mesh->mFaces[i].mIndices[0]);
-    //    indices.push_back(mesh->mFaces[i].mIndices[1]);
-    //    indices.push_back(mesh->mFaces[i].mIndices[2]);
-    //
-    //    // generate a second triangle for quads
-    //    if (mesh->mFaces[i].mNumIndices == 4)
-    //    {
-    //        indices.push_back(mesh->mFaces[i].mIndices[0]);
-    //        indices.push_back(mesh->mFaces[i].mIndices[2]);
-    //        indices.push_back(mesh->mFaces[i].mIndices[3]);
-    //    }
-    //}
-    //
-    //int vertexCount = mesh->mNumVertices;
-    //Vertex* vertices = new Vertex[vertexCount];
-    //
-    //return nullptr;
+    const aiScene* scene = aiImportFile((assetFolder + fileName).c_str(), 0);
+    if (scene == nullptr) return nullptr;
+    
+    aiMesh* mesh = scene->mMeshes[0];
+    
+    int faceCount = mesh->mNumFaces;
+    std::vector<unsigned int> indices;
+    for (int i = 0; i < faceCount; i++)
+    {
+        indices.push_back(mesh->mFaces[i].mIndices[0]);
+        indices.push_back(mesh->mFaces[i].mIndices[1]);
+        indices.push_back(mesh->mFaces[i].mIndices[2]);
+    
+        // generate a second triangle for quads
+        if (mesh->mFaces[i].mNumIndices == 4)
+        {
+            indices.push_back(mesh->mFaces[i].mIndices[0]);
+            indices.push_back(mesh->mFaces[i].mIndices[2]);
+            indices.push_back(mesh->mFaces[i].mIndices[3]);
+        }
+    }
+    
+    int vertexCount = mesh->mNumVertices;
+
+    std::vector<float> vertices;
+    vertices.reserve(vertexCount * 8);
+    for (int i = 0; i < vertexCount; i++)
+    {
+        vertices.push_back(mesh->mVertices[i].x);
+        vertices.push_back(mesh->mVertices[i].y);
+        vertices.push_back(mesh->mVertices[i].z);
+        vertices.push_back(mesh->mTextureCoords[0][i].x);
+        vertices.push_back(mesh->mTextureCoords[0][i].y);
+        vertices.push_back(mesh->mNormals[i].x);
+        vertices.push_back(mesh->mNormals[i].y);
+        vertices.push_back(mesh->mNormals[i].z);
+    }
+
+    return  sendMeshToVRAM( vertices, vertexCount, indices.size(), indices.data());
 }

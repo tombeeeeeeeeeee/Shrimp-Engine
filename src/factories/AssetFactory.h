@@ -29,13 +29,14 @@ private:
 
     std::vector<unsigned int> VAOs;
     std::vector<unsigned int> VBOs;
+    std::vector<unsigned int> IBOs;
     std::vector<unsigned int> textures;
 
     MeshAsset* MakeObjMesh(const char* filepath, mat4 preTransform);
     MeshAsset* MakeFbxMesh(const char* filepath, mat4 preTransform);
     unsigned int MakeTexture(const char* filename);
 
-    MeshAsset* sendMeshToVRAM(std::vector<float>& vertices,float vertexCount);
+    MeshAsset* sendMeshToVRAM(std::vector<float>& vertices, int vertexCount, int indexCount = 0, unsigned int* indcies = nullptr);
 
     vec3 readVec3(std::vector<std::string> strings, mat4 preTransform, float w);
     vec3 readVec3(std::vector<std::string> strings);

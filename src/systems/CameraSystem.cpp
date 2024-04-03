@@ -3,7 +3,7 @@
 CameraSystem::CameraSystem(unsigned int shader, GLFWwindow* window)
 {
     this->window = window;
-
+    cameraTransform = 0;
     glUseProgram(shader);
     viewLocation = glGetUniformLocation(shader, "view");
 }
@@ -18,18 +18,15 @@ bool CameraSystem::Update(std::unordered_map<unsigned int, TransformComponent*>&
 
     vec3 pos = transformComponents[cameraID]->Position();
     vec3 eulers = transformComponents[cameraID]->LocalEulers();
-   
-    float theta = eulers.z;
-    float phi = eulers.y;
 
     vec3& forwards = cameraComponent.forward;
     vec3& up = cameraComponent.up;
     vec3& right = cameraComponent.right;
 
     forwards = {
-        -glm::cos(theta) * glm::cos(phi),
-        -glm::sin(theta) * glm::cos(phi),
-        glm::sin(phi)
+        -glm::cos(eulers.z) * glm::cos(eulers.y),
+        -glm::sin(eulers.z) * glm::cos(eulers.y),
+        glm::sin(eulers.y)
     }; 
      
     right = GetNormalised(cross(forwards, globalUp));
@@ -61,8 +58,7 @@ bool CameraSystem::Update(std::unordered_map<unsigned int, TransformComponent*>&
         dPos = GetNormalised(dPos);
         vec3 dForward = 0.1f * dPos.x * forwards;
         vec3 dRight = 0.1f * dPos.y * right;
-        vec3 position = transformComponents[cameraID]->LocalPosition() + dForward + dRight;
-        transformComponents[cameraID]->localTransform = SetPosition(transformComponents[cameraID]->localTransform, position);
+        transformComponents[cameraID]->position = transformComponents[cameraID]->LocalPosition() + dForward + dRight;   
     }
 
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
@@ -84,14 +80,11 @@ void CameraSystem::RotateCamera()
     vec3 dEulers = { 0.0f, 0.0f, 0.0f };
     double mouse_x, mouse_y;
     glfwGetCursorPos(window, &mouse_x, &mouse_y);
-    glfwSetCursorPos(window, w/2, h/2);
+    glfwSetCursorPos(window, w / 2, h / 2);
 
-    dEulers.z = -0.01f * static_cast<float>(mouse_x - w/2);
-    dEulers.y = -0.01f * static_cast<float>(mouse_y - h/2);
+    dEulers.z = -0.0005f * static_cast<float>(mouse_x - w / 2);
+    dEulers.y = -0.0005f * static_cast<float>(mouse_y - h / 2);
 
-    cameraTransform->localTransform *= RotationYMatrix(dEulers.y);
-    cameraTransform->localTransform *= RotationZMatrix(dEulers.z);
-
-
+    cameraTransform->eulers += dEulers;
 }
 

@@ -20,7 +20,7 @@ void main()
 
 	vec3 normalMapColor = texture(normalMap, fragmentTexCoord).rgb;
 
-	float directionalLightStrength = max(0, dot(fragmentNormal, directionalLightDirection));
+	float directionalLightStrength = max(0, dot(normalize(fragmentNormal), directionalLightDirection));
 	screenColor = directionalLightStrength * vec4(directionalLightColor * baseColor, 1) + ambientLightStrength * vec4(ambientLightColor * baseColor, 0);
 
 	float alpha = 1 - texture(mask, fragmentTexCoord).r;

@@ -22,9 +22,9 @@ void HierarchySystem::GlobalTransformUpdate(unsigned int entity, std::unordered_
 		TransformComponent* tc = transformComponents[entity];
 
 		if (tc->parent > 0)
-			tc->globalTransform = transformComponents[tc->parent]->globalTransform * tc->localTransform;
+			tc->globalTransform = transformComponents[tc->parent]->globalTransform * tc->LocalTransform();
 		else
-			tc->globalTransform = tc->localTransform;
+			tc->globalTransform = tc->LocalTransform();
 
 		std::vector<unsigned int>::iterator iter;
 		for (iter = tc->children.begin(); iter != tc->children.end(); iter++)

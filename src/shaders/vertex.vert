@@ -22,6 +22,6 @@ void main()
 
 	gl_Position = projection * view * model * vec4(vertexPos, 1.0);
 	fragmentTexCoord = vertexTexCoord;
-	fragmentNormal = normalize((model * vec4(vertexNormal, 0.0)).xyz);
+	fragmentNormal = (model * vec4(vertexNormal, 0.0)).xyz;
 	fragmentPos = (model * vec4(vertexPos, 0.0)).xyz;
 }

@@ -9,10 +9,10 @@ RenderSystem::RenderSystem(unsigned int shader, GLFWwindow* window)
     glUniform1i(glGetUniformLocation(shader, "diffuse"), 0);
     glUniform1i(glGetUniformLocation(shader, "mask"), 1);
     glUniform1i(glGetUniformLocation(shader, "normalMap"), 2);
-    glUniform3f(glGetUniformLocation(shader, "directionalLightColor"), 0.98,0.89,0.8);
+    glUniform3f(glGetUniformLocation(shader, "directionalLightColor"), 0.8,0.8,0.8);
     glUniform3f(glGetUniformLocation(shader, "directionalLightDirection"), 0.86,0.7,0.73);
     glUniform3f(glGetUniformLocation(shader, "ambientLightColor"), 1,0,0.1);
-    glUniform1f(glGetUniformLocation(shader, "ambientLightStrength"), 0.2);
+    glUniform1f(glGetUniformLocation(shader, "ambientLightStrength"), 0.1);
 
 
     //enable alpha blending

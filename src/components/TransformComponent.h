@@ -4,7 +4,11 @@
 struct TransformComponent
 {
 	mat4 globalTransform;
-	mat4 localTransform;
+	
+	vec3 position = { 0,0,0 };
+	vec3 eulers   = { 0,0,0 };
+	vec3 scale    = { 1,1,1 };
+
 	unsigned int parent = 0;
 	std::vector<unsigned int> children;
 
@@ -12,4 +16,6 @@ struct TransformComponent
 	vec3 LocalPosition();
 	vec3 Eulers(bool radians = true);
 	vec3 LocalEulers(bool radians = true);
+
+	mat4 LocalTransform();
 };

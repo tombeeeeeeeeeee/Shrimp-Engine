@@ -95,6 +95,16 @@ mat4 ScaleMatrix(float x, float y, float z)
 	);
 }
 
+mat4 ScaleMatrix(vec3 scale)
+{
+	return mat4(
+		scale.x, 0, 0, 0,
+		0, scale.y, 0, 0,
+		0, 0, scale.z, 0,
+		0,   0,   0,   1
+	);
+}
+
 mat4 ViewMatrix(vec3 from, vec3 to, vec3 up)
 {
 
