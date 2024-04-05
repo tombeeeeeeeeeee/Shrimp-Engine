@@ -82,39 +82,35 @@ void App::SetUpGLFW()
         std::cout << "Couldn't load opengl" << std::endl;
         glfwTerminate();
     }
-
 }
 
 void App::Start()
 {
     //Space to add things for the start
     std::vector<unsigned int> gameObjects;
-    int cubeCount = 5;
+    int objectCount = 1;
     srand(time(NULL));
-    for (int i = 0; i < cubeCount; i++)
+    for (int i = 0; i < objectCount; i++)
     {
         float x = (10.0f * (float)rand() / RAND_MAX) - 5.0f;
         float y = (10.0f * (float)rand() / RAND_MAX) - 5.0f;
         float z = (10.0f * (float)rand() / RAND_MAX) - 5.0f;
 
-        float xRot = (360.0f * (float)rand() / RAND_MAX) - 180.0f;
-        float yRot = (360.0f * (float)rand() / RAND_MAX) - 180.0f;
-        float zRot = (360.0f * (float)rand() / RAND_MAX) - 180.0f;
+        float xRot = 0 ;//(360.0f * (float)rand() / RAND_MAX) - 180.0f;
+        float yRot = 0 ;//(360.0f * (float)rand() / RAND_MAX) - 180.0f;
+        float zRot = 90;//(360.0f * (float)rand() / RAND_MAX) - 180.0f;
 
         //unsigned int cubeEntity = componentFactory->MakeRat({ x, y, z }, { xRot, yRot, zRot });
         unsigned int cubeEntity = componentFactory->MakeEmptyTransform({ x, y, z }, { xRot, yRot, zRot });
         componentFactory->AddRenderComponent(cubeEntity);
-        renderComponents[cubeEntity]->mesh = assetFactory->GetMesh("models/rat.obj");
-        renderComponents[cubeEntity]->material = assetFactory->GetMaterial("img/cubeNormal.png", 1);
+        renderComponents[cubeEntity]->mesh = assetFactory->GetMesh("models/cat.obj");
+        renderComponents[cubeEntity]->material = assetFactory->GetMaterial("img/Cat_diffuse.jpg", 1);
         gameObjects.push_back(cubeEntity);
         hierarchySystem->SetParent(cubeEntity, cubeEntity - 1);
     }
-    transformComponents[1]->scale = { 0.001, 0.05, 0.05 };
+    transformComponents[1]->scale = { 0.05, 0.05, 0.05 };
 
-    componentFactory->AddPhysicsComponent(3);
-    physicsComponents[3]->eulerVelocity = { 0, 30, 0};
-
-    unsigned int cameraEntity = componentFactory->MakeCamera({ 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f,0.0f });
+    unsigned int cameraEntity = componentFactory->MakeCamera({ 0.0f, 1.0f, 0.0f }, { 0.0f, .0f,0.0f });
 
     CameraComponent* camera = new CameraComponent();
     cameraComponent = camera;

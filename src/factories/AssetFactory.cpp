@@ -3,6 +3,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #endif 
 #include "../stb_image.h"
+#include <assimp/postprocess.h>
 
 AssetFactory::AssetFactory(std::string _assetFolder) : assetFolder(_assetFolder)
 { 
@@ -106,69 +107,6 @@ MeshAsset* AssetFactory::RatMesh()
     return GetMesh("models/rat.obj");
 }
 
-MeshAsset* AssetFactory::MakeObjMesh(const char* filepath, mat4 preTransform)
-{
-    //Vectors to store .obj model info
-    std::vector<vec3> v; 
-    std::vector<vec2> vt; 
-    std::vector<vec3> vn;
-    std::vector<float> vertices;
-
-    //number of attributes in each vector for resizing to avoid dynamic memory allocation
-    size_t vertexCount = 0; 
-    size_t texCoordCount = 0; 
-    size_t vertexNormalCount = 0;
-    size_t triCount = 0;
-
-    //First run through to get count
-    string line; std::ifstream model; std::vector<string> data;
-    model.open(filepath);
-    if (!model.is_open()) std::cout << "Failed to open: " << filepath << std::endl;
-    while (getline(model, line))
-    {
-        data = StringSplit(line, " ");
-        if (data.size() != 0)
-        {
-            if (data[0] == "v") vertexCount++;
-            else if (data[0] == "vt") texCoordCount++;
-            else if (data[0] == "vn") vertexNormalCount++;
-            else if (data[0] == "f") triCount = data.size() - 3;
-        }
-     
-    } model.close();
-
-    //vector resizing to avoid dynamic memory allocation
-    v.reserve(vertexCount);
-    vt.reserve(texCoordCount);
-    vn.reserve(vertexNormalCount);
-    vertices.reserve(triCount * 3 * 8);
-
-
-    //second run through to populate model data
-    model.open(filepath);
-    while (getline(model, line))
-    {
-        data = StringSplit(line, " ");
-
-        if (data.size() != 0)
-        {
-            if (!data[0].compare("v")) v.push_back(readVec3(data, preTransform, 1));
-            else if (!data[0].compare("vt")) vt.push_back(readVec2(data));
-            else if (!data[0].compare("vn")) vn.push_back(readVec3(data, preTransform, 0));
-            else if (!data[0].compare("f"))
-                readFace(data, v, vt, vn, vertices);
-        }
-    } model.close();
-
-    //turn populated data into usable information
-   return sendMeshToVRAM(vertices, vertices.size() / 8);
-}
-
-MeshAsset* AssetFactory::MakeFbxMesh(const char* filepath, mat4 preTransform)
-{
-    return nullptr;
-}
-
 unsigned int AssetFactory::MakeTexture(const char* filename)
 {
     int width, height, channels;
@@ -225,111 +163,26 @@ MeshAsset* AssetFactory::sendMeshToVRAM(std::vector<float>& vertices, int vertex
     glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 32, (void*)20);
     glEnableVertexAttribArray(2);
 
-    //unsigned int IBO;
-    //if (indexCount > 0)
-    //{
-    //    glGenBuffers(1, &IBO);
-    //    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
-    //    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexCount * sizeof(unsigned int), indices, GL_STATIC_DRAW);
-    //
-    //}
-
-
     MeshAsset* mesh = new MeshAsset();
     mesh->VAO = VAO;
-    mesh->vertexCount = vertexCount;
+    mesh->IBO = 0;
+    mesh->triCount = vertexCount / 3;
+
+    unsigned int IBO;
+    if (indexCount > 0)
+    {
+        glGenBuffers(1, &IBO);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexCount * sizeof(unsigned int), indices, GL_STATIC_DRAW);
+        mesh->triCount = indexCount/3;
+        mesh->IBO = IBO;
+    }
+ 
+    glBindVertexArray(0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+
     return mesh;
-}
-
-vec3 AssetFactory::readVec3(std::vector<std::string> strings, mat4 preTransform, float w)
-{
-    return (preTransform * vec4(stof(strings[1]), stof(strings[2]), stof(strings[3]), w)).xyz();
-}
-
-vec3 AssetFactory::readVec3(std::vector<std::string> strings)
-{
-    return vec3(stof(strings[1]), stof(strings[2]), stof(strings[3]));
-}
-
-vec2 AssetFactory::readVec2(std::vector<std::string> strings)
-{
-    return vec2(stof(strings[1]), stof(strings[2]));
-}
-
-void AssetFactory::readFace(std::vector<string>& data, std::vector<vec3>& v, std::vector<vec2>& vt, std::vector<vec3>& vn, std::vector<float>& vertices)
-{
-    size_t triCount = data.size() - 3;
-    if (vn.size() == 0)
-    {
-        //for each triangle
-        for (int i = 0; i < triCount; i++)
-        {
-            vec3 a = readTriCornerVertex(data[1], v);
-            vec3 b = readTriCornerVertex(data[2 + i], v);
-            vec3 c = readTriCornerVertex(data[3 + i], v);
-
-            vec3 GetNormalised = cross(b - a, c - a);
-            GetNormalised = GetNormalised.GetNormalised();
-
-            readTriCorner(data[1], v, vt, GetNormalised,  vertices);
-            readTriCorner(data[2 + i], v, vt, GetNormalised, vertices);
-            readTriCorner(data[3 + i], v, vt, GetNormalised, vertices);
-        }
-    }
-    else
-    {
-        //for each triangle
-        for (int i = 0; i < triCount; i++)
-        {
-            readTriCorner(data[1], v, vt, vn, vertices);
-            readTriCorner(data[2 + i], v, vt, vn, vertices);
-            readTriCorner(data[3 + i], v, vt, vn, vertices);
-        }
-    }
-}
-
-vec3 AssetFactory::readTriCornerVertex(string& data, std::vector<vec3>& v)
-{
-    std::vector<string> cornerData = StringSplit(data, "/");
-
-    return v[stoll(cornerData[0], 0) - 1];
-}
-
-void AssetFactory::readTriCorner(string& data, std::vector<vec3>& v, std::vector<vec2>& vt, std::vector<vec3>& vn, std::vector<float>& vertices)
-{
-    std::vector<string> cornerData = StringSplit(data, "/");
-
-    vec3 vertexPos = v[stoll(cornerData[0], 0) - 1];
-    vertices.push_back(vertexPos.x);
-    vertices.push_back(vertexPos.y);
-    vertices.push_back(vertexPos.z);
-
-    vec2 texturePos = vt[stoll(cornerData[1], 0) - 1];
-    vertices.push_back(texturePos.x);
-    vertices.push_back(texturePos.y);
-
-    vec3 normals = vn[stoll(cornerData[2], 0) - 1];
-    vertices.push_back(normals.x);
-    vertices.push_back(normals.y);
-    vertices.push_back(normals.z);
-}
-
-void AssetFactory::readTriCorner(string& data, std::vector<vec3>& v, std::vector<vec2>& vt, vec3 GetNormalised, std::vector<float>& vertices)
-{
-    std::vector<string> cornerData = StringSplit(data, "/");
-
-    vec3 vertexPos = v[stol(cornerData[0]) - 1];
-    vertices.push_back(vertexPos.x);
-    vertices.push_back(vertexPos.y);
-    vertices.push_back(vertexPos.z);
-
-    vec2 texturePos = vt[stol(cornerData[1]) - 1];
-    vertices.push_back(texturePos.x);
-    vertices.push_back(texturePos.y);
-
-    vertices.push_back(GetNormalised.x);
-    vertices.push_back(GetNormalised.y);
-    vertices.push_back(GetNormalised.z);
 }
 
 MaterialAsset* AssetFactory::GetMaterial(std::string fileName, int fileMask)
@@ -366,13 +219,12 @@ MeshAsset* AssetFactory::GetMesh(std::string fileName)
 {
     if (meshAssets.find(fileName) != meshAssets.end()) return meshAssets[fileName];
 
-    //return MakeObjMesh((assetFolder + fileName).c_str(), mat4());
-
-    const aiScene* scene = aiImportFile((assetFolder + fileName).c_str(), 0);
+    const aiScene* scene = aiImportFile((assetFolder + fileName).c_str(), aiProcess_GenNormals | aiProcess_Triangulate | aiProcess_JoinIdenticalVertices);
     if (scene == nullptr) return nullptr;
     
     aiMesh* mesh = scene->mMeshes[0];
     
+
     int faceCount = mesh->mNumFaces;
     std::vector<unsigned int> indices;
     for (int i = 0; i < faceCount; i++)
@@ -390,7 +242,7 @@ MeshAsset* AssetFactory::GetMesh(std::string fileName)
         }
     }
     
-    int vertexCount = mesh->mNumVertices;
+    int vertexCount = mesh->mNumVertices; 
 
     std::vector<float> vertices;
     vertices.reserve(vertexCount * 8);

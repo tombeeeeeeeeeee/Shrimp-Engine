@@ -5,7 +5,7 @@ RenderSystem::RenderSystem(unsigned int shader, GLFWwindow* window)
 	modelLocation = glGetUniformLocation(shader, "model");
 	this->window = window;
 
-    //Set material layers
+    //Set material layers //This needs to be refactored to allow for different Shaders
     glUniform1i(glGetUniformLocation(shader, "diffuse"), 0);
     glUniform1i(glGetUniformLocation(shader, "mask"), 1);
     glUniform1i(glGetUniformLocation(shader, "normalMap"), 2);
@@ -25,31 +25,39 @@ RenderSystem::RenderSystem(unsigned int shader, GLFWwindow* window)
 
 void RenderSystem::Update(std::unordered_map<unsigned int, TransformComponent*>& transformComponents, std::unordered_map<unsigned int, RenderComponent*>& renderComponents)
 {
+    //Clear Buffers
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
+    //For each Render Component
     for (std::pair<unsigned int, RenderComponent*> entity : renderComponents) {
     
-        //if (entity.second.mesh == nullptr) continue;
+        //If the mesh is bugged, do not render. TO BE REPLACED WITH BROKEN MESH MESH
+        if (entity.second->mesh == nullptr) continue;
+
+        //Get transform pair's model transform
         TransformComponent transform = *transformComponents[entity.first];
         mat4 model;
         model = transform.globalTransform;
-
         glUniformMatrix4fv(modelLocation, 1, GL_FALSE, model.entries);
     
+        //For each texture with the render components material
         unsigned int materialMask = 1;
         for (int i = 0; i < MATERIAL_MAPCOUNT; i++)
         {
             if (entity.second->material == nullptr || entity.second->material->materials[0] == 0)
             {
+                //Bind missing texture if the material doesnt exist.
                 glBindTexture(GL_TEXTURE_2D, missingTextureTexture);
                 break;
             }
 
+            //if the current material/texture map matches the current binary
             else if ((entity.second->material->materialMask & materialMask) == materialMask)
             {
                 glActiveTexture(GL_TEXTURE0 + i);
                 if (entity.second->material->materials[i] == 0 && i == 0)
                 {
+                    //Bind missing texture if the diffuse doesnt exist.
                     glBindTexture(GL_TEXTURE_2D, missingTextureTexture);
                 }
                 else
@@ -59,8 +67,14 @@ void RenderSystem::Update(std::unordered_map<unsigned int, TransformComponent*>&
             }
             materialMask *= 2;
         }
+
+        //Bind mesh for drawing
         glBindVertexArray(entity.second->mesh->VAO);
-        glDrawArrays(GL_TRIANGLES, 0, entity.second->mesh->vertexCount);
+
+        if(entity.second->mesh->IBO != 0)
+            glDrawElements(GL_TRIANGLES, 3 * entity.second->mesh->triCount, GL_UNSIGNED_INT, 0);
+        else
+            glDrawArrays(GL_TRIANGLES, 0,  3 * entity.second->mesh->triCount);
     }
 
     glfwSwapBuffers(window);
@@ -68,6 +82,7 @@ void RenderSystem::Update(std::unordered_map<unsigned int, TransformComponent*>&
 
 void RenderSystem::CreateMissingTexture()
 {
+              //MAGENTA
     int data = 0xff00ff;
 
     //make the texture

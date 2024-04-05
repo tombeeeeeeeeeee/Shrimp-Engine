@@ -4,8 +4,10 @@
 
 int main() {
 
+	//TO DO, create an APP for building, and an APP for running the game
 	App* app = new App();
 
+	//App setup functions
 	app->SetUpOpengl();
 	app->MakeSystems();
 	app->MakeFactories();

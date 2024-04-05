@@ -18,7 +18,7 @@ struct MeshAsset
 {
 	unsigned int VAO;
 	unsigned int IBO;
-	unsigned int vertexCount;
+	unsigned int triCount;
 };
 
 const int MATERIAL_MAPCOUNT = 2;
