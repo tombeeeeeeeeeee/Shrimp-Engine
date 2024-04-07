@@ -11,6 +11,7 @@ CameraSystem::CameraSystem(unsigned int shader, GLFWwindow* window)
 bool CameraSystem::Update(std::unordered_map<unsigned int, TransformComponent*>& transformComponents,
     unsigned int cameraID, CameraComponent& cameraComponent, float dt, unsigned int mouseInputMask) 
 {
+    //if the camera transform hasn't been set yet, set it. (might just reset each tick)
     if (cameraTransform == nullptr) cameraTransform = transformComponents[cameraID];
 
     if ((mouseInputMask & 2) == 2) RotateCamera();

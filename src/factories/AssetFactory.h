@@ -33,7 +33,7 @@ public:
     MaterialAsset* GetMaterial(std::string filenames[], int fileMask);
 
     /// <summary>
-    /// 
+    /// Get mesh from file
     /// </summary>
     /// <param name="filename"></param>
     /// <returns></returns>
