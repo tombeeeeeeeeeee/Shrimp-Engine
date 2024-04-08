@@ -83,7 +83,7 @@ void CameraSystem::RotateCamera()
     glfwGetCursorPos(window, &mouse_x, &mouse_y);
     glfwSetCursorPos(window, w / 2, h / 2);
 
-    dEulers.x = -0.0005f * static_cast<float>(mouse_x - w / 2);
+    dEulers.z = -0.0005f * static_cast<float>(mouse_x - w / 2);
     dEulers.y = -0.0005f * static_cast<float>(mouse_y - h / 2);
 
     cameraTransform->eulers += dEulers;
