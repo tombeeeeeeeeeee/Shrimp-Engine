@@ -39,6 +39,13 @@ public:
     /// <returns></returns>
     MeshAsset* GetMesh(std::string filename);
 
+    /// <summary>
+    /// Creates the skybox material.
+    /// </summary>
+    /// <param name="filename"></param>
+    /// <returns>Skybox Material Asset</returns>
+    MaterialAsset* GenerateSkyBoxMaterial(std::string filename[6]);
+
 private:
 
     /// <summary>

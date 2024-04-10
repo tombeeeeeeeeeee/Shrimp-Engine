@@ -82,3 +82,12 @@ PhysicsComponent* ComponentFactory::AddPhysicsComponent(unsigned int _entity)
 
     return physics;
 }
+
+unsigned int ComponentFactory::MakeSkyBox(std::string textureFileNames[6])
+{
+    unsigned int skybox = MakeEmptyTransform();
+
+    RenderComponent* rend = new RenderComponent();
+    rend->mesh = assFact.CubeMesh();
+    rend->material = assFact.GenerateSkyBoxMaterial(textureFileNames);
+}

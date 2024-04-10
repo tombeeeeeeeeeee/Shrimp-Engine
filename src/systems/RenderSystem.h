@@ -7,7 +7,7 @@
 class RenderSystem {
 public:
 
-    RenderSystem(unsigned int shader, GLFWwindow* window);
+    RenderSystem(std::vector<unsigned int> _shaders, GLFWwindow* window);
 
     /// <summary>
     /// Renders each update. 
@@ -34,6 +34,18 @@ private:
     /// Pointer to current window
     /// </summary>
     GLFWwindow* window;
+
+    int shaderProgramCount;
+
+    /// <summary>
+    /// List of entities in order of the shader they use.
+    /// </summary>
+    std::vector<unsigned int> entityShaderOrder[];
+
+    /// <summary>
+    /// shader programs
+    /// </summary>
+    std::vector<unsigned int> shaders;
 
     /// <summary>
     /// Function to make the texture used when a texture is missing

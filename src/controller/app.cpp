@@ -88,7 +88,7 @@ void App::Start()
 {
     //Space to add things for the start
     std::vector<unsigned int> gameObjects;
-    int objectCount = 1;
+    int objectCount = 4;
     srand(time(NULL));
     for (int i = 0; i < objectCount; i++)
     {
@@ -96,15 +96,15 @@ void App::Start()
         float y = (10.0f * (float)rand() / RAND_MAX) - 5.0f;
         float z = (10.0f * (float)rand() / RAND_MAX) - 5.0f;
 
-        float xRot = 0 ;//(360.0f * (float)rand() / RAND_MAX) - 180.0f;
-        float yRot = 0 ;//(360.0f * (float)rand() / RAND_MAX) - 180.0f;
-        float zRot = 90;//(360.0f * (float)rand() / RAND_MAX) - 180.0f;
+        float xRot = (360.0f * (float)rand() / RAND_MAX) - 180.0f;
+        float yRot = (360.0f * (float)rand() / RAND_MAX) - 180.0f;
+        float zRot = (360.0f * (float)rand() / RAND_MAX) - 180.0f;
 
         //unsigned int cubeEntity = componentFactory->MakeRat({ x, y, z }, { xRot, yRot, zRot });
         unsigned int cubeEntity = componentFactory->MakeEmptyTransform({ x, y, z }, { xRot, yRot, zRot });
         componentFactory->AddRenderComponent(cubeEntity);
-        renderComponents[cubeEntity]->mesh = assetFactory->GetMesh("models/cat.obj");
-        renderComponents[cubeEntity]->material = assetFactory->GetMaterial("img/Cat_diffuse.jpg", 1);
+        renderComponents[cubeEntity]->mesh = assetFactory->GetMesh("models/rat.obj");
+        renderComponents[cubeEntity]->material = assetFactory->GetMaterial("img/me.PNG", 1);
         gameObjects.push_back(cubeEntity);
         hierarchySystem->SetParent(cubeEntity, cubeEntity - 1);
     }

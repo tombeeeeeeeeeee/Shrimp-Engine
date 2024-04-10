@@ -1,18 +1,20 @@
 #include "RenderSystem.h"
 
-RenderSystem::RenderSystem(unsigned int shader, GLFWwindow* window)
+RenderSystem::RenderSystem(std::vector<unsigned int> _shaders, GLFWwindow* window)
 {
-	modelLocation = glGetUniformLocation(shader, "model");
+    shaders = _shaders;
+
+	modelLocation = glGetUniformLocation(shaders[1], "model");
 	this->window = window;
 
     //Set material layers //This needs to be refactored to allow for different Shaders
-    glUniform1i(glGetUniformLocation(shader, "diffuse"), 0);
-    glUniform1i(glGetUniformLocation(shader, "mask"), 1);
-    glUniform1i(glGetUniformLocation(shader, "normalMap"), 2);
-    glUniform3f(glGetUniformLocation(shader, "directionalLightColor"), 0.8,0.8,0.8);
-    glUniform3f(glGetUniformLocation(shader, "directionalLightDirection"), 0.86,0.7,0.73);
-    glUniform3f(glGetUniformLocation(shader, "ambientLightColor"), 1,0,0.1);
-    glUniform1f(glGetUniformLocation(shader, "ambientLightStrength"), 0.1);
+    glUniform1i(glGetUniformLocation(shaders[1], "diffuse"), 0);
+    glUniform1i(glGetUniformLocation(shaders[1], "mask"), 1);
+    glUniform1i(glGetUniformLocation(shaders[1], "normalMap"), 2);
+    glUniform3f(glGetUniformLocation(shaders[1], "directionalLightColor"), 0.8,0.8,0.8);
+    glUniform3f(glGetUniformLocation(shaders[1], "directionalLightDirection"), 0.86,0.7,0.73);
+    glUniform3f(glGetUniformLocation(shaders[1], "ambientLightColor"), 1,0,0.1);
+    glUniform1f(glGetUniformLocation(shaders[1], "ambientLightStrength"), 0.1);
 
 
     //enable alpha blending
@@ -28,56 +30,66 @@ void RenderSystem::Update(std::unordered_map<unsigned int, TransformComponent*>&
     //Clear Buffers
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
-    //For each Render Component
-    for (std::pair<unsigned int, RenderComponent*> entity : renderComponents) {
-    
-        //If the mesh is bugged, do not render. TO BE REPLACED WITH BROKEN MESH MESH
-        if (entity.second->mesh == nullptr) continue;
+    //Check if render Component is in shader order array
+    for (std::pair<unsigned int, RenderComponent*> entity : renderComponents)
+    {
+        entityShaderOrder[entity.second->material->shaderProgram].push_back(entity.first);
+    }
 
-        //Get transform pair's model transform
-        TransformComponent transform = *transformComponents[entity.first];
-        mat4 model;
-        model = transform.globalTransform;
-        glUniformMatrix4fv(modelLocation, 1, GL_FALSE, model.entries);
-    
-        //For each texture with the render components material
-        unsigned int materialMask = 1;
-        for (int i = 0; i < MATERIAL_MAPCOUNT; i++)
+    //Render all components In Shader Order
+    for (int i = 0; i < shaderProgramCount; i++)
+    {
+        for (std::vector<unsigned int>::iterator iter = entityShaderOrder[i].begin(); iter != entityShaderOrder[i].end(); iter++)
         {
-            if (entity.second->material == nullptr || entity.second->material->materials[0] == 0)
-            {
-                //Bind missing texture if the material doesnt exist.
-                glBindTexture(GL_TEXTURE_2D, missingTextureTexture);
-                break;
-            }
+            //If the mesh is bugged, do not render. TO BE REPLACED WITH BROKEN MESH MESH
+            if (renderComponents[*iter]->mesh == nullptr) continue;
 
-            //if the current material/texture map matches the current binary
-            else if ((entity.second->material->materialMask & materialMask) == materialMask)
+            //Get transform pair's model transform
+            TransformComponent transform = *transformComponents[*iter];
+            mat4 model;
+            model = transform.globalTransform;
+            glUniformMatrix4fv(modelLocation, 1, GL_FALSE, model.entries);
+
+            //For each texture with the render components material
+            unsigned int materialMask = 1;
+            for (int i = 0; i < MATERIAL_MAPCOUNT; i++)
             {
-                glActiveTexture(GL_TEXTURE0 + i);
-                if (entity.second->material->materials[i] == 0 && i == 0)
+                if (renderComponents[*iter]->material == nullptr || renderComponents[*iter]->material->materials[0] == 0)
                 {
-                    //Bind missing texture if the diffuse doesnt exist.
+                    //Bind missing texture if the material doesnt exist.
                     glBindTexture(GL_TEXTURE_2D, missingTextureTexture);
+                    break;
                 }
-                else
+
+                //if the current material/texture map matches the current binary
+                else if ((renderComponents[*iter]->material->materialMask & materialMask) == materialMask)
                 {
-                    glBindTexture(GL_TEXTURE_2D, entity.second->material->materials[i]);
+                    glActiveTexture(GL_TEXTURE0 + i);
+                    if (renderComponents[*iter]->material->materials[i] == 0 && i == 0)
+                    {
+                        //Bind missing texture if the diffuse doesnt exist.
+                        glBindTexture(GL_TEXTURE_2D, missingTextureTexture);
+                    }
+                    else
+                    {
+                        glBindTexture(GL_TEXTURE_2D, renderComponents[*iter]->material->materials[i]);
+                    }
                 }
+                materialMask *= 2;
             }
-            materialMask *= 2;
+
+            //Bind mesh for drawing
+            glBindVertexArray(renderComponents[*iter]->mesh->VAO);
+
+            if (renderComponents[*iter]->mesh->IBO != 0)
+                glDrawElements(GL_TRIANGLES, 3 * renderComponents[*iter]->mesh->triCount, GL_UNSIGNED_INT, 0);
+            else
+                glDrawArrays(GL_TRIANGLES, 0, 3 * renderComponents[*iter]->mesh->triCount);
         }
-
-        //Bind mesh for drawing
-        glBindVertexArray(entity.second->mesh->VAO);
-
-        if(entity.second->mesh->IBO != 0)
-            glDrawElements(GL_TRIANGLES, 3 * entity.second->mesh->triCount, GL_UNSIGNED_INT, 0);
-        else
-            glDrawArrays(GL_TRIANGLES, 0,  3 * entity.second->mesh->triCount);
     }
 
     glfwSwapBuffers(window);
+    for (int i = 0; i < shaderProgramCount; i++) entityShaderOrder[i].clear;
 }
 
 void RenderSystem::CreateMissingTexture()

@@ -27,7 +27,7 @@ struct MaterialAsset
 {
 	unsigned int materials[MATERIAL_MAPCOUNT];
 	unsigned int materialMask = 1;
-	unsigned int shaderProgram = 0;
+	unsigned int shaderProgram = 1;
 };
 
 struct RenderComponent

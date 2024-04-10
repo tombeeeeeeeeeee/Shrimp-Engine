@@ -260,3 +260,41 @@ MeshAsset* AssetFactory::GetMesh(std::string fileName)
 
     return  sendMeshToVRAM( vertices, vertexCount, indices.size(), indices.data());
 }
+
+MaterialAsset* AssetFactory::GenerateSkyBoxMaterial(std::string fileName[6])
+{
+    unsigned int cubeMapTexture;
+    glGenTextures(1, &cubeMapTexture);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMapTexture);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    for (int i = 0; i < 6; i++)
+    {
+        int width, height, channels;
+        unsigned char* data = stbi_load((assetFolder + fileName[i]).c_str(), &width, &height, &channels, 0);
+        if (data)
+        {
+            stbi_set_flip_vertically_on_load(false);
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+        }
+        else
+        {
+            ColouredOutput("FAILED TO LOAD CUBEMAP TEXTURE: ", Colour::red, false);
+            ColouredOutput(fileName[i], Colour::red, true);
+        }
+        stbi_image_free(data);
+    }
+
+    MaterialAsset* mat = new MaterialAsset();
+
+    mat->materials[0] = cubeMapTexture;
+    mat->materialMask = 1;
+    mat->shaderProgram = 0;
+
+    materialAssets["skyBox"] = mat;
+    return mat;
+}
