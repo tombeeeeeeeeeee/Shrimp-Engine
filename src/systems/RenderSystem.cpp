@@ -134,5 +134,4 @@ void RenderSystem::DrawSkyBox()
 
     glBindVertexArray(0);
     glEnable(GL_DEPTH_TEST);
-
 }
