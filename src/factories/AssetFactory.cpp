@@ -261,11 +261,13 @@ MeshAsset* AssetFactory::GetMesh(std::string fileName)
     return  sendMeshToVRAM( vertices, vertexCount, indices.size(), indices.data());
 }
 
-MaterialAsset* AssetFactory::GenerateSkyBoxMaterial(std::string fileName[6])
+unsigned int AssetFactory::GetSkyBoxMaterial(std::string fileName[6])
 {
-    unsigned int cubeMapTexture;
-    glGenTextures(1, &cubeMapTexture);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, cubeMapTexture);
+    if(materialAssets.find("skyBox") != materialAssets.end()) return materialAssets["skyBox"]->materials[0];
+
+    unsigned int fullscreenQuad;
+    glGenTextures(1, &fullscreenQuad);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, fullscreenQuad);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -291,10 +293,12 @@ MaterialAsset* AssetFactory::GenerateSkyBoxMaterial(std::string fileName[6])
 
     MaterialAsset* mat = new MaterialAsset();
 
-    mat->materials[0] = cubeMapTexture;
+    mat->materials[0] = fullscreenQuad;
+    textures.push_back(fullscreenQuad);
+
     mat->materialMask = 1;
     mat->shaderProgram = 0;
 
     materialAssets["skyBox"] = mat;
-    return mat;
+    return fullscreenQuad;
 }

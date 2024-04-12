@@ -83,8 +83,6 @@ public:
 	RenderComponent* AddRenderComponent(unsigned int _entity, RenderComponent* rend);
 	PhysicsComponent* AddPhysicsComponent(unsigned int _entity);
 
-	unsigned int MakeSkyBox(std::string textureFileNames[6]);
-
 private:
 	/// <summary>
 	/// Starting entity count value (must be above 0)

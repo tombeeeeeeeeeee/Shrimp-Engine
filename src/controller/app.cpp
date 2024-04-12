@@ -7,7 +7,8 @@ App::App()
 
 App::~App() 
 {
-    glDeleteProgram(shader);
+    for(unsigned int shader : shaders)
+        glDeleteProgram(shader);
 
     delete motionSystem;
     delete cameraSystem;
@@ -24,7 +25,7 @@ App::~App()
 
 App::App(App& app)
 {
-    shader = app.shader;
+    shaders = app.shaders;
     motionSystem = app.motionSystem;
     cameraSystem = app.cameraSystem;
     renderSystem = app.renderSystem;
@@ -142,20 +143,20 @@ void App::SetUpOpengl()
     glCullFace(GL_BACK);
     glEnable(GL_MULTISAMPLE);
 
-    shader = MakeShader();
+    //Default Shader Program
+    shaders.push_back(MakeShader());
 
-    glUseProgram(shader);
+    glUseProgram(shaders[0]);
 
-    unsigned int projLocation = glGetUniformLocation(shader, "projection");
-    mat4 projection = ProjectionMatrix( 45.0f, (float)w/(float)h , 0.1f, 250.0f);
-    glUniformMatrix4fv(projLocation, 1, GL_FALSE, projection.entries);
+    projectionMatrix = ProjectionMatrix( 45.0f, (float)w/(float)h , 0.1f, 250.0f);
+    
 }
 
 void App::MakeSystems() 
 {
     motionSystem = new MotionSystem();
-    cameraSystem = new CameraSystem(shader, window);
-    renderSystem = new RenderSystem(shader, window);
+    cameraSystem = new CameraSystem(viewMatrix, window);
+    renderSystem = new RenderSystem(shaders, window);
     hierarchySystem = new HierarchySystem(transformComponents);
 }
 

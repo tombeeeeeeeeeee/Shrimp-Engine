@@ -40,7 +40,7 @@ private:
 
     GLFWwindow* window;
 
-    unsigned int shader;
+    std::vector<unsigned int> shaders;
 
     //Systems
     MotionSystem* motionSystem;
@@ -51,6 +51,11 @@ private:
     //Factories
     AssetFactory* assetFactory;
     ComponentFactory* componentFactory;
+
+    //CameraMatricies
+    mat4 viewMatrix;
+    mat4 projectionMatrix;
+
 };
 
 static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);

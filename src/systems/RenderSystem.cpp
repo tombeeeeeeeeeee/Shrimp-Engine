@@ -1,20 +1,24 @@
 #include "RenderSystem.h"
 
-RenderSystem::RenderSystem(std::vector<unsigned int> _shaders, GLFWwindow* window)
+RenderSystem::RenderSystem(std::vector<unsigned int>& _shaders, mat4& _view, mat4& _projection, GLFWwindow* window)
 {
     shaders = _shaders;
+    view = _view;
+    projection = _projection;
 
-	modelLocation = glGetUniformLocation(shaders[1], "model");
+    glUniformMatrix4fv(glGetUniformLocation(shaders[0], "projection"), 1, GL_FALSE, projection.entries);
+
+	modelLocation = glGetUniformLocation(shaders[0], "model");
 	this->window = window;
 
     //Set material layers //This needs to be refactored to allow for different Shaders
-    glUniform1i(glGetUniformLocation(shaders[1], "diffuse"), 0);
-    glUniform1i(glGetUniformLocation(shaders[1], "mask"), 1);
-    glUniform1i(glGetUniformLocation(shaders[1], "normalMap"), 2);
-    glUniform3f(glGetUniformLocation(shaders[1], "directionalLightColor"), 0.8,0.8,0.8);
-    glUniform3f(glGetUniformLocation(shaders[1], "directionalLightDirection"), 0.86,0.7,0.73);
-    glUniform3f(glGetUniformLocation(shaders[1], "ambientLightColor"), 1,0,0.1);
-    glUniform1f(glGetUniformLocation(shaders[1], "ambientLightStrength"), 0.1);
+    glUniform1i(glGetUniformLocation(shaders[0], "diffuse"), 0);
+    glUniform1i(glGetUniformLocation(shaders[0], "mask"), 1);
+    glUniform1i(glGetUniformLocation(shaders[0], "normalMap"), 2);
+    glUniform3f(glGetUniformLocation(shaders[0], "directionalLightColor"), 0.8,0.8,0.8);
+    glUniform3f(glGetUniformLocation(shaders[0], "directionalLightDirection"), 0.86,0.7,0.73);
+    glUniform3f(glGetUniformLocation(shaders[0], "ambientLightColor"), 1,0,0.1);
+    glUniform1f(glGetUniformLocation(shaders[0], "ambientLightStrength"), 0.1);
 
 
     //enable alpha blending
@@ -37,10 +41,11 @@ void RenderSystem::Update(std::unordered_map<unsigned int, TransformComponent*>&
     }
 
     //Render all components In Shader Order
-    for (int i = 0; i < shaderProgramCount; i++)
+    for (int i = 0; i < SHRIMP_SHADER_PROGRAM_COUNT; i++)
     {
         for (std::vector<unsigned int>::iterator iter = entityShaderOrder[i].begin(); iter != entityShaderOrder[i].end(); iter++)
         {
+            glUseProgram(shaders[i]);
             //If the mesh is bugged, do not render. TO BE REPLACED WITH BROKEN MESH MESH
             if (renderComponents[*iter]->mesh == nullptr) continue;
 
@@ -88,8 +93,10 @@ void RenderSystem::Update(std::unordered_map<unsigned int, TransformComponent*>&
         }
     }
 
+    DrawSkyBox();
+
     glfwSwapBuffers(window);
-    for (int i = 0; i < shaderProgramCount; i++) entityShaderOrder[i].clear;
+    for (int i = 0; i < SHRIMP_SHADER_PROGRAM_COUNT; i++) entityShaderOrder[i].clear();
 }
 
 void RenderSystem::CreateMissingTexture()
@@ -112,4 +119,20 @@ void RenderSystem::CreateMissingTexture()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     missingTextureTexture = texture;
+}
+
+void RenderSystem::DrawSkyBox()
+{
+    unsigned int emptyVAO;
+
+    glDisable(GL_DEPTH_TEST);
+
+    glGenVertexArrays(1, &emptyVAO);
+    glBindVertexArray(emptyVAO);
+
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+    glBindVertexArray(0);
+    glEnable(GL_DEPTH_TEST);
+
 }

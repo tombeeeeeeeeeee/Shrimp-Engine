@@ -6,7 +6,7 @@
 class CameraSystem {
 public:
 
-    CameraSystem(unsigned int shader, GLFWwindow* window);
+    CameraSystem(mat4& _view, GLFWwindow* window);
 
     /// <summary>
     /// Camera Update
@@ -43,4 +43,9 @@ private:
     /// </summary>
     vec3 globalUp = { 0.0f, 0.0f, 1.0f };
     GLFWwindow* window;
+
+    /// <summary>
+    /// reference to the view matrix
+    /// </summary>
+    mat4& view;
 };

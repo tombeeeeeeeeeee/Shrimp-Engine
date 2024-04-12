@@ -4,10 +4,12 @@
 #include "../components/TransformComponent.h"
 #include "../components/RenderComponent.h"
 
+const int SHRIMP_SHADER_PROGRAM_COUNT = 2;
+
 class RenderSystem {
 public:
 
-    RenderSystem(std::vector<unsigned int> _shaders, GLFWwindow* window);
+    RenderSystem(std::vector<unsigned int>& _shaders, mat4& _view, mat4& _projection, GLFWwindow* window);
 
     /// <summary>
     /// Renders each update. 
@@ -35,21 +37,27 @@ private:
     /// </summary>
     GLFWwindow* window;
 
-    int shaderProgramCount;
+    mat4& view;
+    mat4& projection;
 
     /// <summary>
     /// List of entities in order of the shader they use.
     /// </summary>
-    std::vector<unsigned int> entityShaderOrder[];
+    std::array<std::vector<unsigned int>, SHRIMP_SHADER_PROGRAM_COUNT> entityShaderOrder;
 
     /// <summary>
     /// shader programs
     /// </summary>
-    std::vector<unsigned int> shaders;
+    std::vector<unsigned int>& shaders;
 
     /// <summary>
     /// Function to make the texture used when a texture is missing
     /// </summary>
     void CreateMissingTexture();
+
+    /// <summary>
+    /// Draw Skybox as fullscreen quad.
+    /// </summary>
+    void DrawSkyBox();
 };
 

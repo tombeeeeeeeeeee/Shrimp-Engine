@@ -1421,5 +1421,7 @@
       <Filter>Header Files</Filter>
     </None>
     <None Include="src\shaders\geo.geom" />
+    <None Include="src\shaders\skybox.frag" />
+    <None Include="src\shaders\skybox.vert" />
   </ItemGroup>
 </Project>

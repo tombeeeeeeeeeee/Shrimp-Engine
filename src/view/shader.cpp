@@ -28,7 +28,7 @@ unsigned int makeModule(const string& filepath, unsigned int moduleType)
 	return shaderModule;
 }
 
-unsigned int MakeShader(const string& vertexShader, const string& geomShader ,const string& fragmentShader)
+unsigned int MakeShader(const string& vertexShader,const string& fragmentShader)
 {
 	std::vector<unsigned int> shaderModules;
 

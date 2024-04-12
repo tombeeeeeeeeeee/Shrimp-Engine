@@ -1,11 +1,10 @@
 #include "CameraSystem.h"
 
-CameraSystem::CameraSystem(unsigned int shader, GLFWwindow* window)
+CameraSystem::CameraSystem(mat4& _view, GLFWwindow* window)
 {
     this->window = window;
     cameraTransform = 0;
-    glUseProgram(shader);
-    viewLocation = glGetUniformLocation(shader, "view");
+    view = _view;
 }
 
 bool CameraSystem::Update(std::unordered_map<unsigned int, TransformComponent*>& transformComponents,
@@ -33,7 +32,7 @@ bool CameraSystem::Update(std::unordered_map<unsigned int, TransformComponent*>&
     right = GetNormalised(cross(forwards, globalUp));
     up = GetNormalised(cross(right, forwards));
 
-    mat4 view = ViewMatrix(pos, pos + forwards, up);
+    view = ViewMatrix(pos, pos + forwards, up);
 
     glUniformMatrix4fv(viewLocation, 1, GL_FALSE, view.entries);
 
