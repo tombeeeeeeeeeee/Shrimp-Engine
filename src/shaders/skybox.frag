@@ -1,7 +1,7 @@
 #version 330 core
 
 in vec3 direction;
-out screenColor;
+out vec4 screenColor;
 
 uniform samplerCube uTexEnv;
 

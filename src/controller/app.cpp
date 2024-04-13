@@ -50,9 +50,9 @@ void App::Run()
     {
         motionSystem->Update( transformComponents, physicsComponents, 1.0f / 60.0f);
         hierarchySystem->Update();
-        shouldClose = cameraSystem->Update(transformComponents, cameraID, *cameraComponent, 1.0f / 60.0f, mouseInput);
+        shouldClose = cameraSystem->Update(transformComponents, cameraID, *cameraComponent, viewMatrix, 1.0f / 60.0f, mouseInput);
 
-        renderSystem->Update(transformComponents, renderComponents);
+        renderSystem->Update(transformComponents, renderComponents, projectionMatrix, viewMatrix);
 
         Update();
     }
@@ -84,10 +84,20 @@ void App::SetUpGLFW()
         glfwTerminate();
     }
 }
-
+ 
 void App::Start()
 {
     //Space to add things for the start
+    std::string skyboxTextureFiles[6] = { 
+        "img/px.png", 
+        "img/nx.png", 
+        "img/nz.png", 
+        "img/pz.png", 
+        "img/py.png", 
+        "img/ny.png", 
+    };
+    renderSystem->SetSkyboxTexture(assetFactory->GetSkyBoxMaterial(skyboxTextureFiles));
+
     std::vector<unsigned int> gameObjects;
     int objectCount = 4;
     srand(time(NULL));
@@ -146,6 +156,8 @@ void App::SetUpOpengl()
     //Default Shader Program
     shaders.push_back(MakeShader());
 
+    shaders.push_back(MakeShaderMatchingName("skybox"));
+
     glUseProgram(shaders[0]);
 
     projectionMatrix = ProjectionMatrix( 45.0f, (float)w/(float)h , 0.1f, 250.0f);
@@ -155,7 +167,7 @@ void App::SetUpOpengl()
 void App::MakeSystems() 
 {
     motionSystem = new MotionSystem();
-    cameraSystem = new CameraSystem(viewMatrix, window);
+    cameraSystem = new CameraSystem(window);
     renderSystem = new RenderSystem(shaders, window);
     hierarchySystem = new HierarchySystem(transformComponents);
 }

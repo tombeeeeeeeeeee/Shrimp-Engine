@@ -64,4 +64,11 @@ unsigned int MakeShader(const string& vertexShader,const string& fragmentShader)
 	return shaderProgram;
 }
 
+unsigned int MakeShaderMatchingName(const string& shaderHeader)
+{
+	const string vertShader = "src/shaders/" + shaderHeader + ".vert";
+	const string fragShader = "src/shaders/" + shaderHeader + ".frag";
+	return MakeShader(vertShader, fragShader);
+}
+
 

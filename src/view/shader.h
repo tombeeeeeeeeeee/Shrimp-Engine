@@ -20,3 +20,4 @@ unsigned int MakeShader(
 	const string& fragmentShader = "src/shaders/fragment.frag"
 );
 
+unsigned int MakeShaderMatchingName(const string& shaderHeader);

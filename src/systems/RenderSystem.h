@@ -9,7 +9,7 @@ const int SHRIMP_SHADER_PROGRAM_COUNT = 2;
 class RenderSystem {
 public:
 
-    RenderSystem(std::vector<unsigned int>& _shaders, mat4& _view, mat4& _projection, GLFWwindow* window);
+    RenderSystem(std::vector<unsigned int>& _shaders, GLFWwindow* window);
 
     /// <summary>
     /// Renders each update. 
@@ -18,8 +18,12 @@ public:
     /// <param name="renderComponents"> All Render Components</param>
     void Update(
         std::unordered_map<unsigned int, TransformComponent*>& transformComponents,
-        std::unordered_map<unsigned int, RenderComponent*>& renderComponents
+        std::unordered_map<unsigned int, RenderComponent*>& renderComponents,
+        mat4& _view, mat4& _projection
     );
+
+    void SetSkyboxTexture(unsigned int texture) { skyboxTexture = texture; };
+    unsigned int GetSkyBoxTexture() { return skyboxTexture; };
 
 private:
     /// <summary>
@@ -32,13 +36,12 @@ private:
     /// </summary>
     unsigned int modelLocation;
 
+    mat4 projectionMatrix, viewMatrix;
+
     /// <summary>
     /// Pointer to current window
     /// </summary>
     GLFWwindow* window;
-
-    mat4& view;
-    mat4& projection;
 
     /// <summary>
     /// List of entities in order of the shader they use.
@@ -48,7 +51,7 @@ private:
     /// <summary>
     /// shader programs
     /// </summary>
-    std::vector<unsigned int>& shaders;
+    std::vector<unsigned int>* shaders;
 
     /// <summary>
     /// Function to make the texture used when a texture is missing
@@ -59,5 +62,7 @@ private:
     /// Draw Skybox as fullscreen quad.
     /// </summary>
     void DrawSkyBox();
+
+    unsigned int skyboxTexture = 0;
 };
 

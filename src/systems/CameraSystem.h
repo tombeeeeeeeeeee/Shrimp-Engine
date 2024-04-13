@@ -6,7 +6,7 @@
 class CameraSystem {
 public:
 
-    CameraSystem(mat4& _view, GLFWwindow* window);
+    CameraSystem(GLFWwindow* window);
 
     /// <summary>
     /// Camera Update
@@ -19,7 +19,7 @@ public:
     /// <returns></returns>
     bool Update(
         std::unordered_map<unsigned int, TransformComponent*>& transformComponents,
-        unsigned int cameraID, CameraComponent& cameraComponent, float dt,
+        unsigned int cameraID, CameraComponent& cameraComponent, mat4& _view, float dt,
         unsigned int mouseInputMask);
 
 private:
@@ -43,9 +43,4 @@ private:
     /// </summary>
     vec3 globalUp = { 0.0f, 0.0f, 1.0f };
     GLFWwindow* window;
-
-    /// <summary>
-    /// reference to the view matrix
-    /// </summary>
-    mat4& view;
 };
