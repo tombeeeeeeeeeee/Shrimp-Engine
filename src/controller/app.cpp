@@ -99,7 +99,7 @@ void App::Start()
     renderSystem->SetSkyboxTexture(assetFactory->GetSkyBoxMaterial(skyboxTextureFiles));
 
     std::vector<unsigned int> gameObjects;
-    int objectCount = 4;
+    int objectCount = 1;
     srand(time(NULL));
     for (int i = 0; i < objectCount; i++)
     {
@@ -114,8 +114,9 @@ void App::Start()
         //unsigned int cubeEntity = componentFactory->MakeRat({ x, y, z }, { xRot, yRot, zRot });
         unsigned int cubeEntity = componentFactory->MakeEmptyTransform({ x, y, z }, { xRot, yRot, zRot });
         componentFactory->AddRenderComponent(cubeEntity);
-        renderComponents[cubeEntity]->mesh = assetFactory->GetMesh("models/rat.obj");
-        renderComponents[cubeEntity]->material = assetFactory->GetMaterial("img/me.PNG", 1);
+        renderComponents[cubeEntity]->mesh = assetFactory->GetMesh("models/whale.obj");
+        std::string textureMaps[3] = { "img/whale.jpg", "img/brickSpec.png", "img/brickNorm.png" };
+        renderComponents[cubeEntity]->material = assetFactory->GetMaterial(textureMaps, 3);
         gameObjects.push_back(cubeEntity);
         hierarchySystem->SetParent(cubeEntity, cubeEntity - 1);
     }
@@ -126,6 +127,7 @@ void App::Start()
     CameraComponent* camera = new CameraComponent();
     cameraComponent = camera;
     cameraID = cameraEntity;
+    renderSystem->SetCameraID(cameraID);
 }
 
 void App::Update()
@@ -168,7 +170,7 @@ void App::MakeSystems()
 {
     motionSystem = new MotionSystem();
     cameraSystem = new CameraSystem(window);
-    renderSystem = new RenderSystem(shaders, window);
+    renderSystem = new RenderSystem(shaders, cameraID, window);
     hierarchySystem = new HierarchySystem(transformComponents);
 }
 

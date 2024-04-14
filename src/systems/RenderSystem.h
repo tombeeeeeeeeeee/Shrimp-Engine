@@ -9,7 +9,7 @@ const int SHRIMP_SHADER_PROGRAM_COUNT = 2;
 class RenderSystem {
 public:
 
-    RenderSystem(std::vector<unsigned int>& _shaders, GLFWwindow* window);
+    RenderSystem(std::vector<unsigned int>& _shaders, unsigned int cameraID, GLFWwindow* window);
 
     /// <summary>
     /// Renders each update. 
@@ -24,6 +24,9 @@ public:
 
     void SetSkyboxTexture(unsigned int texture) { skyboxTexture = texture; };
     unsigned int GetSkyBoxTexture() { return skyboxTexture; };
+
+    void SetCameraID(unsigned int _cameraID) { cameraID = _cameraID; }
+    unsigned int GetCameraID() { return cameraID; };
 
 private:
     /// <summary>
@@ -42,6 +45,11 @@ private:
     /// Pointer to current window
     /// </summary>
     GLFWwindow* window;
+
+    /// <summary>
+    /// entity id for camera.
+    /// </summary>
+    unsigned int cameraID;
 
     /// <summary>
     /// List of entities in order of the shader they use.

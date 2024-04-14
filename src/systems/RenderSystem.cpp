@@ -1,25 +1,26 @@
 #include "RenderSystem.h"
 
-RenderSystem::RenderSystem(std::vector<unsigned int>& _shaders, GLFWwindow* window)
+RenderSystem::RenderSystem(std::vector<unsigned int>& _shaders, unsigned int _cameraID, GLFWwindow* window)
 {
     shaders = &_shaders;
+    cameraID = _cameraID;
 
 	modelLocation = glGetUniformLocation((*shaders)[0], "model");
 	this->window = window;
 
     //Set material layers //This needs to be refactored to allow for different Shaders
     glUniform1i(glGetUniformLocation((*shaders)[0], "diffuse"), 0);
-    glUniform1i(glGetUniformLocation((*shaders)[0], "mask"), 1);
+    glUniform1i(glGetUniformLocation((*shaders)[0], "specular"), 1);
     glUniform1i(glGetUniformLocation((*shaders)[0], "normalMap"), 2);
     glUniform3f(glGetUniformLocation((*shaders)[0], "directionalLightColor"), 0.8,0.8,0.8);
-    glUniform3f(glGetUniformLocation((*shaders)[0], "directionalLightDirection"), 0.86,0.7,0.73);
-    glUniform3f(glGetUniformLocation((*shaders)[0], "ambientLightColor"), 1,0,0.1);
-    glUniform1f(glGetUniformLocation((*shaders)[0], "ambientLightStrength"), 0.1);
+    glUniform3f(glGetUniformLocation((*shaders)[0], "directionalLightDirection"), 0,0,1);
+    glUniform3f(glGetUniformLocation((*shaders)[0], "ambientLightColor"), 1,0,0);
+    glUniform1f(glGetUniformLocation((*shaders)[0], "ambientLightStrength"), 0);
 
 
     //enable alpha blending
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    //glEnable(GL_BLEND);
+    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     //create missing texture texture
     CreateMissingTexture();
@@ -29,6 +30,8 @@ void RenderSystem::Update(std::unordered_map<unsigned int, TransformComponent*>&
 {
     projectionMatrix = projection;
     viewMatrix = view;
+
+    vec3 cameraPos = transformComponents[cameraID]->Position();
 
     //Clear Buffers
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -57,6 +60,8 @@ void RenderSystem::Update(std::unordered_map<unsigned int, TransformComponent*>&
 
             glUniformMatrix4fv(glGetUniformLocation((*shaders)[i], "view"), 1, GL_FALSE, view.entries);
             glUniformMatrix4fv(glGetUniformLocation((*shaders)[i], "projection"), 1, GL_FALSE, projection.entries);
+
+            glUniform3f(glGetUniformLocation((*shaders)[i], "cameraPos"), cameraPos.x, cameraPos.y, cameraPos.z);
             //For each texture with the render components material
             unsigned int materialMask = 1;
             for (int i = 0; i < MATERIAL_MAPCOUNT; i++)
@@ -126,7 +131,7 @@ void RenderSystem::CreateMissingTexture()
 void RenderSystem::DrawSkyBox()
 {
     unsigned int emptyVAO;
-    glUseProgram((*shaders)[1]);
+    glUseProgram((*shaders)[SHRIMP_SHADER_PROGRAM_COUNT - 1]);
 
     glDisable(GL_DEPTH_TEST);
 
