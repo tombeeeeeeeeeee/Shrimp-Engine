@@ -60,9 +60,6 @@
     <ClCompile Include="src\systems\HierarchySystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\components\RenderComponent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\config.h">
@@ -1423,5 +1420,10 @@
     <None Include="src\shaders\geo.geom" />
     <None Include="src\shaders\skybox.frag" />
     <None Include="src\shaders\skybox.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\..\Downloads\norm.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

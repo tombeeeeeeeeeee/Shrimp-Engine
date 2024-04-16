@@ -2,6 +2,8 @@
 in vec2 fragmentTexCoord;
 in vec3 fragmentPos;
 in vec3 fragmentNormal;
+in vec3 fragmentTangent;
+in vec3 fragmentBitangent;
 
 out vec4 screenColor;
 
@@ -18,24 +20,24 @@ uniform vec3 cameraPos;
 void main()
 {
 
-	//vec3 normalMapColor = texture(normalMap, fragmentTexCoord).rgb;
-
-	vec3 trueNormal = normalize(fragmentNormal);
+	vec3 normalColour = texture(normalMap, fragmentTexCoord).rgb;
+	normalColour = normalColour * 2.0 - 1.0;
+	mat3 TBN = mat3(fragmentTangent, fragmentBitangent, fragmentNormal);
+	vec3 trueNormal = normalize(TBN * normalColour);
 
 	vec3 viewDirection = normalize(fragmentPos - cameraPos);
 
 	vec3 diffuseColour = texture(diffuse, fragmentTexCoord).rgb;
 	vec4 specularMaterialColour = texture(specular, fragmentTexCoord).rgba;
-	float gloss = length(specularMaterialColour) * 10;
+	float gloss = specularMaterialColour.a * 100;
 
 	//Needs to be refactored to be Per Light
 	float directionalLightIntensity = clamp(dot(trueNormal, -directionalLightDirection), 0, 1);
 	vec3 reflectedRay = reflect(-directionalLightDirection, trueNormal);
 	float specularLightIntensity = pow(clamp(dot(viewDirection, reflectedRay), 0, 1), gloss);
-
-	//screenColor = directionalLightIntensity * vec4(directionalLightColor * diffuseColour, 1) + ambientLightStrength * vec4(ambientLightColor * diffuseColour, 0);
+	
 	vec3 D = diffuseColour * directionalLightIntensity * directionalLightColor;
-	vec3 S = specularMaterialColour.rgb * specularLightIntensity;
+	vec3 S = sign(gloss) *specularMaterialColour.rgb * specularLightIntensity;
 	vec3 A = ambientLightStrength * ambientLightColor * diffuseColour;
 	screenColor = vec4(D + S + A, 0);
 }

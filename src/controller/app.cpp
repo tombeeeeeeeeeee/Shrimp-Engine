@@ -97,7 +97,6 @@ void App::Start()
         "img/ny.png", 
     };
     renderSystem->SetSkyboxTexture(assetFactory->GetSkyBoxMaterial(skyboxTextureFiles));
-
     std::vector<unsigned int> gameObjects;
     int objectCount = 1;
     srand(time(NULL));
@@ -115,12 +114,15 @@ void App::Start()
         unsigned int cubeEntity = componentFactory->MakeEmptyTransform({ x, y, z }, { xRot, yRot, zRot });
         componentFactory->AddRenderComponent(cubeEntity);
         renderComponents[cubeEntity]->mesh = assetFactory->GetMesh("models/whale.obj");
-        std::string textureMaps[3] = { "img/whale.jpg", "img/brickSpec.png", "img/brickNorm.png" };
-        renderComponents[cubeEntity]->material = assetFactory->GetMaterial(textureMaps, 3);
+        std::string textureMaps[3] = { "img/Cat_Diffuse.jpg", "img/Cat_Diffuse.jpg", "img/cubeNormal.png" };
+        renderComponents[cubeEntity]->material = assetFactory->GetMaterial(textureMaps, 5);
         gameObjects.push_back(cubeEntity);
         hierarchySystem->SetParent(cubeEntity, cubeEntity - 1);
     }
     transformComponents[1]->scale = { 0.05, 0.05, 0.05 };
+
+    componentFactory->AddPhysicsComponent(1);
+    physicsComponents[1]->eulerVelocity = { 15,15,15 };
 
     unsigned int cameraEntity = componentFactory->MakeCamera({ 0.0f, 1.0f, 0.0f }, { 0.0f, .0f,0.0f });
 

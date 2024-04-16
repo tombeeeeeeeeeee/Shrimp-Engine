@@ -147,7 +147,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\components\RenderComponent.cpp" />
     <ClCompile Include="src\systems\HierarchySystem.cpp" />
     <ClCompile Include="src\components\TransformComponent.cpp" />
     <ClCompile Include="src\config.cpp" />
@@ -627,6 +626,9 @@
     <None Include="src\shaders\geo.geom" />
     <None Include="src\shaders\skybox.frag" />
     <None Include="src\shaders\skybox.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\..\Downloads\norm.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

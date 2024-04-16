@@ -12,8 +12,8 @@ RenderSystem::RenderSystem(std::vector<unsigned int>& _shaders, unsigned int _ca
     glUniform1i(glGetUniformLocation((*shaders)[0], "diffuse"), 0);
     glUniform1i(glGetUniformLocation((*shaders)[0], "specular"), 1);
     glUniform1i(glGetUniformLocation((*shaders)[0], "normalMap"), 2);
-    glUniform3f(glGetUniformLocation((*shaders)[0], "directionalLightColor"), 0.8,0.8,0.8);
-    glUniform3f(glGetUniformLocation((*shaders)[0], "directionalLightDirection"), 0,0,1);
+    glUniform3f(glGetUniformLocation((*shaders)[0], "directionalLightColor"), 0.8,0.8,0.7);
+    glUniform3f(glGetUniformLocation((*shaders)[0], "directionalLightDirection"), -1,-1,-1);
     glUniform3f(glGetUniformLocation((*shaders)[0], "ambientLightColor"), 1,0,0);
     glUniform1f(glGetUniformLocation((*shaders)[0], "ambientLightStrength"), 0);
 
@@ -47,9 +47,15 @@ void RenderSystem::Update(std::unordered_map<unsigned int, TransformComponent*>&
     //Render all components In Shader Order
     for (int i = 0; i < SHRIMP_SHADER_PROGRAM_COUNT; i++)
     {
+        glUseProgram((*shaders)[i]);
+
+        glUniformMatrix4fv(glGetUniformLocation((*shaders)[i], "view"), 1, GL_FALSE, view.entries);
+        glUniformMatrix4fv(glGetUniformLocation((*shaders)[i], "projection"), 1, GL_FALSE, projection.entries);
+
+        glUniform3f(glGetUniformLocation((*shaders)[i], "cameraPos"), cameraPos.x, cameraPos.y, cameraPos.z);
+
         for (std::vector<unsigned int>::iterator iter = entityShaderOrder[i].begin(); iter != entityShaderOrder[i].end(); iter++)
         {
-            glUseProgram((*shaders)[i]);
             //If the mesh is bugged, do not render. TO BE REPLACED WITH BROKEN MESH MESH
             if (renderComponents[*iter]->mesh == nullptr) continue;
 
@@ -58,10 +64,6 @@ void RenderSystem::Update(std::unordered_map<unsigned int, TransformComponent*>&
             mat4 model = transform.globalTransform;
             glUniformMatrix4fv(modelLocation, 1, GL_FALSE, model.entries);
 
-            glUniformMatrix4fv(glGetUniformLocation((*shaders)[i], "view"), 1, GL_FALSE, view.entries);
-            glUniformMatrix4fv(glGetUniformLocation((*shaders)[i], "projection"), 1, GL_FALSE, projection.entries);
-
-            glUniform3f(glGetUniformLocation((*shaders)[i], "cameraPos"), cameraPos.x, cameraPos.y, cameraPos.z);
             //For each texture with the render components material
             unsigned int materialMask = 1;
             for (int i = 0; i < MATERIAL_MAPCOUNT; i++)
@@ -130,11 +132,10 @@ void RenderSystem::CreateMissingTexture()
 
 void RenderSystem::DrawSkyBox()
 {
-    unsigned int emptyVAO;
-    glUseProgram((*shaders)[SHRIMP_SHADER_PROGRAM_COUNT - 1]);
-
     glDisable(GL_DEPTH_TEST);
 
+    unsigned int emptyVAO;
+    glUseProgram((*shaders)[SHRIMP_SHADER_PROGRAM_COUNT - 1]);
 
     mat4 inversePV = projectionMatrix * viewMatrix;
 
@@ -147,5 +148,6 @@ void RenderSystem::DrawSkyBox()
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
     glBindVertexArray(0);
+
     glEnable(GL_DEPTH_TEST);
 }

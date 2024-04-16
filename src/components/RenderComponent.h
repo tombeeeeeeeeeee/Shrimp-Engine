@@ -1,19 +1,6 @@
 #pragma once
 #include <config.h>
 
-
-struct Vertex
-{
-	vec3 position;
-	vec2 texCoord;
-	vec3 normal;
-	vec3 tangent;
-	vec3 biTangent;
-
-	Vertex(vec3 pos, vec3 nor = { 0.f, 0.f, 0.f }, vec2 tex = { 0.f, 0.f }, vec3 tan = { 0.f, 0.f, 0.f }, vec3 bit = { 0.f, 0.f, 0.f });
-	Vertex() {};
-};
-
 struct MeshAsset
 {
 	unsigned int VAO;
@@ -21,7 +8,7 @@ struct MeshAsset
 	unsigned int triCount;
 };
 
-const int MATERIAL_MAPCOUNT = 2;
+const int MATERIAL_MAPCOUNT = 3;
 
 struct MaterialAsset
 {

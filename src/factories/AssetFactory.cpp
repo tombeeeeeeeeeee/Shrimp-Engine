@@ -152,16 +152,24 @@ MeshAsset* AssetFactory::sendMeshToVRAM(std::vector<float>& vertices, int vertex
     glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
 
     //position
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 32, (void*)0);
     glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 56, (void*)0);
 
     //texture coordinates
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 32, (void*)12);
     glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 56, (void*)12);
 
     //normal
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 32, (void*)20);
     glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 56, (void*)20);
+
+    //Tangent
+    glEnableVertexAttribArray(3);
+    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 56, (void*)32);
+
+    //Bitangent
+    glEnableVertexAttribArray(4);
+    glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 56, (void*)44);
 
     MeshAsset* mesh = new MeshAsset();
     mesh->VAO = VAO;
@@ -219,7 +227,7 @@ MeshAsset* AssetFactory::GetMesh(std::string fileName)
 {
     if (meshAssets.find(fileName) != meshAssets.end()) return meshAssets[fileName];
 
-    const aiScene* scene = aiImportFile((assetFolder + fileName).c_str(), aiProcess_GenNormals | aiProcess_Triangulate | aiProcess_JoinIdenticalVertices);
+    const aiScene* scene = aiImportFile((assetFolder + fileName).c_str(), aiProcess_CalcTangentSpace | aiProcess_GenNormals | aiProcess_Triangulate | aiProcess_JoinIdenticalVertices);
     if (scene == nullptr) return nullptr;
     
     aiMesh* mesh = scene->mMeshes[0];
@@ -245,17 +253,27 @@ MeshAsset* AssetFactory::GetMesh(std::string fileName)
     int vertexCount = mesh->mNumVertices; 
 
     std::vector<float> vertices;
-    vertices.reserve(vertexCount * 8);
+    vertices.reserve(vertexCount * 14);
     for (int i = 0; i < vertexCount; i++)
     {
         vertices.push_back(mesh->mVertices[i].x);
         vertices.push_back(mesh->mVertices[i].y);
         vertices.push_back(mesh->mVertices[i].z);
+
         vertices.push_back(mesh->mTextureCoords[0][i].x);
         vertices.push_back(mesh->mTextureCoords[0][i].y);
+
         vertices.push_back(mesh->mNormals[i].x);
         vertices.push_back(mesh->mNormals[i].y);
         vertices.push_back(mesh->mNormals[i].z);
+
+        vertices.push_back(mesh->mTangents[i].x);
+        vertices.push_back(mesh->mTangents[i].y);
+        vertices.push_back(mesh->mTangents[i].z);
+
+        vertices.push_back(mesh->mBitangents[i].x);
+        vertices.push_back(mesh->mBitangents[i].y);
+        vertices.push_back(mesh->mBitangents[i].z);
     }
 
     return  sendMeshToVRAM( vertices, vertexCount, indices.size(), indices.data());
