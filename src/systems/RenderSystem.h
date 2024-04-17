@@ -4,7 +4,7 @@
 #include "../components/TransformComponent.h"
 #include "../components/RenderComponent.h"
 
-const int SHRIMP_SHADER_PROGRAM_COUNT = 2;
+const int SHRIMP_SHADER_PROGRAM_COUNT = 3;
 
 class RenderSystem {
 public:

@@ -107,7 +107,7 @@ MeshAsset* AssetFactory::RatMesh()
     return GetMesh("models/rat.obj");
 }
 
-unsigned int AssetFactory::MakeTexture(const char* filename)
+unsigned int AssetFactory::MakeTexture(const char* filename, bool SRBG)
 {
     int width, height, channels;
     stbi_set_flip_vertically_on_load(true);
@@ -124,7 +124,10 @@ unsigned int AssetFactory::MakeTexture(const char* filename)
     glBindTexture(GL_TEXTURE_2D, texture);
 
     //load data
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    if(SRBG)
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB_ALPHA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    else
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 
     //free data
     stbi_image_free(data);
@@ -199,7 +202,7 @@ MaterialAsset* AssetFactory::GetMaterial(std::string fileName, int fileMask)
 
     MaterialAsset* mat = new MaterialAsset();
 
-    mat->materials[0] = MakeTexture((assetFolder + fileName).c_str());
+    mat->materials[0] = MakeTexture((assetFolder + fileName).c_str(), fileMask == 1);
     mat->materialMask = fileMask;
 
     materialAssets[fileName] = mat;
@@ -216,7 +219,7 @@ MaterialAsset* AssetFactory::GetMaterial(std::string fileNames[], int fileMask)
     for (int i = 0; i < MATERIAL_MAPCOUNT; i++, fileBinaryCheck *= 2)
     {
         if((fileMask & fileBinaryCheck) == fileBinaryCheck)
-            mat->materials[i] = MakeTexture((assetFolder + fileNames[i]).c_str());
+            mat->materials[i] = MakeTexture((assetFolder + fileNames[i]).c_str(), i == 0);
     }
     materialAssets[fileNames[0]] = mat;
     mat->materialMask = fileMask;
@@ -266,7 +269,7 @@ MeshAsset* AssetFactory::GetMesh(std::string fileName)
         vertices.push_back(mesh->mNormals[i].x);
         vertices.push_back(mesh->mNormals[i].y);
         vertices.push_back(mesh->mNormals[i].z);
-
+         
         vertices.push_back(mesh->mTangents[i].x);
         vertices.push_back(mesh->mTangents[i].y);
         vertices.push_back(mesh->mTangents[i].z);

@@ -8,15 +8,6 @@ RenderSystem::RenderSystem(std::vector<unsigned int>& _shaders, unsigned int _ca
 	modelLocation = glGetUniformLocation((*shaders)[0], "model");
 	this->window = window;
 
-    //Set material layers //This needs to be refactored to allow for different Shaders
-    glUniform1i(glGetUniformLocation((*shaders)[0], "diffuse"), 0);
-    glUniform1i(glGetUniformLocation((*shaders)[0], "specular"), 1);
-    glUniform1i(glGetUniformLocation((*shaders)[0], "normalMap"), 2);
-    glUniform3f(glGetUniformLocation((*shaders)[0], "directionalLightColor"), 0.8,0.8,0.7);
-    glUniform3f(glGetUniformLocation((*shaders)[0], "directionalLightDirection"), -1,-1,-1);
-    glUniform3f(glGetUniformLocation((*shaders)[0], "ambientLightColor"), 1,0,0);
-    glUniform1f(glGetUniformLocation((*shaders)[0], "ambientLightStrength"), 0);
-
 
     //enable alpha blending
     //glEnable(GL_BLEND);
@@ -48,6 +39,20 @@ void RenderSystem::Update(std::unordered_map<unsigned int, TransformComponent*>&
     for (int i = 0; i < SHRIMP_SHADER_PROGRAM_COUNT; i++)
     {
         glUseProgram((*shaders)[i]);
+
+        if (i != SHRIMP_SHADER_PROGRAM_COUNT - 1)
+        {
+            modelLocation = glGetUniformLocation((*shaders)[i], "model");
+
+            //Set material layers //This needs to be refactored to allow for different Shaders
+            glUniform1i(glGetUniformLocation((*shaders)[i], "diffuse"), 0);
+            glUniform1i(glGetUniformLocation((*shaders)[i], "specular"), 1);
+            glUniform1i(glGetUniformLocation((*shaders)[i], "normalMap"), 2);
+            glUniform3f(glGetUniformLocation((*shaders)[i], "directionalLightColor"), 0.8, 0.8, 0.7);
+            glUniform3f(glGetUniformLocation((*shaders)[i], "directionalLightDirection"), -1, -1, -1);
+            glUniform3f(glGetUniformLocation((*shaders)[i], "ambientLightColor"), 1, 0, 0);
+            glUniform1f(glGetUniformLocation((*shaders)[i], "ambientLightStrength"), 0);
+        }
 
         glUniformMatrix4fv(glGetUniformLocation((*shaders)[i], "view"), 1, GL_FALSE, view.entries);
         glUniformMatrix4fv(glGetUniformLocation((*shaders)[i], "projection"), 1, GL_FALSE, projection.entries);
@@ -151,3 +156,4 @@ void RenderSystem::DrawSkyBox()
 
     glEnable(GL_DEPTH_TEST);
 }
+ 

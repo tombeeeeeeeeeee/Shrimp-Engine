@@ -75,7 +75,7 @@ private:
     /// </summary>
     /// <param name="filename"> file location with asset folder</param>
     /// <returns></returns>
-    unsigned int MakeTexture(const char* filename);
+    unsigned int MakeTexture(const char* filename, bool SRGB = false);
 
     /// <summary>
     /// Sends mesh to VRAM
