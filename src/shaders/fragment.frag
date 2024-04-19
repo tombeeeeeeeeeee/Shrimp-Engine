@@ -9,13 +9,12 @@ out vec4 screenColour;
 
 uniform sampler2D diffuse;  //0
 uniform sampler2D specular; //1
-uniform sampler2D normalMap;//2
+uniform sampler2D normalMap; //2
 
-uniform vec3 directionalLightColor;    
-uniform vec3 directionalLightDirection;
-uniform vec3 ambientLightColor;
-uniform float ambientLightStrength;
-uniform vec3 cameraPos;
+uniform int lightCount;
+uniform vec3 lightPackets[96]; // 32 lights
+
+uniform	vec3 cameraPos;
 
 void main()
 {
@@ -31,15 +30,49 @@ void main()
 	vec3 diffuseColour = texture(diffuse, fragmentTexCoord).rgb;
 	vec3 specularMaterialColour = texture(specular, fragmentTexCoord).rgb;
 	float gloss = 16;
-
-	//Needs to be refactored to be Per Light
-	float directionalLightIntensity = clamp(dot(trueNormal, -directionalLightDirection), 0, 1);
-	vec3 halfwayRay = normalize(-directionalLightDirection + viewDirection);
-	float specularLightIntensity = pow(clamp(dot(trueNormal, halfwayRay), 0, 1), gloss);
 	
-	vec3 D = diffuseColour * directionalLightIntensity * directionalLightColor;
-	vec3 S = sign(gloss) *specularMaterialColour.rgb * specularLightIntensity;
-	vec3 A = ambientLightStrength * ambientLightColor * diffuseColour;
+	vec3 directionalLight;
+	vec3 ambientLightColor;
+	float specularLightIntensity;
+
+	for(int i = 0; i < lightCount * 3; i += 3)
+	{
+		//Ambient Light
+		if(lightPackets[i].w == 1)
+		{
+			ambientLightColor += lightPackets[i+2].rgb;
+		}
+
+		//Directional Light
+		else if(lightPackets[i].w == 2)
+		{
+			float directionalLightIntensity += clamp(dot(trueNormal, -lightPackets[i].xyz), 0, 1);
+			vec3 halfwayRay = normalize(-lightPackets[i].xyz + viewDirection);
+			specularLightIntensity += pow(clamp(dot(trueNormal, halfwayRay), 0, 1), gloss);
+			directionalLight += directionalLightIntensity * lightPackets[i + 2].rgb;
+		}
+
+		//Point Light
+		else if(lightPackets[i].w == 3)
+		{
+
+		}
+
+		//SpotLight TODO
+		else if(lightPackets[i].w == 0)
+		{
+			break;
+		}
+	}
+
+	////Needs to be refactored to be Per Light
+	//float directionalLightIntensity = clamp(dot(trueNormal, -directionalLightDirection), 0, 1);
+	//vec3 halfwayRay = normalize(-directionalLightDirection + viewDirection);
+	//float specularLightIntensity = pow(clamp(dot(trueNormal, halfwayRay), 0, 1), gloss);
+	
+	vec3 D = diffuseColour * directionalLight;
+	vec3 S = specularMaterialColour.rgb * specularLightIntensity;
+	vec3 A = ambientLightColor * diffuseColour;
 	screenColour = vec4(D + S + A, 0);
 
 	screenColour = vec4(pow(screenColour.rgb, vec3(1.0/2.2)), screenColour.a);

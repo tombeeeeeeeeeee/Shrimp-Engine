@@ -1,10 +1,10 @@
 #pragma once
 #include <config.h>
-enum class SHRIMP_LightType
+enum class LightType
 {
-	ambient,
-	directional,
-	point,
+	ambient = 1,
+	directional = 2,
+	point = 3,
 
 	//SPOT LIGHT TODO
 	count
@@ -12,9 +12,9 @@ enum class SHRIMP_LightType
 
 struct LightComponent
 {
-	SHRIMP_LightType lightType;
-	vec3 colour;
-	float radius;
-	float angle;
+	LightType lightType = LightType::ambient;
+	vec3 colour = { 0,0,0 };
+	float radius = 0;
+	float angle = 0;
 };
 

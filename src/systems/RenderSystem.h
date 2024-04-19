@@ -19,6 +19,7 @@ public:
     void Update(
         std::unordered_map<unsigned int, TransformComponent*>& transformComponents,
         std::unordered_map<unsigned int, RenderComponent*>& renderComponents,
+        std::unordered_map<unsigned int, LightComponent*>& lightComponents,
         mat4& _view, mat4& _projection
     );
 
@@ -60,6 +61,10 @@ private:
     /// shader programs
     /// </summary>
     std::vector<unsigned int>* shaders;
+
+    void BindLightUniform(unsigned int shaderProgram,
+        std::unordered_map<unsigned int, LightComponent*>& lightComponents,
+        std::unordered_map<unsigned int, TransformComponent*>& transComponents);
 
     /// <summary>
     /// Function to make the texture used when a texture is missing

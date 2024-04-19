@@ -16,7 +16,11 @@ RenderSystem::RenderSystem(std::vector<unsigned int>& _shaders, unsigned int _ca
     CreateMissingTexture();
 }
 
-void RenderSystem::Update(std::unordered_map<unsigned int, TransformComponent*>& transformComponents, std::unordered_map<unsigned int, RenderComponent*>& renderComponents, mat4& projection, mat4& view)
+void RenderSystem::Update(
+    std::unordered_map<unsigned int, TransformComponent*>& transformComponents,
+    std::unordered_map<unsigned int, RenderComponent*>& renderComponents,
+    std::unordered_map<unsigned int, LightComponent*>& lightComponents,
+    mat4& projection, mat4& view)
 {
     projectionMatrix = projection;
     viewMatrix = view;
@@ -24,7 +28,7 @@ void RenderSystem::Update(std::unordered_map<unsigned int, TransformComponent*>&
     vec3 cameraPos = transformComponents[cameraID]->Position();
 
     //Clear Buffers
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClear(GL_DEPTH_BUFFER_BIT);
     
     if (skyboxTexture != 0) DrawSkyBox();
 
@@ -34,7 +38,7 @@ void RenderSystem::Update(std::unordered_map<unsigned int, TransformComponent*>&
         entityShaderOrder[entity.second->material->shaderProgram].push_back(entity.first);
     }
 
-    //Render all components In Shader Order
+    //Render all components in Shader Order
     for (int i = 0; i < SHRIMP_SHADER_PROGRAM_COUNT; i++)
     {
         glUseProgram((*shaders)[i]);
@@ -47,10 +51,8 @@ void RenderSystem::Update(std::unordered_map<unsigned int, TransformComponent*>&
             glUniform1i(glGetUniformLocation((*shaders)[i], "diffuse"), 0);
             glUniform1i(glGetUniformLocation((*shaders)[i], "specular"), 1);
             glUniform1i(glGetUniformLocation((*shaders)[i], "normalMap"), 2);
-            glUniform3f(glGetUniformLocation((*shaders)[i], "directionalLightColor"), 0.8, 0.8, 0.7);
-            glUniform3f(glGetUniformLocation((*shaders)[i], "directionalLightDirection"), -1, -1, -1);
-            glUniform3f(glGetUniformLocation((*shaders)[i], "ambientLightColor"), 1, 1, 1);
-            glUniform1f(glGetUniformLocation((*shaders)[i], "ambientLightStrength"), 0.08);
+
+            BindLightUniform((*shaders)[i], lightComponents, transformComponents);
         }
 
         glUniformMatrix4fv(glGetUniformLocation((*shaders)[i], "view"), 1, GL_FALSE, view.entries);
@@ -106,10 +108,48 @@ void RenderSystem::Update(std::unordered_map<unsigned int, TransformComponent*>&
         }
     }
 
-    
-
     glfwSwapBuffers(window);
     for (int i = 0; i < SHRIMP_SHADER_PROGRAM_COUNT; i++) entityShaderOrder[i].clear();
+}
+
+void RenderSystem::BindLightUniform(unsigned int shaderProgram, 
+    std::unordered_map<unsigned int, LightComponent*>& lightComponents, 
+    std::unordered_map<unsigned int, TransformComponent*>& transformComponents)
+{
+    std::unordered_map<unsigned int, LightComponent*>::iterator iter;
+    
+    std::vector<float> lightPackets;
+    int lightCount = 0;
+    for (iter = lightComponents.begin(); iter != lightComponents.end(); iter++, lightCount++)
+    {
+        //Direction (needs to be changed to the forward vector)
+        lightPackets.push_back(transformComponents[iter->first]->globalTransform.entries[0]);
+        lightPackets.push_back(transformComponents[iter->first]->globalTransform.entries[1]);
+        lightPackets.push_back(transformComponents[iter->first]->globalTransform.entries[2]);
+
+        //light Type
+        lightPackets.push_back((float)iter->second->lightType);
+
+        //Position
+        lightPackets.push_back(transformComponents[iter->first]->Position().x);
+        lightPackets.push_back(transformComponents[iter->first]->Position().y);
+        lightPackets.push_back(transformComponents[iter->first]->Position().z);
+
+        //Radius of Light Effect
+        lightPackets.push_back(iter->second->radius);
+
+        //Colour
+        lightPackets.push_back(iter->second->colour.x);
+        lightPackets.push_back(iter->second->colour.y);
+        lightPackets.push_back(iter->second->colour.z);
+
+        //Angle
+        lightPackets.push_back(iter->second->angle);
+    }
+    unsigned int lights = glGetUniformLocation(shaderProgram, "lightPackets");
+    glUniform4fv(lights, lightCount * 3, lightPackets.data());
+
+    glUniform1i(glGetUniformLocation(shaderProgram, "lightCount"), lightCount);
 }
 
 void RenderSystem::CreateMissingTexture()

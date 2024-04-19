@@ -52,7 +52,7 @@ void App::Run()
         hierarchySystem->Update();
         shouldClose = cameraSystem->Update(transformComponents, cameraID, *cameraComponent, viewMatrix, 1.0f / 60.0f, mouseInput);
 
-        renderSystem->Update(transformComponents, renderComponents, projectionMatrix, viewMatrix);
+        renderSystem->Update(transformComponents, renderComponents, lightComponents, projectionMatrix, viewMatrix);
 
         Update();
     }
