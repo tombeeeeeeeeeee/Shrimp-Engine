@@ -113,8 +113,8 @@ void App::Start()
         unsigned int cubeEntity = componentFactory->MakeEmptyTransform({ x, y, z }, { xRot, yRot, zRot });
         componentFactory->AddRenderComponent(cubeEntity);
         renderComponents[cubeEntity]->mesh = assetFactory->GetMesh("models/whale.obj");
-        std::string textureMaps[3] = { "img/whale.jpg", "img/me.PNG", "img/cubeNormal.png" };
-        renderComponents[cubeEntity]->material = assetFactory->GetMaterial(textureMaps, 3);
+        std::string textureMaps[3] = { "img/whale.jpg", "img/vignette.jpg", "img/cubeNormal.png" };
+        renderComponents[cubeEntity]->material = assetFactory->GetMaterial(textureMaps, 7);
         gameObjects.push_back(cubeEntity);
         hierarchySystem->SetParent(cubeEntity, cubeEntity - 1);
     }
@@ -131,7 +131,7 @@ void App::Start()
 void App::Update()
 {
     //Space to add things to run on update
-    if (glfwGetKey(window, GLFW_KEY_0) == GLFW_PRESS) {
+    if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) {
         renderComponents[1]->material->shaderProgram = 0;
     }
     if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
@@ -183,7 +183,7 @@ void App::MakeSystems()
 void App::MakeFactories()
 {
     assetFactory = new AssetFactory("Assets/");
-    componentFactory = new ComponentFactory(physicsComponents, renderComponents, transformComponents, *assetFactory);
+    componentFactory = new ComponentFactory(lightComponents, physicsComponents, renderComponents, transformComponents, *assetFactory);
 }
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)

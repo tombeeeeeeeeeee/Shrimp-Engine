@@ -21,11 +21,12 @@ public:
     void MakeFactories();
 
     //Components
-    std::unordered_map<unsigned int, TransformComponent*> transformComponents;
+    std::unordered_map<unsigned int, LightComponent*> lightComponents;
     std::unordered_map<unsigned int, PhysicsComponent*> physicsComponents;
+    std::unordered_map<unsigned int, RenderComponent*> renderComponents;
+    std::unordered_map<unsigned int, TransformComponent*> transformComponents;
     CameraComponent* cameraComponent;
     unsigned int cameraID;
-    std::unordered_map<unsigned int, RenderComponent*> renderComponents;
 
     //Inputs
     unsigned int mouseInput = 0;

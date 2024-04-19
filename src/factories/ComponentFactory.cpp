@@ -1,6 +1,10 @@
 #include "ComponentFactory.h"
 
-ComponentFactory::ComponentFactory(std::unordered_map<unsigned int, PhysicsComponent*>& physicsComponents, std::unordered_map<unsigned int, RenderComponent*>& renderComponents, std::unordered_map<unsigned int, TransformComponent*>& transformComponents, AssetFactory& _assFact) :
+ComponentFactory::ComponentFactory(
+    std::unordered_map<unsigned int, LightComponent*>& lightComponents, std::unordered_map<unsigned int, PhysicsComponent*>& physicsComponents,
+    std::unordered_map<unsigned int, RenderComponent*>& renderComponents, std::unordered_map<unsigned int, TransformComponent*>& transformComponents,
+    AssetFactory& _assFact) :
+    lightComponents(lightComponents),
     physicsComponents(physicsComponents),
     renderComponents(renderComponents),
     transformComponents(transformComponents),
@@ -10,9 +14,10 @@ ComponentFactory::ComponentFactory(std::unordered_map<unsigned int, PhysicsCompo
 
 ComponentFactory::~ComponentFactory()
 {
+    lightComponents.clear();
     physicsComponents.clear();
-    transformComponents.clear();
     renderComponents.clear();
+    transformComponents.clear();
 }
 
 unsigned int ComponentFactory::MakeCamera(vec3 position, vec3 eulers)

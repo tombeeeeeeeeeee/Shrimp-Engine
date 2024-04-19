@@ -55,9 +55,18 @@ bool CameraSystem::Update(std::unordered_map<unsigned int, TransformComponent*>&
 
     if (dPos.magnitude() > 0.1f) {
         dPos = GetNormalised(dPos);
+        if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) dPos *= 2;
         vec3 dForward = 0.1f * dPos.x * forwards;
         vec3 dRight = 0.1f * dPos.y * right;
         transformComponents[cameraID]->position = transformComponents[cameraID]->LocalPosition() + dForward + dRight;   
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+        transformComponents[cameraID]->position += vec3(0, 0, 0.1f);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
+        transformComponents[cameraID]->position -= vec3(0, 0, 0.1f);
     }
 
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {

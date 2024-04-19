@@ -3,3 +3,4 @@
 #include "PhysicsComponent.h"
 #include "TransformComponent.h"
 #include "RenderComponent.h"
+#include "LightComponent.h"

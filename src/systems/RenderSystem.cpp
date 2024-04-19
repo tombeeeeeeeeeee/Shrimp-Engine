@@ -8,7 +8,6 @@ RenderSystem::RenderSystem(std::vector<unsigned int>& _shaders, unsigned int _ca
 	modelLocation = glGetUniformLocation((*shaders)[0], "model");
 	this->window = window;
 
-
     //enable alpha blending
     //glEnable(GL_BLEND);
     //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -50,8 +49,8 @@ void RenderSystem::Update(std::unordered_map<unsigned int, TransformComponent*>&
             glUniform1i(glGetUniformLocation((*shaders)[i], "normalMap"), 2);
             glUniform3f(glGetUniformLocation((*shaders)[i], "directionalLightColor"), 0.8, 0.8, 0.7);
             glUniform3f(glGetUniformLocation((*shaders)[i], "directionalLightDirection"), -1, -1, -1);
-            glUniform3f(glGetUniformLocation((*shaders)[i], "ambientLightColor"), 1, 0, 0);
-            glUniform1f(glGetUniformLocation((*shaders)[i], "ambientLightStrength"), 0);
+            glUniform3f(glGetUniformLocation((*shaders)[i], "ambientLightColor"), 1, 1, 1);
+            glUniform1f(glGetUniformLocation((*shaders)[i], "ambientLightStrength"), 0.08);
         }
 
         glUniformMatrix4fv(glGetUniformLocation((*shaders)[i], "view"), 1, GL_FALSE, view.entries);

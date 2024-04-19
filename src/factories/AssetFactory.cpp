@@ -14,7 +14,11 @@ AssetFactory::~AssetFactory()
 {
     glDeleteBuffers(VBOs.size(), VBOs.data());
     glDeleteVertexArrays(VAOs.size(), VAOs.data());
-    glDeleteTextures(textures.size(), textures.data());
+
+    std::vector<unsigned int> texturesToDelete;
+    for (std::unordered_map<std::string, unsigned int>::iterator iter = textures.begin(); iter != textures.end(); iter++) texturesToDelete.push_back(iter->second);
+
+    glDeleteTextures(textures.size(), texturesToDelete.data());
 
     meshAssets.clear();
     materialAssets.clear();
@@ -109,6 +113,8 @@ MeshAsset* AssetFactory::RatMesh()
 
 unsigned int AssetFactory::MakeTexture(const char* filename, bool SRBG)
 {
+    if (textures.find(filename) != textures.end()) return textures[filename];
+
     int width, height, channels;
     stbi_set_flip_vertically_on_load(true);
 
@@ -120,7 +126,7 @@ unsigned int AssetFactory::MakeTexture(const char* filename, bool SRBG)
     //make the texture
     unsigned int texture;
     glGenTextures(1, &texture);
-    textures.push_back(texture);
+    textures[filename] = (texture);
     glBindTexture(GL_TEXTURE_2D, texture);
 
     //load data
@@ -284,7 +290,7 @@ MeshAsset* AssetFactory::GetMesh(std::string fileName)
 
 unsigned int AssetFactory::GetSkyBoxMaterial(std::string fileName[6])
 {
-    if(materialAssets.find("skyBox") != materialAssets.end()) return materialAssets["skyBox"]->materials[0];
+    if (materialAssets.find("skyBox") != materialAssets.end()) return materialAssets["skyBox"]->materials[0];
 
     unsigned int fullscreenQuad;
     glGenTextures(1, &fullscreenQuad);
@@ -315,7 +321,8 @@ unsigned int AssetFactory::GetSkyBoxMaterial(std::string fileName[6])
     MaterialAsset* mat = new MaterialAsset();
 
     mat->materials[0] = fullscreenQuad;
-    textures.push_back(fullscreenQuad);
+    if (textures.find("skyBox") != textures.end()) glDeleteTextures(1, &textures["skyBox"]);
+    textures["skyBox"] = fullscreenQuad;
 
     mat->materialMask = 1;
     mat->shaderProgram = 0;

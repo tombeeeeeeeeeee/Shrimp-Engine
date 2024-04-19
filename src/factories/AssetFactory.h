@@ -68,7 +68,7 @@ private:
     std::vector<unsigned int> VAOs;
     std::vector<unsigned int> VBOs;
     std::vector<unsigned int> IBOs;
-    std::vector<unsigned int> textures;
+    std::unordered_map<std::string, unsigned int> textures;
 
     /// <summary>
     /// Create texture from file

@@ -29,7 +29,7 @@ void main()
 
 	vec3 diffuseColour = texture(diffuse, fragmentTexCoord).rgb;
 	vec4 specularMaterialColour = texture(specular, fragmentTexCoord).rgba;
-	float gloss = specularMaterialColour.a * 100;
+	float gloss = specularMaterialColour.a * 8;
 
 	//Needs to be refactored to be Per Light
 	float directionalLightIntensity = clamp(dot(trueNormal, -directionalLightDirection), 0, 1);
@@ -40,5 +40,7 @@ void main()
 	vec3 S = sign(gloss) *specularMaterialColour.rgb * specularLightIntensity;
 	vec3 A = ambientLightStrength * ambientLightColor * diffuseColour;
 	screenColor = vec4(D + S + A, 0);
+
+	screenColor = vec4(pow(screenColor.rgb, vec3(1.0/2.2)), screenColor.a);
 }
 

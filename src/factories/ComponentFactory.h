@@ -10,6 +10,7 @@ class ComponentFactory
 public:
 
 	ComponentFactory(
+		std::unordered_map<unsigned int, LightComponent*>& lightComponents,
 		std::unordered_map<unsigned int, PhysicsComponent*>& physicsComponents,
 		std::unordered_map<unsigned int, RenderComponent*>& renderComponents,
 		std::unordered_map<unsigned int, TransformComponent*>& transformComponents,
@@ -18,9 +19,10 @@ public:
 	~ComponentFactory();
 	ComponentFactory(ComponentFactory& compFact) :
 		entityCount(compFact.entityCount),
+		lightComponents(compFact.lightComponents),
 		physicsComponents(compFact.physicsComponents),
-		transformComponents(compFact.transformComponents),
 		renderComponents(compFact.renderComponents),
+		transformComponents(compFact.transformComponents),
 		assFact(compFact.assFact) {}
 
 	/// <summary>
@@ -81,13 +83,27 @@ public:
 	/// <param name="rend"> render component to add to entity/param>
 	/// <returns> render component</returns>
 	RenderComponent* AddRenderComponent(unsigned int _entity, RenderComponent* rend);
+
+	/// <summary>
+	/// Adds a new physics component to the provided entity id
+	/// </summary>
+	/// <param name="_entity"> id to add component to</param>
+	/// <returns>physics component</returns>
 	PhysicsComponent* AddPhysicsComponent(unsigned int _entity);
 
+
+	LightComponent* AddLightComponent(unsigned int _entity);
+	LightComponent* AddLightComponent(unsigned int _entity, LightComponent* light);
 private:
 	/// <summary>
 	/// Starting entity count value (must be above 0)
 	/// </summary>
 	unsigned int entityCount = 1;
+
+	/// <summary>
+	/// Light Components in scene
+	/// </summary>
+	std::unordered_map<unsigned int, LightComponent*>& lightComponents;
 
 	/// <summary>
 	/// Physics Components in scene
