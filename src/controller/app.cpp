@@ -120,6 +120,10 @@ void App::Start()
     }
     transformComponents[1]->scale = { 0.05, 0.05, 0.05 };
 
+    componentFactory->MakeAmbientLightEntity({0.8,0.8,0.8}, 0.001);
+    componentFactory->MakeDirectionalLightEntity({0,1,1}, { 0.3,0.5,0.5 });
+    componentFactory->MakeDirectionalLightEntity({0,1,1}, { 0.6,0.5,0.6 },0.8);
+
     unsigned int cameraEntity = componentFactory->MakeCamera({ 0.0f, 1.0f, 0.0f }, { 0.0f, .0f,0.0f });
 
     CameraComponent* camera = new CameraComponent();
@@ -130,6 +134,9 @@ void App::Start()
 
 void App::Update()
 {
+    lightComponents[3]->direction = { (float)cos(glfwGetTime()*0.5), (float)sin(glfwGetTime()*0.5), -(float)cos(glfwGetTime()*0.5) };
+    lightComponents[4]->direction = { (float)cos(glfwGetTime()*0.5 + 0.1), (float)sin(glfwGetTime()*0.5 + 0.1), -(float)cos(glfwGetTime()*0.5 + 0.1) };
+
     //Space to add things to run on update
     if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) {
         renderComponents[1]->material->shaderProgram = 0;

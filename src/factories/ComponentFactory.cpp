@@ -63,6 +63,37 @@ unsigned int ComponentFactory::MakeCube(vec3 position, vec3 eulers)
     return cube;
 }
 
+unsigned int ComponentFactory::MakeAmbientLightEntity(vec3 colour, float intensity)
+{
+    unsigned int ambi = MakeEmptyTransform();
+    return AddAmbientLightComponent(ambi,colour,intensity);
+}
+
+unsigned int ComponentFactory::AddAmbientLightComponent(unsigned int entity, vec3 colour, float intensity)
+{
+    LightComponent* light = new LightComponent();
+    light->colour = colour * intensity;
+    AddLightComponent(entity, light);
+    return entity;
+}
+
+unsigned int ComponentFactory::MakeDirectionalLightEntity(vec3 direction, vec3 colour, float intensity)
+{
+    vec3 trueDirection = GetNormalised(direction);
+    
+    unsigned int directional = MakeEmptyTransform();
+    return AddDirectionalLightComponent(directional, trueDirection, colour, intensity);
+}
+
+unsigned int ComponentFactory::AddDirectionalLightComponent(unsigned int entity,vec3 direction, vec3 colour, float intensity)
+{
+    LightComponent* light = new LightComponent();
+    light->colour = colour * intensity;
+    light->lightType = LightType::directional;
+    AddLightComponent(entity, light);
+    return entity;
+}
+
 RenderComponent* ComponentFactory::AddRenderComponent(unsigned int _entity)
 {
     RenderComponent* rend = new RenderComponent();
@@ -86,5 +117,21 @@ PhysicsComponent* ComponentFactory::AddPhysicsComponent(unsigned int _entity)
     physicsComponents[_entity] = physics;
 
     return physics;
+}
+
+LightComponent* ComponentFactory::AddLightComponent(unsigned int _entity)
+{
+    LightComponent* light = new LightComponent();
+
+    lightComponents[_entity] = light;
+
+    return light;
+}
+
+LightComponent* ComponentFactory::AddLightComponent(unsigned int _entity, LightComponent* light)
+{
+    lightComponents[_entity] = light;
+
+    return light;
 }
 

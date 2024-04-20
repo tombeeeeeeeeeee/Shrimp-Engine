@@ -70,6 +70,28 @@ public:
 	unsigned int MakeCube(vec3 position, vec3 eulers);
 
 	/// <summary>
+	/// Creates an ambient light entity
+	/// </summary>
+	/// <param name="colour">colour for the light</param>
+	/// <param name="intensity"> intensity of the colour </param>
+	/// <returns> entity id </returns>
+	unsigned int MakeAmbientLightEntity(vec3 colour, float intensity = 1);
+
+	/// <summary>
+	/// Adds an ambient light to an entity
+	/// </summary>
+	/// <param name="entity">entity to add component</param>
+	/// <param name="colour">colour for the light</param>
+	/// <param name="intensity"> intensity of the colour </param>
+	/// <returns> entity id </returns>
+	unsigned int AddAmbientLightComponent(unsigned int entity, vec3 colour, float intensity = 1);
+
+	unsigned int MakeDirectionalLightEntity(vec3 direction, vec3 colour, float intensity = 1);
+
+	unsigned int AddDirectionalLightComponent(unsigned int entity, vec3 direction, vec3 colour, float intensity = 1);
+
+
+	/// <summary>
 	/// Add a new render component to the provided entity id
 	/// </summary>
 	/// <param name="_entity"> id to add component to</param>
@@ -80,7 +102,7 @@ public:
 	/// Add a provided render component to the provided entity id
 	/// </summary>
 	/// <param name="_entity"> id to add component to</param>
-	/// <param name="rend"> render component to add to entity/param>
+	/// <param name="rend"> render component to add to entity</param>
 	/// <returns> render component</returns>
 	RenderComponent* AddRenderComponent(unsigned int _entity, RenderComponent* rend);
 
@@ -91,8 +113,19 @@ public:
 	/// <returns>physics component</returns>
 	PhysicsComponent* AddPhysicsComponent(unsigned int _entity);
 
-
+	/// <summary>
+	/// Adds a new light component to the provided entity id
+	/// </summary>
+	/// <param name="_entity"> id to add component to</param>
+	/// <returns>light component</returns>
 	LightComponent* AddLightComponent(unsigned int _entity);
+
+	/// <summary>
+	/// Adds a new light component to the provided entity id
+	/// </summary>
+	/// <param name="_entity"> id to add component to</param>
+	/// <param name="light"> light component to add to entity</param>
+	/// <returns>light component</returns>
 	LightComponent* AddLightComponent(unsigned int _entity, LightComponent* light);
 private:
 	/// <summary>

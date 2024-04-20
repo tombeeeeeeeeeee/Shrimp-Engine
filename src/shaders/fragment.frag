@@ -11,8 +11,8 @@ uniform sampler2D diffuse;  //0
 uniform sampler2D specular; //1
 uniform sampler2D normalMap; //2
 
-uniform int lightCount;
-uniform vec3 lightPackets[96]; // 32 lights
+uniform int lightPacketCount;
+uniform vec4 lightPackets[96]; // 32 lights
 
 uniform	vec3 cameraPos;
 
@@ -31,25 +31,26 @@ void main()
 	vec3 specularMaterialColour = texture(specular, fragmentTexCoord).rgb;
 	float gloss = 16;
 	
-	vec3 directionalLight;
+	vec3 lightColour;
 	vec3 ambientLightColor;
 	float specularLightIntensity;
 
-	for(int i = 0; i < lightCount * 3; i += 3)
+	int i = 0;
+	while(i < lightPacketCount)
 	{
 		//Ambient Light
 		if(lightPackets[i].w == 1)
 		{
-			ambientLightColor += lightPackets[i+2].rgb;
+			ambientLightColor += lightPackets[i].rgb;
 		}
 
 		//Directional Light
 		else if(lightPackets[i].w == 2)
 		{
-			float directionalLightIntensity += clamp(dot(trueNormal, -lightPackets[i].xyz), 0, 1);
+			float directionalLightIntensity = clamp(dot(trueNormal, -lightPackets[i].xyz), 0, 1);
 			vec3 halfwayRay = normalize(-lightPackets[i].xyz + viewDirection);
 			specularLightIntensity += pow(clamp(dot(trueNormal, halfwayRay), 0, 1), gloss);
-			directionalLight += directionalLightIntensity * lightPackets[i + 2].rgb;
+			lightColour += directionalLightIntensity * lightPackets[i].rgb;
 		}
 
 		//Point Light
@@ -59,18 +60,13 @@ void main()
 		}
 
 		//SpotLight TODO
-		else if(lightPackets[i].w == 0)
+		else if(lightPackets[i].w == 4)
 		{
 			break;
 		}
 	}
-
-	////Needs to be refactored to be Per Light
-	//float directionalLightIntensity = clamp(dot(trueNormal, -directionalLightDirection), 0, 1);
-	//vec3 halfwayRay = normalize(-directionalLightDirection + viewDirection);
-	//float specularLightIntensity = pow(clamp(dot(trueNormal, halfwayRay), 0, 1), gloss);
 	
-	vec3 D = diffuseColour * directionalLight;
+	vec3 D = diffuseColour * lightColour;
 	vec3 S = specularMaterialColour.rgb * specularLightIntensity;
 	vec3 A = ambientLightColor * diffuseColour;
 	screenColour = vec4(D + S + A, 0);

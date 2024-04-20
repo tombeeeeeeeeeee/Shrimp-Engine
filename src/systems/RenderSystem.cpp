@@ -116,40 +116,78 @@ void RenderSystem::BindLightUniform(unsigned int shaderProgram,
     std::unordered_map<unsigned int, LightComponent*>& lightComponents, 
     std::unordered_map<unsigned int, TransformComponent*>& transformComponents)
 {
-    std::unordered_map<unsigned int, LightComponent*>::iterator iter;
     
+    int packetCount = 0;
     std::vector<float> lightPackets;
-    int lightCount = 0;
-    for (iter = lightComponents.begin(); iter != lightComponents.end(); iter++, lightCount++)
+    std::unordered_map<unsigned int, LightComponent*>::iterator iter;
+
+    for (iter = lightComponents.begin(); iter != lightComponents.end(); iter++)
     {
-        //Direction (needs to be changed to the forward vector)
-        lightPackets.push_back(transformComponents[iter->first]->globalTransform.entries[0]);
-        lightPackets.push_back(transformComponents[iter->first]->globalTransform.entries[1]);
-        lightPackets.push_back(transformComponents[iter->first]->globalTransform.entries[2]);
-
-        //light Type
-        lightPackets.push_back((float)iter->second->lightType);
-
-        //Position
-        lightPackets.push_back(transformComponents[iter->first]->Position().x);
-        lightPackets.push_back(transformComponents[iter->first]->Position().y);
-        lightPackets.push_back(transformComponents[iter->first]->Position().z);
-
-        //Radius of Light Effect
-        lightPackets.push_back(iter->second->radius);
-
         //Colour
         lightPackets.push_back(iter->second->colour.x);
         lightPackets.push_back(iter->second->colour.y);
         lightPackets.push_back(iter->second->colour.z);
+        //Light Type
+        lightPackets.push_back((float)iter->second->lightType);
 
-        //Angle
-        lightPackets.push_back(iter->second->angle);
+        switch(iter->second->lightType)
+        {
+            case LightType::ambient:
+                packetCount += 1;
+                break;
+
+            case LightType::directional:
+                //Direction (needs to be changed to the transfrom's forward vector)
+                lightPackets.push_back(iter->second->direction.x);
+                lightPackets.push_back(iter->second->direction.y);
+                lightPackets.push_back(iter->second->direction.z);
+
+                lightPackets.push_back(0);//Unused value
+                packetCount += 2;
+                break;
+
+            case LightType::point:
+                //Position
+                lightPackets.push_back(transformComponents[iter->first]->Position().x);
+                lightPackets.push_back(transformComponents[iter->first]->Position().y);
+                lightPackets.push_back(transformComponents[iter->first]->Position().z);
+                lightPackets.push_back(0); //Unused value
+
+                //Attenuation Constants
+                lightPackets.push_back(1);
+                lightPackets.push_back(iter->second->linear);
+                lightPackets.push_back(iter->second->quad);
+                lightPackets.push_back(iter->second->range); //unused in calculations
+                packetCount += 3;
+                break;
+
+            case LightType::spot:
+                //Position
+                lightPackets.push_back(transformComponents[iter->first]->Position().x);
+                lightPackets.push_back(transformComponents[iter->first]->Position().y);
+                lightPackets.push_back(transformComponents[iter->first]->Position().z);
+                lightPackets.push_back(0); //Unused value
+
+
+                //Direction (needs to be changed to the transfrom's forward vector)
+                lightPackets.push_back(iter->second->direction.x);
+                lightPackets.push_back(iter->second->direction.y);
+                lightPackets.push_back(iter->second->direction.z);
+                lightPackets.push_back(0); //Unused value
+                
+                //Attentuation and Angle calcs
+                lightPackets.push_back(iter->second->angle);
+                lightPackets.push_back(iter->second->linear);
+                lightPackets.push_back(iter->second->quad);
+                lightPackets.push_back(iter->second->range); //unused in calculations
+                packetCount += 4;
+        }      
     }
-    unsigned int lights = glGetUniformLocation(shaderProgram, "lightPackets");
-    glUniform4fv(lights, lightCount * 3, lightPackets.data());
 
-    glUniform1i(glGetUniformLocation(shaderProgram, "lightCount"), lightCount);
+    unsigned int lights = glGetUniformLocation(shaderProgram, "lightPackets");
+    glUniform4fv(lights, packetCount, lightPackets.data());
+
+    glUniform1i(glGetUniformLocation(shaderProgram, "lightCount"), packetCount);
 }
 
 void RenderSystem::CreateMissingTexture()
