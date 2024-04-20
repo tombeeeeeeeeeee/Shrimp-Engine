@@ -51,7 +51,7 @@ public:
 	/// <param name="position">position of component</param>
 	/// <param name="eulers">euler of component</param>
 	/// <returns>unsigned int transform component entity id</returns>
-	unsigned int MakeEmptyTransform(vec3 position, vec3 eulers);
+	unsigned int MakeEmptyTransform(vec3 position, vec3 eulers = {0,0,0});
 
 	/// <summary>
 	/// Makes a rat with a render component and transform component
@@ -85,10 +85,10 @@ public:
 	/// <param name="intensity"> intensity of the colour </param>
 	/// <returns> entity id </returns>
 	unsigned int AddAmbientLightComponent(unsigned int entity, vec3 colour, float intensity = 1);
-
 	unsigned int MakeDirectionalLightEntity(vec3 direction, vec3 colour, float intensity = 1);
-
 	unsigned int AddDirectionalLightComponent(unsigned int entity, vec3 direction, vec3 colour, float intensity = 1);
+	unsigned int MakePointLightEntity(vec3 pos, float range, vec3 colour, float intensity = 1);
+	unsigned int AddPointLightComponent(unsigned int entity, float range, vec3 colour, float intensity = 1);
 
 
 	/// <summary>

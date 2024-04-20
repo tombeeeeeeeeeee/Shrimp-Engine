@@ -42,27 +42,37 @@ void main()
 		if(lightPackets[i].w == 1)
 		{
 			ambientLightColor += lightPackets[i].rgb;
+			i += 1;
 		}
 
 		//Directional Light
 		else if(lightPackets[i].w == 2)
 		{
-			float directionalLightIntensity = clamp(dot(trueNormal, -lightPackets[i].xyz), 0, 1);
-			vec3 halfwayRay = normalize(-lightPackets[i].xyz + viewDirection);
+			float directionalLightIntensity = clamp(dot(trueNormal, lightPackets[i+1].xyz), 0, 1);
+			vec3 halfwayRay = normalize(-lightPackets[i+1].xyz + viewDirection);
 			specularLightIntensity += pow(clamp(dot(trueNormal, halfwayRay), 0, 1), gloss);
 			lightColour += directionalLightIntensity * lightPackets[i].rgb;
+			i += 2;
 		}
 
 		//Point Light
 		else if(lightPackets[i].w == 3)
 		{
+			float distance = length(lightPackets[i+1].xyz - fragmentPos);
+			float attenutation = 1 / (1 + lightPackets[i+1].y * distance + lightPackets[i+1].z * distance * distance);
 
+			float directionalLightIntensity = clamp(dot(trueNormal, normalize(lightPackets[i+1].xyz - fragmentPos)), 0, 1);
+			vec3 halfwayRay = normalize(lightPackets[i+1].xyz - fragmentPos + viewDirection);
+			specularLightIntensity += pow(clamp(dot(trueNormal, halfwayRay), 0, 1), gloss);
+
+			lightColour += directionalLightIntensity * attenutation * lightPackets[i].rgb;
+			i += 3;
 		}
 
 		//SpotLight TODO
 		else if(lightPackets[i].w == 4)
 		{
-			break;
+			i += 4;
 		}
 	}
 	

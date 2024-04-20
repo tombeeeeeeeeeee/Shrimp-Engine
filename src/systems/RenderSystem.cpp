@@ -35,7 +35,8 @@ void RenderSystem::Update(
     //Check if render Component is in shader order array
     for (std::pair<unsigned int, RenderComponent*> entity : renderComponents)
     {
-        entityShaderOrder[entity.second->material->shaderProgram].push_back(entity.first);
+        if(entity.second->material != nullptr)
+            entityShaderOrder[entity.second->material->shaderProgram].push_back(entity.first);
     }
 
     //Render all components in Shader Order
@@ -69,6 +70,8 @@ void RenderSystem::Update(
             TransformComponent transform = *transformComponents[*iter];
             mat4 model = transform.globalTransform;
             glUniformMatrix4fv(modelLocation, 1, GL_FALSE, model.entries);
+
+            glBindTexture(GL_TEXTURE_2D, 0);
 
             //For each texture with the render components material
             unsigned int materialMask = 1;
@@ -187,7 +190,7 @@ void RenderSystem::BindLightUniform(unsigned int shaderProgram,
     unsigned int lights = glGetUniformLocation(shaderProgram, "lightPackets");
     glUniform4fv(lights, packetCount, lightPackets.data());
 
-    glUniform1i(glGetUniformLocation(shaderProgram, "lightCount"), packetCount);
+    glUniform1i(glGetUniformLocation(shaderProgram, "lightPacketCount"), packetCount);
 }
 
 void RenderSystem::CreateMissingTexture()

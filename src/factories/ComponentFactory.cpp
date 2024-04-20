@@ -90,6 +90,29 @@ unsigned int ComponentFactory::AddDirectionalLightComponent(unsigned int entity,
     LightComponent* light = new LightComponent();
     light->colour = colour * intensity;
     light->lightType = LightType::directional;
+    light->direction = direction;
+    AddLightComponent(entity, light);
+    return entity;
+}
+
+unsigned int ComponentFactory::MakePointLightEntity(vec3 pos, float range, vec3 colour, float intensity)
+{
+    unsigned int point = MakeEmptyTransform(pos);
+    RenderComponent* ratRend = new RenderComponent();
+    ratRend->mesh = assFact.GetMesh("models/rat.obj");
+    ratRend->material = assFact.GetMaterial("img/me.PNG", 1);
+    AddRenderComponent(point, ratRend);
+    transformComponents[point]->scale = { 0.1,0.1,0.1 };
+    return AddPointLightComponent(point, range, colour, intensity);
+}
+
+unsigned int ComponentFactory::AddPointLightComponent(unsigned int entity, float range, vec3 colour, float intensity)
+{
+    LightComponent* light = new LightComponent();
+    light->colour = colour * intensity;
+    light->lightType = LightType::point;
+    light->range = range;
+    light->CalculateLinearQuadConstants();
     AddLightComponent(entity, light);
     return entity;
 }

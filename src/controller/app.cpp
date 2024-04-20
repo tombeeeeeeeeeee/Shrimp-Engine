@@ -121,8 +121,8 @@ void App::Start()
     transformComponents[1]->scale = { 0.05, 0.05, 0.05 };
 
     componentFactory->MakeAmbientLightEntity({0.8,0.8,0.8}, 0.001);
-    componentFactory->MakeDirectionalLightEntity({0,1,1}, { 0.3,0.5,0.5 });
-    componentFactory->MakeDirectionalLightEntity({0,1,1}, { 0.6,0.5,0.6 },0.8);
+    //componentFactory->MakePointLightEntity({0,1,1},10, { 0.5,0.5,0.1 });
+    componentFactory->MakePointLightEntity(transformComponents[1]->position, 20, { 0.1,0.5,0.5 });
 
     unsigned int cameraEntity = componentFactory->MakeCamera({ 0.0f, 1.0f, 0.0f }, { 0.0f, .0f,0.0f });
 
@@ -134,8 +134,8 @@ void App::Start()
 
 void App::Update()
 {
-    lightComponents[3]->direction = { (float)cos(glfwGetTime()*0.5), (float)sin(glfwGetTime()*0.5), -(float)cos(glfwGetTime()*0.5) };
-    lightComponents[4]->direction = { (float)cos(glfwGetTime()*0.5 + 0.1), (float)sin(glfwGetTime()*0.5 + 0.1), -(float)cos(glfwGetTime()*0.5 + 0.1) };
+    //transformComponents[3]->position += { (float)cos(glfwGetTime()*0.35), (float)sin(glfwGetTime()*0.35), -(float)cos(glfwGetTime()*0.35) };
+    transformComponents[3]->position -= { (float)cos(glfwGetTime()*0.65), (float)sin(glfwGetTime()*0.65), -(float)cos(glfwGetTime()*0.65) };
 
     //Space to add things to run on update
     if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) {
