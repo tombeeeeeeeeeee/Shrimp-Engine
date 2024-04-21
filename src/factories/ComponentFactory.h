@@ -87,9 +87,10 @@ public:
 	unsigned int AddAmbientLightComponent(unsigned int entity, vec3 colour, float intensity = 1);
 	unsigned int MakeDirectionalLightEntity(vec3 direction, vec3 colour, float intensity = 1);
 	unsigned int AddDirectionalLightComponent(unsigned int entity, vec3 direction, vec3 colour, float intensity = 1);
-	unsigned int MakePointLightEntity(vec3 pos, float range, vec3 colour, float intensity = 1);
+	unsigned int MakePointLightEntity(vec3 pos, float range, vec3 colour, float intensity = 1, bool debug = true);
 	unsigned int AddPointLightComponent(unsigned int entity, float range, vec3 colour, float intensity = 1);
-
+	unsigned int MakeSpotLightEntity(vec3 pos, vec3 dir, float range, float cutOff, float outerCutOff, vec3 colour, float intensity = 1, bool debug = true);
+	unsigned int AddSpotLightComponent(unsigned int entity, vec3 dir, float range, float cutOff, float outerCutOff, vec3 colour, float intensity = 1);
 
 	/// <summary>
 	/// Add a new render component to the provided entity id

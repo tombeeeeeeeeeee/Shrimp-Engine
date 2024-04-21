@@ -12,13 +12,12 @@ uniform sampler2D specular; //1
 uniform sampler2D normalMap; //2
 
 uniform int lightPacketCount;
-uniform vec4 lightPackets[96]; // 32 lights
+uniform vec4 lightPackets[96];
 
 uniform	vec3 cameraPos;
 
 void main()
 {
-
 	vec3 normalColour = texture(normalMap, fragmentTexCoord).rgb;
 	normalColour = (normalColour.x == 0 && normalColour.y == 0 && normalColour.z == 0) ? vec3(0.5,0.5,1.0) : normalColour;
 	normalColour = normalColour * 2.0 - 1.0;
@@ -58,20 +57,38 @@ void main()
 		//Point Light
 		else if(lightPackets[i].w == 3)
 		{
-			float distance = length(lightPackets[i+1].xyz - fragmentPos);
-			float attenutation = 1 / (1 + lightPackets[i+1].y * distance + lightPackets[i+1].z * distance * distance);
+			vec3 direction = fragmentPos - lightPackets[i+1].xyz;
+			float distance = length(direction);
+			direction = normalize(direction);
+			float attenuation  = 1 / (1 + lightPackets[i+2].y * pow(distance, 0.5) + lightPackets[i+2].z * distance);
 
-			float directionalLightIntensity = clamp(dot(trueNormal, normalize(lightPackets[i+1].xyz - fragmentPos)), 0, 1);
-			vec3 halfwayRay = normalize(lightPackets[i+1].xyz - fragmentPos + viewDirection);
-			specularLightIntensity += pow(clamp(dot(trueNormal, halfwayRay), 0, 1), gloss);
+			float directionalLightIntensity = clamp(dot(trueNormal, -direction), 0, 1);
+			vec3 halfwayRay = -normalize(direction - viewDirection);
+			specularLightIntensity += pow(clamp(dot(trueNormal, halfwayRay), 0, 1), gloss) * attenuation;
 
-			lightColour += directionalLightIntensity * attenutation * lightPackets[i].rgb;
+			lightColour += directionalLightIntensity * attenuation  * lightPackets[i].rgb;
 			i += 3;
 		}
 
-		//SpotLight TODO
+		//SpotLight
 		else if(lightPackets[i].w == 4)
 		{
+			vec3 direction = fragmentPos - lightPackets[i+1].xyz;
+			float distance = length(direction);
+			direction = normalize(direction);
+
+			float theta = dot(direction, normalize(lightPackets[i+2].xyz));
+			float epsilon = lightPackets[i+3].x - lightPackets[i+3].w;
+			float intensity = clamp((theta - lightPackets[i+3].w) / epsilon, 0.0, 1.0);
+
+			float attenuation  = 1 / (1 + lightPackets[i+3].y * pow(distance, 0.5) + lightPackets[i+3].z * distance);
+
+			float directionalLightIntensity = clamp(dot(trueNormal, -direction), 0, 1);
+			vec3 halfwayRay = -normalize(direction - viewDirection);
+			specularLightIntensity += pow(clamp(dot(trueNormal, halfwayRay), 0, 1), gloss) * attenuation * intensity;
+
+			lightColour += directionalLightIntensity * attenuation  * lightPackets[i].rgb * intensity;
+
 			i += 4;
 		}
 	}

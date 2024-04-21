@@ -176,13 +176,13 @@ void RenderSystem::BindLightUniform(unsigned int shaderProgram,
                 lightPackets.push_back(iter->second->direction.x);
                 lightPackets.push_back(iter->second->direction.y);
                 lightPackets.push_back(iter->second->direction.z);
-                lightPackets.push_back(0); //Unused value
+                lightPackets.push_back(0); 
                 
                 //Attentuation and Angle calcs
-                lightPackets.push_back(iter->second->angle);
+                lightPackets.push_back(iter->second->cutOff);
                 lightPackets.push_back(iter->second->linear);
                 lightPackets.push_back(iter->second->quad);
-                lightPackets.push_back(iter->second->range); //unused in calculations
+                lightPackets.push_back(iter->second->outerCutOff);
                 packetCount += 4;
         }      
     }

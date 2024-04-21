@@ -95,14 +95,21 @@ unsigned int ComponentFactory::AddDirectionalLightComponent(unsigned int entity,
     return entity;
 }
 
-unsigned int ComponentFactory::MakePointLightEntity(vec3 pos, float range, vec3 colour, float intensity)
+unsigned int ComponentFactory::MakePointLightEntity(vec3 pos, float range, vec3 colour, float intensity, bool debug)
 {
     unsigned int point = MakeEmptyTransform(pos);
-    RenderComponent* ratRend = new RenderComponent();
-    ratRend->mesh = assFact.GetMesh("models/rat.obj");
-    ratRend->material = assFact.GetMaterial("img/me.PNG", 1);
-    AddRenderComponent(point, ratRend);
-    transformComponents[point]->scale = { 0.1,0.1,0.1 };
+
+    //PlaceHolder light Render
+    if (debug)
+    {
+        RenderComponent* lightCube = new RenderComponent();
+        lightCube->mesh = assFact.GetMesh("models/cube.obj");
+        lightCube->material = assFact.GetMaterial("img/light.png", 1);
+        lightCube->material->shaderProgram = 1;
+        AddRenderComponent(point, lightCube);
+        transformComponents[point]->scale = { 0.1,0.1,0.1 };
+    }
+
     return AddPointLightComponent(point, range, colour, intensity);
 }
 
@@ -113,6 +120,38 @@ unsigned int ComponentFactory::AddPointLightComponent(unsigned int entity, float
     light->lightType = LightType::point;
     light->range = range;
     light->CalculateLinearQuadConstants();
+    AddLightComponent(entity, light);
+    return entity;
+}
+
+unsigned int ComponentFactory::MakeSpotLightEntity(vec3 pos, vec3 dir, float range, float cutOff, float outerCutOff, vec3 colour, float intensity, bool debug)
+{
+    unsigned int spot = MakeEmptyTransform(pos);
+
+    //PlaceHolder light Render
+    if (debug)
+    {
+        RenderComponent* lightCube = new RenderComponent();
+        lightCube->mesh = assFact.GetMesh("models/cube.obj");
+        lightCube->material = assFact.GetMaterial("img/light.png", 1);
+        lightCube->material->shaderProgram = 1;
+        AddRenderComponent(spot, lightCube);
+        transformComponents[spot]->scale = { 0.1,0.1,0.1 };
+    }
+
+    return AddSpotLightComponent(spot, dir, range, cutOff, outerCutOff, colour, intensity);
+}
+
+unsigned int ComponentFactory::AddSpotLightComponent(unsigned int entity, vec3 dir, float range, float cutOff, float outerCutOff, vec3 colour, float intensity)
+{
+    LightComponent* light = new LightComponent();
+    light->colour = colour * intensity;
+    light->lightType = LightType::spot;
+    light->range = range;
+    light->direction = dir;
+    light->CalculateLinearQuadConstants();
+    light->cutOff = cos(LA_PI * cutOff / 180);
+    light->outerCutOff = cos(LA_PI * outerCutOff / 180);
     AddLightComponent(entity, light);
     return entity;
 }

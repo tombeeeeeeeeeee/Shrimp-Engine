@@ -98,19 +98,19 @@ void App::Start()
     };
     renderSystem->SetSkyboxTexture(assetFactory->GetSkyBoxMaterial(skyboxTextureFiles));
     std::vector<unsigned int> gameObjects;
-    int objectCount = 1;
+    int objectCount = 3;
     srand(time(NULL));
     for (int i = 0; i < objectCount; i++)
     {
-        float x = (10.0f * (float)rand() / RAND_MAX) - 5.0f;
-        float y = (10.0f * (float)rand() / RAND_MAX) - 5.0f;
-        float z = (10.0f * (float)rand() / RAND_MAX) - 5.0f;
+        float x = (1000.0f * (float)rand() / RAND_MAX) - 500.0f;
+        float y = (1000.0f * (float)rand() / RAND_MAX) - 500.0f;
+        float z = (1000.0f * (float)rand() / RAND_MAX) - 500.0f;
 
         float xRot = (360.0f * (float)rand() / RAND_MAX) - 180.0f;
         float yRot = (360.0f * (float)rand() / RAND_MAX) - 180.0f;
         float zRot = (360.0f * (float)rand() / RAND_MAX) - 180.0f;
 
-        unsigned int cubeEntity = componentFactory->MakeEmptyTransform({ x, y, z }, { xRot, yRot, zRot });
+        unsigned int cubeEntity = componentFactory->MakeEmptyTransform({ i * x, i * y, i * z }, { xRot, yRot, zRot });
         componentFactory->AddRenderComponent(cubeEntity);
         renderComponents[cubeEntity]->mesh = assetFactory->GetMesh("models/whale.obj");
         std::string textureMaps[3] = { "img/whale.jpg", "img/vignette.jpg", "img/cubeNormal.png" };
@@ -122,7 +122,9 @@ void App::Start()
 
     componentFactory->MakeAmbientLightEntity({0.8,0.8,0.8}, 0.001);
     //componentFactory->MakePointLightEntity({0,1,1},10, { 0.5,0.5,0.1 });
-    componentFactory->MakePointLightEntity(transformComponents[1]->position, 20, { 0.1,0.5,0.5 });
+    componentFactory->MakePointLightEntity(transformComponents[1]->position, 20, { 0.5,0.5,0.5 }, 2);
+    componentFactory->MakeSpotLightEntity({0,0,0}, { 1,0,0 }, 100, 10, 20, { 0.5,0.5,0.5 },1.75 ,false);
+    componentFactory->MakePointLightEntity({2,-5,2}, 20, { 246, 231, 210 }, 1/255);
 
     unsigned int cameraEntity = componentFactory->MakeCamera({ 0.0f, 1.0f, 0.0f }, { 0.0f, .0f,0.0f });
 
@@ -130,12 +132,27 @@ void App::Start()
     cameraComponent = camera;
     cameraID = cameraEntity;
     renderSystem->SetCameraID(cameraID);
+
 }
 
 void App::Update()
 {
     //transformComponents[3]->position += { (float)cos(glfwGetTime()*0.35), (float)sin(glfwGetTime()*0.35), -(float)cos(glfwGetTime()*0.35) };
-    transformComponents[3]->position -= { (float)cos(glfwGetTime()*0.65), (float)sin(glfwGetTime()*0.65), -(float)cos(glfwGetTime()*0.65) };
+    transformComponents[5]->position -= { 0.05f * (float)cos(glfwGetTime() * 0.35), 0.05f * (float)sin(glfwGetTime() * 0.35), 0.025f * (float)cos(glfwGetTime() * 0.35) };
+
+    lightComponents[6]->direction = cameraComponent->forward;
+    transformComponents[6]->position = transformComponents[cameraID]->position;
+
+    if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS) {
+        if (lightComponents[6]->range == 100)
+        {
+            lightComponents[6]->range = 0;
+        }
+        else
+        {
+            lightComponents[6]->range = 100;
+        }
+    } else lightComponents[6]->CalculateLinearQuadConstants();
 
     //Space to add things to run on update
     if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) {
@@ -169,13 +186,14 @@ void App::SetUpOpengl()
 
     //Default Shader Program
     shaders.push_back(MakeShader());
+    shaders.push_back(MakeShader("src/shaders/vertex.vert", "src/shaders/unlit.frag"));
     shaders.push_back(MakeShaderMatchingName("phong"));
 
     shaders.push_back(MakeShaderMatchingName("skybox"));
 
     glUseProgram(shaders[0]);
 
-    projectionMatrix = ProjectionMatrix( 45.0f, (float)w/(float)h , 0.1f, 250.0f);
+    projectionMatrix = ProjectionMatrix( 45.0f, (float)w/(float)h , 0.1f, 1000.0f);
     
 }
 

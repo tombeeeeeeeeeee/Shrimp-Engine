@@ -17,7 +17,8 @@ struct LightComponent
 	float range = 0;
 	float linear = 1;
 	float quad = 1;
-	float angle = 0;
+	float cutOff = 0;
+	float outerCutOff = 90;
 
 	void CalculateLinearQuadConstants();
 };
