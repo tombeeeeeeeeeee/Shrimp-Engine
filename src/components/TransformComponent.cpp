@@ -19,21 +19,11 @@ vec3 TransformComponent::LocalEulers(bool radians)
 
 mat4 TransformComponent::LocalTransform()
 {
-	//Scale First
-	//mat4 localTransform = ScaleMatrix(scale);
-	//localTransform *= RotationXMatrix(eulers.x);
-	//localTransform *= RotationYMatrix(eulers.y);
-	//localTransform *= RotationZMatrix(eulers.z);
-	//localTransform *= TranslationMatrix(position);
-	//return localTransform;
-
-	//Position First
-	mat4 localTransform = TranslationMatrix(position);
-	localTransform *= RotationXMatrix(eulers.x);
-	localTransform *= RotationYMatrix(eulers.y);
-	localTransform *= RotationZMatrix(eulers.z);
-	localTransform *= ScaleMatrix(scale);
-	return localTransform;
+	return TranslationMatrix(position) 
+			* RotationXMatrix(eulers.x) 
+			* RotationXMatrix(eulers.y) 
+			* RotationXMatrix(eulers.z) 
+			* ScaleMatrix(scale);
 }
 
 vec3 TransformComponent::Eulers(bool radians)

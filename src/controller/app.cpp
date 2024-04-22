@@ -121,10 +121,10 @@ void App::Start()
     transformComponents[1]->scale = { 0.05, 0.05, 0.05 };
 
     componentFactory->MakeAmbientLightEntity({0.8,0.8,0.8}, 0.001);
-    //componentFactory->MakePointLightEntity({0,1,1},10, { 0.5,0.5,0.1 });
     componentFactory->MakePointLightEntity(transformComponents[1]->position, 20, { 0.5,0.5,0.5 }, 2);
     componentFactory->MakeSpotLightEntity({0,0,0}, { 1,0,0 }, 100, 10, 20, { 0.5,0.5,0.5 },1.75 ,false);
-    componentFactory->MakePointLightEntity({2,-5,2}, 20, { 246, 231, 210 }, 1/255);
+    componentFactory->MakePointLightEntity({2,-5,2}, 20, { 246, 231, 210 }, 0.75/(float)255);
+    componentFactory->MakeDirectionalLightEntity({0,1,1}, { 246, 231, 210 }, 0.25 / (float)255);
 
     unsigned int cameraEntity = componentFactory->MakeCamera({ 0.0f, 1.0f, 0.0f }, { 0.0f, .0f,0.0f });
 
@@ -140,8 +140,8 @@ void App::Update()
     //transformComponents[3]->position += { (float)cos(glfwGetTime()*0.35), (float)sin(glfwGetTime()*0.35), -(float)cos(glfwGetTime()*0.35) };
     transformComponents[5]->position -= { 0.05f * (float)cos(glfwGetTime() * 0.35), 0.05f * (float)sin(glfwGetTime() * 0.35), 0.025f * (float)cos(glfwGetTime() * 0.35) };
 
-    lightComponents[6]->direction = cameraComponent->forward;
-    transformComponents[6]->position = transformComponents[cameraID]->position;
+    //lightComponents[6]->direction = cameraComponent->forward;
+    //transformComponents[6]->position = transformComponents[cameraID]->position;
 
     if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS) {
         if (lightComponents[6]->range == 100)
@@ -159,7 +159,7 @@ void App::Update()
         renderComponents[1]->material->shaderProgram = 0;
     }
     if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
-        renderComponents[1]->material->shaderProgram = 1;
+        renderComponents[1]->material->shaderProgram = 2;
     }
 }
 
@@ -187,7 +187,7 @@ void App::SetUpOpengl()
     //Default Shader Program
     shaders.push_back(MakeShader());
     shaders.push_back(MakeShader("src/shaders/vertex.vert", "src/shaders/unlit.frag"));
-    shaders.push_back(MakeShaderMatchingName("phong"));
+    shaders.push_back(MakeShaderMatchingName("blinn"));
 
     shaders.push_back(MakeShaderMatchingName("skybox"));
 

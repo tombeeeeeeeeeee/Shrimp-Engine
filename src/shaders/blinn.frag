@@ -12,7 +12,7 @@ uniform sampler2D specular; //1
 uniform sampler2D normalMap; //2
 
 uniform int lightPacketCount;
-uniform vec4 lightPackets[96];
+uniform vec4 lightPackets[64];
 
 uniform	vec3 cameraPos;
 
@@ -21,7 +21,7 @@ void main()
 	vec3 normalColour = texture(normalMap, fragmentTexCoord).rgb;
 	normalColour = (normalColour.x == 0 && normalColour.y == 0 && normalColour.z == 0) ? vec3(0.5,0.5,1.0) : normalColour;
 	normalColour = normalColour * 2.0 - 1.0;
-	mat3 TBN = mat3(normalize(fragmentTangent), normalize(fragmentBitangent), normalize(fragmentNormal));
+	mat3 TBN = mat3(fragmentTangent, fragmentBitangent, fragmentNormal);
 	vec3 trueNormal = normalize(TBN * normalColour);
 
 	vec3 viewDirection = normalize(fragmentPos - cameraPos);

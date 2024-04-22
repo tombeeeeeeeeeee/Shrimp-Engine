@@ -21,11 +21,12 @@ void main()
 {
 	gl_Position = projection * view * model * vec4(vertexPos, 1.0);
 	fragmentTexCoord = vertexTexCoord;
-	fragmentPos = (model * vec4(vertexPos, 0.0)).xyz;
+	fragmentPos = (model * vec4(vertexPos, 1.0)).xyz;
 
 	//Worse Normals Lower Tax
 	fragmentTangent = (model * vec4(vertexTangent, 0.0)).xyz;
 	fragmentNormal = (model * vec4(vertexNormal, 0.0)).xyz;
+	fragmentBitangent = (model * vec4(vertexBitangent, 0.0)).xyz;
 
 
 	//Better Normals Higher Tax

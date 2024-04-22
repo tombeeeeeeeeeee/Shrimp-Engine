@@ -162,23 +162,19 @@ MeshAsset* AssetFactory::sendMeshToVRAM(std::vector<float>& vertices, int vertex
 
     //position
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 56, (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 44, (void*)0);
 
     //texture coordinates
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 56, (void*)12);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 44, (void*)12);
 
     //normal
     glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 56, (void*)20);
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 44, (void*)20);
 
     //Tangent
     glEnableVertexAttribArray(3);
-    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 56, (void*)32);
-
-    //Bitangent
-    glEnableVertexAttribArray(4);
-    glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 56, (void*)44);
+    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 44, (void*)32);
 
     MeshAsset* mesh = new MeshAsset();
     mesh->VAO = VAO;
@@ -279,10 +275,6 @@ MeshAsset* AssetFactory::GetMesh(std::string fileName)
         vertices.push_back(mesh->mTangents[i].x);
         vertices.push_back(mesh->mTangents[i].y);
         vertices.push_back(mesh->mTangents[i].z);
-
-        vertices.push_back(mesh->mBitangents[i].x);
-        vertices.push_back(mesh->mBitangents[i].y);
-        vertices.push_back(mesh->mBitangents[i].z);
     }
 
     return  sendMeshToVRAM( vertices, vertexCount, indices.size(), indices.data());

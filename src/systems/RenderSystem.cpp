@@ -222,7 +222,7 @@ void RenderSystem::DrawSkyBox()
     unsigned int emptyVAO;
     glUseProgram((*shaders)[SHRIMP_SHADER_PROGRAM_COUNT - 1]);
 
-    mat4 inversePV = projectionMatrix * viewMatrix;
+    mat4 inversePV = GetInverse(projectionMatrix * viewMatrix);
 
     glUniformMatrix4fv(glGetUniformLocation((*shaders)[SHRIMP_SHADER_PROGRAM_COUNT - 1], "PV"), 1, GL_FALSE, inversePV.entries);
     glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTexture);
