@@ -113,7 +113,8 @@ void App::Start()
         unsigned int cubeEntity = componentFactory->MakeEmptyTransform({ i * x, i * y, i * z }, { xRot, yRot, zRot });
         componentFactory->AddRenderComponent(cubeEntity);
         renderComponents[cubeEntity]->mesh = assetFactory->GetMesh("models/whale.obj");
-        std::string textureMaps[3] = { "img/whale.jpg", "img/vignette.jpg", "img/cubeNormal.png" };
+        std::string textureMaps[3] = { "img/whale.jpg", "img/Cat_diffuse.jpg", "img/cubeNormal.png" };
+
         renderComponents[cubeEntity]->material = assetFactory->GetMaterial(textureMaps, 7);
         gameObjects.push_back(cubeEntity);
         hierarchySystem->SetParent(cubeEntity, cubeEntity - 1);
@@ -122,8 +123,8 @@ void App::Start()
 
     componentFactory->MakeAmbientLightEntity({0.8,0.8,0.8}, 0.001);
     componentFactory->MakePointLightEntity(transformComponents[1]->position, 20, { 0.5,0.5,0.5 }, 2);
-    componentFactory->MakeSpotLightEntity({0,0,0}, { 1,0,0 }, 100, 10, 20, { 0.5,0.5,0.5 },1.75 ,false);
-    componentFactory->MakePointLightEntity({2,-5,2}, 20, { 246, 231, 210 }, 0.75/(float)255);
+    componentFactory->MakeSpotLightEntity({0,0,0}, { 1,0,0 }, 100, 10, 40, { 0.5,0.5,0.5 }, 2 ,false);
+    componentFactory->MakePointLightEntity({2,-5,2}, 200, { 255, 150, 10 }, 1/(float)255);
     componentFactory->MakeDirectionalLightEntity({0,1,1}, { 246, 231, 210 }, 0.25 / (float)255);
 
     unsigned int cameraEntity = componentFactory->MakeCamera({ 0.0f, 1.0f, 0.0f }, { 0.0f, .0f,0.0f });
@@ -140,19 +141,8 @@ void App::Update()
     //transformComponents[3]->position += { (float)cos(glfwGetTime()*0.35), (float)sin(glfwGetTime()*0.35), -(float)cos(glfwGetTime()*0.35) };
     transformComponents[5]->position -= { 0.05f * (float)cos(glfwGetTime() * 0.35), 0.05f * (float)sin(glfwGetTime() * 0.35), 0.025f * (float)cos(glfwGetTime() * 0.35) };
 
-    //lightComponents[6]->direction = cameraComponent->forward;
-    //transformComponents[6]->position = transformComponents[cameraID]->position;
-
-    if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS) {
-        if (lightComponents[6]->range == 100)
-        {
-            lightComponents[6]->range = 0;
-        }
-        else
-        {
-            lightComponents[6]->range = 100;
-        }
-    } else lightComponents[6]->CalculateLinearQuadConstants();
+    lightComponents[6]->direction = cameraComponent->forward;
+    transformComponents[6]->position = transformComponents[cameraID]->position;
 
     //Space to add things to run on update
     if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) {

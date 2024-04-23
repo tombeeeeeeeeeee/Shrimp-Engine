@@ -12,9 +12,16 @@ uniform sampler2D specular; //1
 uniform sampler2D normalMap; //2
 
 uniform int lightPacketCount;
-uniform vec4 lightPackets[96];
+uniform vec4 lightPackets[64];
 
 uniform	vec3 cameraPos;
+
+const float PI = 3.14159265359;
+
+float DistributionGGX(vec3 N, vec3 H, float roughness);
+float GeometrySchlickGGX(float NdotV, float roughness);
+float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness);
+vec3 fresnelSchlick(float cosTheta, vec3 F0);
 
 void main()
 {
@@ -29,80 +36,132 @@ void main()
 	mat3 TBN = mat3(normalize(fragmentTangent), normalize(fragmentBitangent), normalize(fragmentNormal));
 	vec3 trueNormal = normalize(TBN * normalColour);
 	
-	vec3 viewDirection = normalize(fragmentPos - cameraPos);
+	vec3 viewDirection = normalize(cameraPos - fragmentPos);
 	
 	vec3 albedo = texture(diffuse, fragmentTexCoord).rgb;
 
 	vec3 Lo = vec3(0.0);
 	vec3 ambientLightColor; //TO DO ON CPU
 
+	vec3 F0 = vec3(0.04); 
+    F0 = mix(F0, albedo, metallic);
 
+	int i = 0;
+	while(i < lightPacketCount)
+	{
+		int packetStep = 0;
+		//Set Up for light
+		vec3 lightDirection = vec3(0.0);
+		vec3 halfwayRay = vec3(0.0);
+		vec3 radiance = vec3(0.0);
+	
+		//Directional Light
+		if(lightPackets[i].w == 2)
+		{
+			lightDirection = normalize(lightPackets[i+1].xyz);
+			halfwayRay = normalize(lightDirection + viewDirection);
+			radiance = lightPackets[i].rgb;
 
-	//int i = 0;
-	//while(i < lightPacketCount)
-	//{
-	//	//Ambient Light
-	//	if(lightPackets[i].w == 1)
-	//	{
-	//		ambientLightColor += lightPackets[i].rgb;
-	//		i += 1;
-	//	}
-	//
-	//	//Directional Light
-	//	else if(lightPackets[i].w == 2)
-	//	{
-	//		float directionalLightIntensity = clamp(dot(trueNormal, lightPackets[i+1].xyz), 0, 1);
-	//		vec3 halfwayRay = -normalize(-lightPackets[i+1].xyz + viewDirection);
-	//		specularLightIntensity += pow(clamp(dot(trueNormal, halfwayRay), 0, 1), gloss);
-	//		lightColour += directionalLightIntensity * lightPackets[i].rgb;
-	//		i += 2;
-	//	}
-	//
-	//	//Point Light
-	//	else if(lightPackets[i].w == 3)
-	//	{
-	//		vec3 direction = fragmentPos - lightPackets[i+1].xyz;
-	//		float distance = length(direction);
-	//		direction = normalize(direction);
-	//
-	//		float attenuation  = 1 / (1 + lightPackets[i+2].y * distance + lightPackets[i+2].z * distance * distance);
-	//
-	//		float directionalLightIntensity = clamp(dot(trueNormal, -direction), 0, 1);
-	//		vec3 halfwayRay = -normalize(direction - viewDirection);
-	//		specularLightIntensity += pow(clamp(dot(trueNormal, halfwayRay), 0, 1), gloss) * attenuation;
-	//
-	//		lightColour += directionalLightIntensity * attenuation  * lightPackets[i].rgb;
-	//		i += 3;
-	//	}
-	//
-	//	//SpotLight
-	//	else if(lightPackets[i].w == 4)
-	//	{
-	//		vec3 direction = fragmentPos - lightPackets[i+1].xyz;
-	//		float distance = length(direction);
-	//		direction = normalize(direction);
-	//
-	//		float theta = dot(direction, normalize(lightPackets[i+2].xyz));
-	//		float epsilon = lightPackets[i+3].x - lightPackets[i+3].w;
-	//		float intensity = clamp((theta - lightPackets[i+3].w) / epsilon, 0.0, 1.0);
-	//
-	//		float attenuation  = 1 / (1 + lightPackets[i+3].y * distance + lightPackets[i+3].z * distance * distance);
-	//
-	//		float directionalLightIntensity = clamp(dot(trueNormal, -direction), 0, 1);
-	//		vec3 halfwayRay = -normalize(direction - viewDirection);
-	//		specularLightIntensity += pow(clamp(dot(trueNormal, halfwayRay), 0, 1), gloss) * attenuation * intensity;
-	//
-	//		lightColour += directionalLightIntensity * attenuation  * lightPackets[i].rgb * intensity;
-	//
-	//		i += 4;
-	//	}
-	//}
-	//
-	//vec3 D = diffuseColour * lightColour;
-	//vec3 S = specularMaterialColour.rgb * specularLightIntensity;
-	//vec3 A = ambientLightColor * diffuseColour;
-	//screenColour = vec4(D + S + A, 0);
-	//
-	//screenColour = vec4(pow(screenColour.rgb, vec3(1.0/2.2)), screenColour.a);
+			packetStep += 2;
+		}
+	
+		//Point Light
+		else if(lightPackets[i].w == 3)
+		{
+			lightDirection = lightPackets[i+1].xyz - fragmentPos;
+			float distance = length(lightDirection);
+			lightDirection = normalize(lightDirection);
+
+			halfwayRay = normalize(lightDirection + viewDirection);
+			float attenuation  = 1 / (1 + lightPackets[i+2].y * distance + lightPackets[i+2].z * distance * distance);
+			radiance = lightPackets[i].rgb * attenuation;
+
+			packetStep += 3;
+		}
+	
+		//SpotLight
+		else if(lightPackets[i].w == 4)
+		{
+			lightDirection = lightPackets[i+1].xyz - fragmentPos;
+			float distance = length(lightDirection);
+			lightDirection = normalize(lightDirection);
+
+			halfwayRay = normalize(lightDirection + viewDirection);
+			float attenuation  = 1 / (1 + lightPackets[i+3].y * distance + lightPackets[i+3].z * distance * distance);
+			float theta = dot(lightDirection, -normalize(lightPackets[i+2].xyz));
+			float epsilon = lightPackets[i+3].x - lightPackets[i+3].w;
+			float intensity = clamp((theta - lightPackets[i+3].w) / epsilon, 0.0, 1.0);
+			radiance = lightPackets[i].rgb * attenuation * intensity;
+
+			packetStep += 4;
+		}
+
+		float normalDist = DistributionGGX(trueNormal, halfwayRay, roughness);
+		vec3 F = fresnelSchlick(max(dot(halfwayRay, viewDirection), 0.0), F0);
+		float G = GeometrySmith(trueNormal, viewDirection, lightDirection, roughness);
+
+		vec3 numerator = normalDist * F * G;
+		float denominator = 4.0 * max(dot(trueNormal, viewDirection), 0.0) * max(dot(trueNormal, lightDirection), 0.0) + 0.0001;
+		vec3 BRDF = numerator / denominator;
+
+		vec3 kD = vec3(1.0) - F;
+        kD *= 1.0 - metallic;
+
+		float NdotL = max(dot(trueNormal, lightDirection), 0.0);        
+		Lo += (kD * albedo / PI + BRDF) * radiance * NdotL;
+
+		//Ambient Light TODO Refactoring
+		if(lightPackets[i].w == 1)
+		{
+			ambientLightColor += lightPackets[i].rgb;
+			i += 1;
+		}
+		i += packetStep;
+	}
+
+	vec3 ambient = ambientLightColor * albedo * ao;
+
+	screenColour = vec4(Lo + ambient, 1.0);
+	screenColour = vec4(pow(screenColour.rgb, vec3(1.0/2.2)), screenColour.a);
+}
+
+vec3 fresnelSchlick(float cosTheta, vec3 F0)
+{
+    return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
+}  
+
+float DistributionGGX(vec3 N, vec3 H, float roughness)
+{
+    float a      = roughness*roughness;
+    float a2     = a * a;
+    float NdotH  = max(dot(N, H), 0.0);
+    float NdotH2 = NdotH*NdotH;
+	
+    float num   = a2;
+    float denom = (NdotH2 * (a2 - 1.0) + 1.0);
+    denom = PI * denom * denom;
+	
+    return num / denom;
+}
+
+float GeometrySchlickGGX(float NdotV, float roughness)
+{
+    float r = (roughness + 1.0);
+    float k = (r*r) / 8.0;
+
+    float num   = NdotV;
+    float denom = NdotV * (1.0 - k) + k;
+	
+    return num / denom;
+}
+
+float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness)
+{
+    float NdotV = max(dot(N, V), 0.0);
+    float NdotL = max(dot(N, L), 0.0);
+    float ggx2  = GeometrySchlickGGX(NdotV, roughness);
+    float ggx1  = GeometrySchlickGGX(NdotL, roughness);
+	
+    return ggx1 * ggx2;
 }
 

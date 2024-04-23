@@ -29,7 +29,7 @@ void main()
 
 	vec3 diffuseColour = texture(diffuse, fragmentTexCoord).rgb;
 	vec4 specularMaterialColour = texture(specular, fragmentTexCoord).rgba;
-	float gloss = specularMaterialColour.a * 8;
+	float gloss = 8;
 
 	//Needs to be refactored to be Per Light
 	float directionalLightIntensity = clamp(dot(trueNormal, -directionalLightDirection), 0, 1);
