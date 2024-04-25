@@ -300,7 +300,7 @@ unsigned int AssetFactory::GetSkyBoxMaterial(std::string fileName[6])
         if (data)
         {
             stbi_set_flip_vertically_on_load(false);
-            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_SRGB_ALPHA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
         }
         else
         {

@@ -358,23 +358,23 @@ struct mat4
 		mat4 mat;
 
 		//Colomn 1
-		mat.entries[0] = entries[0] * m.entries[0] + entries[4] * m.entries[1] + entries[8] * m.entries[2] + entries[12] * m.entries[3];
-		mat.entries[1] = entries[1] * m.entries[0] + entries[5] * m.entries[1] + entries[9] * m.entries[2] + entries[13] * m.entries[3];
+		mat.entries[0] = entries[0] * m.entries[0] + entries[4] * m.entries[1] + entries[8]  * m.entries[2] + entries[12] * m.entries[3];
+		mat.entries[1] = entries[1] * m.entries[0] + entries[5] * m.entries[1] + entries[9]  * m.entries[2] + entries[13] * m.entries[3];
 		mat.entries[2] = entries[2] * m.entries[0] + entries[6] * m.entries[1] + entries[10] * m.entries[2] + entries[14] * m.entries[3];
 		mat.entries[3] = entries[3] * m.entries[0] + entries[7] * m.entries[1] + entries[11] * m.entries[2] + entries[15] * m.entries[3];
 		//Colomn 2
-		mat.entries[4] = entries[0] * m.entries[4] + entries[4] * m.entries[5] + entries[8] * m.entries[6] + entries[12] * m.entries[7];
-		mat.entries[5] = entries[1] * m.entries[4] + entries[5] * m.entries[5] + entries[9] * m.entries[6] + entries[13] * m.entries[7];
+		mat.entries[4] = entries[0] * m.entries[4] + entries[4] * m.entries[5] + entries[8]  * m.entries[6] + entries[12] * m.entries[7];
+		mat.entries[5] = entries[1] * m.entries[4] + entries[5] * m.entries[5] + entries[9]  * m.entries[6] + entries[13] * m.entries[7];
 		mat.entries[6] = entries[2] * m.entries[4] + entries[6] * m.entries[5] + entries[10] * m.entries[6] + entries[14] * m.entries[7];
 		mat.entries[7] = entries[3] * m.entries[4] + entries[7] * m.entries[5] + entries[11] * m.entries[6] + entries[15] * m.entries[7];
 		//Colomn 3
-		mat.entries[8] = entries[0] * m.entries[8] + entries[4] * m.entries[9] + entries[8] * m.entries[10] + entries[12] * m.entries[11];
-		mat.entries[9] = entries[1] * m.entries[8] + entries[5] * m.entries[9] + entries[9] * m.entries[10] + entries[13] * m.entries[11];
+		mat.entries[8]  = entries[0] * m.entries[8] + entries[4] * m.entries[9] + entries[8]  * m.entries[10] + entries[12] * m.entries[11];
+		mat.entries[9]  = entries[1] * m.entries[8] + entries[5] * m.entries[9] + entries[9]  * m.entries[10] + entries[13] * m.entries[11];
 		mat.entries[10] = entries[2] * m.entries[8] + entries[6] * m.entries[9] + entries[10] * m.entries[10] + entries[14] * m.entries[11];
 		mat.entries[11] = entries[3] * m.entries[8] + entries[7] * m.entries[9] + entries[11] * m.entries[10] + entries[15] * m.entries[11];
 		//Colomn 4
-		mat.entries[12] = entries[0] * m.entries[12] + entries[4] * m.entries[13] + entries[8] * m.entries[14] + entries[12] * m.entries[15];
-		mat.entries[13] = entries[1] * m.entries[12] + entries[5] * m.entries[13] + entries[9] * m.entries[14] + entries[13] * m.entries[15];
+		mat.entries[12] = entries[0] * m.entries[12] + entries[4] * m.entries[13] + entries[8]  * m.entries[14] + entries[12] * m.entries[15];
+		mat.entries[13] = entries[1] * m.entries[12] + entries[5] * m.entries[13] + entries[9]  * m.entries[14] + entries[13] * m.entries[15];
 		mat.entries[14] = entries[2] * m.entries[12] + entries[6] * m.entries[13] + entries[10] * m.entries[14] + entries[14] * m.entries[15];
 		mat.entries[15] = entries[3] * m.entries[12] + entries[7] * m.entries[13] + entries[11] * m.entries[14] + entries[15] * m.entries[15];
 

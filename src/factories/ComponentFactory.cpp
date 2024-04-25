@@ -107,7 +107,7 @@ unsigned int ComponentFactory::MakePointLightEntity(vec3 pos, float range, vec3 
         lightCube->material = assFact.GetMaterial("img/light.png", 1);
         lightCube->material->shaderProgram = 1;
         AddRenderComponent(point, lightCube);
-        transformComponents[point]->scale = { 0.1,0.1,0.1 };
+        transformComponents[point]->scale = { 0.5,0.5,0.5 };
     }
 
     return AddPointLightComponent(point, range, colour, intensity);

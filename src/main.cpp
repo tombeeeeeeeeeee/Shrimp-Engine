@@ -9,8 +9,8 @@ int main() {
 
 	//App setup functions
 	app->SetUpOpengl();
-	app->MakeSystems();
 	app->MakeFactories();
+	app->MakeSystems();
 
 	app->Run();
 

@@ -4,12 +4,15 @@
 #include "../components/TransformComponent.h"
 #include "../components/RenderComponent.h"
 
-const int SHRIMP_SHADER_PROGRAM_COUNT = 4;
+const int SHADER_PROGRAM_COUNT = 7;
+const int MATERIAL_SHADER_COUNT = 2;
 
 class RenderSystem {
 public:
 
     RenderSystem(std::vector<unsigned int>& _shaders, unsigned int cameraID, GLFWwindow* window);
+
+    void Start(unsigned int skyboxTexture);
 
     /// <summary>
     /// Renders each update. 
@@ -28,6 +31,8 @@ public:
 
     void SetCameraID(unsigned int _cameraID) { cameraID = _cameraID; }
     unsigned int GetCameraID() { return cameraID; };
+
+    float exposure = 1.0f;
 
 private:
     /// <summary>
@@ -55,7 +60,7 @@ private:
     /// <summary>
     /// List of entities in order of the shader they use.
     /// </summary>
-    std::array<std::vector<unsigned int>, SHRIMP_SHADER_PROGRAM_COUNT> entityShaderOrder;
+    std::array<std::vector<unsigned int>, SHADER_PROGRAM_COUNT> entityShaderOrder;
 
     /// <summary>
     /// shader programs
@@ -66,16 +71,37 @@ private:
         std::unordered_map<unsigned int, LightComponent*>& lightComponents,
         std::unordered_map<unsigned int, TransformComponent*>& transComponents);
 
-    /// <summary>
-    /// Function to make the texture used when a texture is missing
-    /// </summary>
-    void CreateMissingTexture();
+    void HDRBufferSetUp();
+    unsigned int hdrFBO;
+    unsigned int colorBuffer;
+    unsigned int rboDepth;
+
+    unsigned int brdfLUTTexture; 
+    unsigned int prefilterMap;
+    void IBLBufferSetup();
+    unsigned int captureFBO;
+    unsigned int captureRBO;
+
+    void RenderQuad();
+    unsigned int quadVAO = 0;
+    unsigned int quadVBO = 0;
+
+    void RenderCube();
+    unsigned int cubeVAO = 0;
+    unsigned int cubeVBO = 0;
+
+    unsigned int skyboxTexture;
+    unsigned int irradianceMap;
 
     /// <summary>
     /// Draw Skybox as fullscreen quad.
     /// </summary>
     void DrawSkyBox();
 
-    unsigned int skyboxTexture = 0;
+    /// <summary>
+    /// Function to make the texture used when a texture is missing
+    /// </summary>
+    void CreateMissingTexture();
+
 };
 

@@ -44,6 +44,24 @@ void App::Run()
 {
     bool shouldClose = false;
 
+    unsigned int cameraEntity = componentFactory->MakeCamera({ 0.0f, 1.0f, 0.0f }, { 0.0f, .0f,0.0f });
+
+    CameraComponent* camera = new CameraComponent();
+    cameraComponent = camera;
+    cameraID = cameraEntity;
+    renderSystem->SetCameraID(cameraID);
+
+    std::string skyboxTextureFiles[6] = {
+    "img/px.png",
+    "img/nx.png",
+    "img/nz.png",
+    "img/pz.png",
+    "img/py.png",
+    "img/ny.png",
+    };
+
+    renderSystem->Start(assetFactory->GetSkyBoxMaterial(skyboxTextureFiles));
+
     Start();
 
     while (!glfwWindowShouldClose(window) && !shouldClose) 
@@ -88,68 +106,36 @@ void App::SetUpGLFW()
 void App::Start()
 {
     //Space to add things for the start
-    std::string skyboxTextureFiles[6] = { 
-        "img/px.png", 
-        "img/nx.png", 
-        "img/nz.png", 
-        "img/pz.png", 
-        "img/py.png", 
-        "img/ny.png", 
-    };
-    renderSystem->SetSkyboxTexture(assetFactory->GetSkyBoxMaterial(skyboxTextureFiles));
-    std::vector<unsigned int> gameObjects;
-    int objectCount = 3;
-    srand(time(NULL));
-    for (int i = 0; i < objectCount; i++)
-    {
-        float x = (1000.0f * (float)rand() / RAND_MAX) - 500.0f;
-        float y = (1000.0f * (float)rand() / RAND_MAX) - 500.0f;
-        float z = (1000.0f * (float)rand() / RAND_MAX) - 500.0f;
 
-        float xRot = (360.0f * (float)rand() / RAND_MAX) - 180.0f;
-        float yRot = (360.0f * (float)rand() / RAND_MAX) - 180.0f;
-        float zRot = (360.0f * (float)rand() / RAND_MAX) - 180.0f;
+    unsigned int cubeEntity = componentFactory->MakeEmptyTransform({ 0,0,0 }, { 0, 0, 0 });
+    componentFactory->AddRenderComponent(cubeEntity);
+    renderComponents[cubeEntity]->mesh = assetFactory->GetMesh("models/Cerberus_LP.FBX");
+    std::string textureMaps[3] = { "img/Cerberus_A.tga", "img/Cerberus_PBR.tga", "img/Cerberus_N.tga" };
+    transformComponents[2]->scale = { 0.25, 0.25, 0.25 };
 
-        unsigned int cubeEntity = componentFactory->MakeEmptyTransform({ i * x, i * y, i * z }, { xRot, yRot, zRot });
-        componentFactory->AddRenderComponent(cubeEntity);
-        renderComponents[cubeEntity]->mesh = assetFactory->GetMesh("models/whale.obj");
-        std::string textureMaps[3] = { "img/whale.jpg", "img/Cat_diffuse.jpg", "img/cubeNormal.png" };
+    //renderComponents[cubeEntity]->mesh = assetFactory->GetMesh("models/whale.obj");
+    //std::string textureMaps[3] = { "img/whale.jpg", "img/Cerberus_PBR.tga", "img/Cerberus_N.tga" };
+    //transformComponents[2]->scale = { 0.05, 0.05, 0.05 };
 
-        renderComponents[cubeEntity]->material = assetFactory->GetMaterial(textureMaps, 7);
-        gameObjects.push_back(cubeEntity);
-        hierarchySystem->SetParent(cubeEntity, cubeEntity - 1);
-    }
-    transformComponents[1]->scale = { 0.05, 0.05, 0.05 };
+    renderComponents[cubeEntity]->material = assetFactory->GetMaterial(textureMaps, 7);
+
 
     componentFactory->MakeAmbientLightEntity({0.8,0.8,0.8}, 0.001);
-    componentFactory->MakePointLightEntity(transformComponents[1]->position, 20, { 0.5,0.5,0.5 }, 2);
-    componentFactory->MakeSpotLightEntity({0,0,0}, { 1,0,0 }, 100, 10, 40, { 0.5,0.5,0.5 }, 2 ,false);
-    componentFactory->MakePointLightEntity({2,-5,2}, 200, { 255, 150, 10 }, 1/(float)255);
-    componentFactory->MakeDirectionalLightEntity({0,1,1}, { 246, 231, 210 }, 0.25 / (float)255);
-
-    unsigned int cameraEntity = componentFactory->MakeCamera({ 0.0f, 1.0f, 0.0f }, { 0.0f, .0f,0.0f });
-
-    CameraComponent* camera = new CameraComponent();
-    cameraComponent = camera;
-    cameraID = cameraEntity;
-    renderSystem->SetCameraID(cameraID);
-
+    componentFactory->MakePointLightEntity(transformComponents[2]->Position(), 20, { 0.5,0.5,0.5 }, 2);
+    componentFactory->MakePointLightEntity({3,-5,12}, 200, { 255,192,20 }, 1/(float)255);
+    componentFactory->MakePointLightEntity({-12,-3,-2}, 200, { 50, 150, 255 }, 1/(float)255);
 }
 
 void App::Update()
 {
-    //transformComponents[3]->position += { (float)cos(glfwGetTime()*0.35), (float)sin(glfwGetTime()*0.35), -(float)cos(glfwGetTime()*0.35) };
-    transformComponents[5]->position -= { 0.05f * (float)cos(glfwGetTime() * 0.35), 0.05f * (float)sin(glfwGetTime() * 0.35), 0.025f * (float)cos(glfwGetTime() * 0.35) };
-
-    lightComponents[6]->direction = cameraComponent->forward;
-    transformComponents[6]->position = transformComponents[cameraID]->position;
-
     //Space to add things to run on update
+    //transformComponents[4]->position = {10 * (float)cos(glfwGetTime() * 2), -30 * (float)sin(glfwGetTime() * 0.05), 5 * (float)sin(glfwGetTime() * 2) };
+
     if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) {
-        renderComponents[1]->material->shaderProgram = 0;
+        renderSystem->exposure += 0.02f;
     }
     if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
-        renderComponents[1]->material->shaderProgram = 2;
+        renderSystem->exposure -= 0.02f;
     }
 }
 
@@ -172,16 +158,21 @@ void App::SetUpOpengl()
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
     glEnable(GL_MULTISAMPLE);
+    glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 
-
-    //Default Shader Program
+    //Material Shaders
     shaders.push_back(MakeShader());
-    shaders.push_back(MakeShader("src/shaders/vertex.vert", "src/shaders/unlit.frag"));
-    shaders.push_back(MakeShaderMatchingName("blinn"));
+    shaders.push_back(MakeShader("src/shaders/vertex.vert", "src/shaders/lightShader.frag"));
+    //shaders.push_back(MakeShaderMatchingName("blinn"));
 
+    //Post Process Shaders
+    shaders.push_back(MakeShaderMatchingName("hdr"));
+    shaders.push_back(MakeShaderMatchingName("irradiance"));
+    shaders.push_back(MakeShaderMatchingName("prefilter"));
+    shaders.push_back(MakeShaderMatchingName("brdf"));
     shaders.push_back(MakeShaderMatchingName("skybox"));
 
-    glUseProgram(shaders[0]);
+    //glUseProgram(shaders[0]);
 
     projectionMatrix = ProjectionMatrix( 45.0f, (float)w/(float)h , 0.1f, 1000.0f);
     

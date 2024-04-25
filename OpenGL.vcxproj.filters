@@ -1432,6 +1432,7 @@
     <None Include="src\shaders\geo.geom" />
     <None Include="src\shaders\skybox.frag" />
     <None Include="src\shaders\skybox.vert" />
+    <None Include="src\shaders\lightShader.frag" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\..\..\Downloads\norm.png">

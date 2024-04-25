@@ -7,9 +7,12 @@ in vec3 fragmentBitangent;
 
 out vec4 screenColour;
 
-uniform sampler2D diffuse;  //0
-uniform sampler2D specular; //1
-uniform sampler2D normalMap; //2
+uniform sampler2D diffuse;			//0
+uniform sampler2D specular;			//1
+uniform sampler2D normalMap;		//2
+uniform samplerCube irradianceMap;	//3
+uniform samplerCube prefilterMap;	//4
+uniform sampler2D brdfLUT;			//5
 
 uniform int lightPacketCount;
 uniform vec4 lightPackets[64];
@@ -17,17 +20,19 @@ uniform vec4 lightPackets[64];
 uniform	vec3 cameraPos;
 
 const float PI = 3.14159265359;
+const float MAX_REFLECTION_LOD = 4.0;
 
 float DistributionGGX(vec3 N, vec3 H, float roughness);
 float GeometrySchlickGGX(float NdotV, float roughness);
 float GeometrySmith(vec3 N, vec3 V, vec3 L, float roughness);
 vec3 fresnelSchlick(float cosTheta, vec3 F0);
+vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness);
 
 void main()
 {
-	vec4 PBRpacked = texture(diffuse, fragmentTexCoord);
+	vec4 PBRpacked = texture(specular, fragmentTexCoord);
 	float metallic = PBRpacked.r;
-	float roughness = PBRpacked.g;
+	float roughness = PBRpacked.g; 
 	float ao = PBRpacked.b;
 
 	vec3 normalColour = texture(normalMap, fragmentTexCoord).rgb;
@@ -37,11 +42,11 @@ void main()
 	vec3 trueNormal = normalize(TBN * normalColour);
 	
 	vec3 viewDirection = normalize(cameraPos - fragmentPos);
-	
+	vec3 reflected = reflect(-viewDirection, trueNormal); 
 	vec3 albedo = texture(diffuse, fragmentTexCoord).rgb;
 
 	vec3 Lo = vec3(0.0);
-	vec3 ambientLightColor; //TO DO ON CPU
+	vec3 ambientLightColour = vec3(0.0); //TO DO ON CPU
 
 	vec3 F0 = vec3(0.04); 
     F0 = mix(F0, albedo, metallic);
@@ -62,7 +67,7 @@ void main()
 			halfwayRay = normalize(lightDirection + viewDirection);
 			radiance = lightPackets[i].rgb;
 
-			packetStep += 2;
+			packetStep = 2;
 		}
 	
 		//Point Light
@@ -76,7 +81,7 @@ void main()
 			float attenuation  = 1 / (1 + lightPackets[i+2].y * distance + lightPackets[i+2].z * distance * distance);
 			radiance = lightPackets[i].rgb * attenuation;
 
-			packetStep += 3;
+			packetStep = 3;
 		}
 	
 		//SpotLight
@@ -93,7 +98,13 @@ void main()
 			float intensity = clamp((theta - lightPackets[i+3].w) / epsilon, 0.0, 1.0);
 			radiance = lightPackets[i].rgb * attenuation * intensity;
 
-			packetStep += 4;
+			packetStep = 4;
+		}
+
+		else if(lightPackets[i].w == 1)
+		{	
+			ambientLightColour += lightPackets[i].rgb;
+			packetStep = 1;
 		}
 
 		float normalDist = DistributionGGX(trueNormal, halfwayRay, roughness);
@@ -110,24 +121,38 @@ void main()
 		float NdotL = max(dot(trueNormal, lightDirection), 0.0);        
 		Lo += (kD * albedo / PI + BRDF) * radiance * NdotL;
 
-		//Ambient Light TODO Refactoring
-		if(lightPackets[i].w == 1)
-		{
-			ambientLightColor += lightPackets[i].rgb;
-			i += 1;
-		}
+
+
 		i += packetStep;
 	}
 
-	vec3 ambient = ambientLightColor * albedo * ao;
+	vec3 kS = fresnelSchlickRoughness(max(dot(trueNormal, viewDirection), 0.0), F0, roughness);
+	vec3 kD = vec3(1.0) - kS;
+	kD *= 1.0 - metallic;	  
+    vec3 irradiance = texture(irradianceMap, trueNormal).rgb;
 
-	screenColour = vec4(Lo + ambient, 1.0);
-	screenColour = vec4(pow(screenColour.rgb, vec3(1.0/2.2)), screenColour.a);
+    vec3 diffuse = irradiance * albedo;
+	vec3 additionalAmbient = (kD * ambientLightColour) * ao;
+    vec3 prefilteredColor = textureLod(prefilterMap, reflected,  roughness * MAX_REFLECTION_LOD).rgb;    
+    vec2 brdf  = texture(brdfLUT, vec2(max(dot(trueNormal, viewDirection), 0.0), roughness)).rg;
+    vec3 specular = prefilteredColor * (kS * brdf.x + brdf.y);
+
+    vec3 ambient = (kD * diffuse + specular) * ao;
+
+	screenColour = vec4(Lo + ambient + additionalAmbient, 1.0);
+	
+
+	screenColour = vec4( pow(screenColour.xyz, vec3(1.0 / 2.2)), 1.0);
 }
 
 vec3 fresnelSchlick(float cosTheta, vec3 F0)
 {
     return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
+}
+
+vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
+{
+    return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
 }  
 
 float DistributionGGX(vec3 N, vec3 H, float roughness)
