@@ -26,7 +26,7 @@ public:
         mat4& _view, mat4& _projection
     );
 
-    void SetSkyboxTexture(unsigned int texture) { skyboxTexture = texture; };
+    void SetSkyboxTexture(unsigned int texture);
     unsigned int GetSkyBoxTexture() { return skyboxTexture; };
 
     void SetCameraID(unsigned int _cameraID) { cameraID = _cameraID; }
@@ -79,8 +79,8 @@ private:
     unsigned int brdfLUTTexture; 
     unsigned int prefilterMap;
     void IBLBufferSetup();
-    unsigned int captureFBO;
-    unsigned int captureRBO;
+
+
 
     void RenderQuad();
     unsigned int quadVAO = 0;

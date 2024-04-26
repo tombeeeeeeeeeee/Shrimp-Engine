@@ -129,7 +129,7 @@ void App::Start()
 void App::Update()
 {
     //Space to add things to run on update
-    //transformComponents[4]->position = {10 * (float)cos(glfwGetTime() * 2), -30 * (float)sin(glfwGetTime() * 0.05), 5 * (float)sin(glfwGetTime() * 2) };
+    transformComponents[4]->position = {10 * (float)cos(glfwGetTime() * 2), -30 * (float)sin(glfwGetTime() * 0.05), 5 * (float)sin(glfwGetTime() * 2) };
 
     if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) {
         renderSystem->exposure += 0.02f;
@@ -146,19 +146,14 @@ void App::End()
 
 void App::SetUpOpengl() 
 {
-    glClearColor(0.25f, 0.5f, 0.75f, 1.0f);
+    //glClearColor(0.25f, 0.5f, 0.75f, 1.0f);
     //Set the rendering region to the actual screen size
     int w, h;
     glfwGetFramebufferSize(window, &w, &h);
     //(left, top, width, height)
     glViewport(0, 0, w, h);
 
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LESS);
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
-    glEnable(GL_MULTISAMPLE);
-    glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+
 
     //Material Shaders
     shaders.push_back(MakeShader());
@@ -172,7 +167,7 @@ void App::SetUpOpengl()
     shaders.push_back(MakeShaderMatchingName("brdf"));
     shaders.push_back(MakeShaderMatchingName("skybox"));
 
-    //glUseProgram(shaders[0]);
+    glUseProgram(shaders[0]);
 
     projectionMatrix = ProjectionMatrix( 45.0f, (float)w/(float)h , 0.1f, 1000.0f);
     

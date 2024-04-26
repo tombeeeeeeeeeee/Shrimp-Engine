@@ -140,8 +140,6 @@ void main()
     vec3 ambient = (kD * diffuse + specular) * ao;
 
 	screenColour = vec4(Lo + ambient + additionalAmbient, 1.0);
-	
-
 	screenColour = vec4( pow(screenColour.xyz, vec3(1.0 / 2.2)), 1.0);
 }
 
