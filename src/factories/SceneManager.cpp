@@ -261,7 +261,7 @@ unsigned int SceneManager::AddPointLightComponent(unsigned int entity, float ran
     light->colour = colour * intensity;
     light->lightType = LightType::point;
     light->range = range;
-    light->CalculateLinearQuadConstants();
+    CalculateLinearQuadConstants(entity);
     AddLightComponent(entity, light);
     return entity;
 }
@@ -291,7 +291,7 @@ unsigned int SceneManager::AddSpotLightComponent(unsigned int entity, vec3 dir, 
     light->lightType = LightType::spot;
     light->range = range;
     light->direction = dir;
-    light->CalculateLinearQuadConstants();
+    CalculateLinearQuadConstants(entity);
     light->cutOff = cos(LA_PI * cutOff / 180);
     light->outerCutOff = cos(LA_PI * outerCutOff / 180);
     AddLightComponent(entity, light);
@@ -397,6 +397,131 @@ void SceneManager::CalculateLinearQuadConstants(unsigned int entity)
 
     lightComponents[entity]->linear = linear;
     lightComponents[entity]->quad = quad;
+}
+
+const LightType SceneManager::GetLightType(unsigned int entity)
+{
+    if (lightComponents.find(entity) != lightComponents.end())
+    {
+        return lightComponents[entity]->lightType;
+    }
+    else return LightType::Not_A_Light;
+}
+
+void SceneManager::SetLightType(unsigned int entity, LightType lightType)
+{
+    if (lightComponents.find(entity) != lightComponents.end())
+    {
+        lightComponents[entity]->lightType = lightType;
+    }
+}
+
+const vec3 SceneManager::GetColour(unsigned int entity)
+{
+    if (lightComponents.find(entity) != lightComponents.end())
+    {
+        return lightComponents[entity]->colour;
+    }
+    else return {0,0,0};
+}
+
+void SceneManager::SetColour(unsigned int entity, vec3 colour, float intensity)
+{
+    if (lightComponents.find(entity) != lightComponents.end())
+    {
+        lightComponents[entity]->colour = colour * intensity;
+    }
+}
+
+const vec3 SceneManager::GetDirection(unsigned int entity)
+{
+    if (lightComponents.find(entity) != lightComponents.end())
+    {
+        return lightComponents[entity]->direction;
+    }
+    else return { NAN,NAN,NAN };
+}
+
+void SceneManager::SetDirection(unsigned int entity, vec3 direction)
+{
+    if (lightComponents.find(entity) != lightComponents.end())
+    {
+        lightComponents[entity]->direction = direction;
+    }
+}
+
+const float SceneManager::GetRange(unsigned int entity)
+{
+    if (lightComponents.find(entity) != lightComponents.end())
+    {
+        return lightComponents[entity]->range;
+    }
+    else return NAN;
+}
+
+void SceneManager::SetRange(unsigned int entity, float range)
+{
+    if (lightComponents.find(entity) != lightComponents.end())
+    {
+        lightComponents[entity]->range = range;
+        CalculateLinearQuadConstants(entity);
+    }
+}
+
+const float SceneManager::GetLinearAttenuation(unsigned int entity)
+{
+    if (lightComponents.find(entity) != lightComponents.end())
+    {
+        return lightComponents[entity]->linear;
+    }
+    else return NAN;
+}
+
+const float SceneManager::GetQuadraticAttenuation(unsigned int entity)
+{
+    if (lightComponents.find(entity) != lightComponents.end())
+    {
+        return lightComponents[entity]->quad;
+    }
+    else return NAN;
+}
+
+const float SceneManager::GetCutOff(unsigned int entity)
+{
+    if (lightComponents.find(entity) != lightComponents.end())
+    {
+        return lightComponents[entity]->cutOff;
+    }
+    else return NAN;
+}
+
+void SceneManager::SetCutOff(unsigned int entity, float cutOff)
+{
+    if (lightComponents.find(entity) != lightComponents.end())
+    {
+       lightComponents[entity]->cutOff = cutOff;
+       if (lightComponents[entity]->outerCutOff < cutOff)
+           lightComponents[entity]->outerCutOff = cutOff;
+    }
+}
+
+const float SceneManager::GetOuterCutOff(unsigned int entity)
+{
+    if (lightComponents.find(entity) != lightComponents.end())
+    {
+        return lightComponents[entity]->outerCutOff;
+    }
+    else return NAN;
+}
+
+void SceneManager::SetOuterCutOff(unsigned int entity, float outerCutOff)
+{
+    if (lightComponents.find(entity) != lightComponents.end())
+    {
+        lightComponents[entity]->outerCutOff = outerCutOff;
+        if (lightComponents[entity]->cutOff > outerCutOff)
+            lightComponents[entity]->cutOff = outerCutOff;
+    }
 }
 
 RenderComponent* SceneManager::AddRenderComponent(unsigned int _entity)

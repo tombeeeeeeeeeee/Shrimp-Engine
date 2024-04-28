@@ -2,6 +2,7 @@
 #include <config.h>
 enum class LightType
 {
+	Not_A_Light = 0,
 	ambient = 1,
 	directional = 2,
 	point = 3,
@@ -19,7 +20,5 @@ struct LightComponent
 	float quad = 1;
 	float cutOff = 0;
 	float outerCutOff = 90;
-
-	void CalculateLinearQuadConstants();
 };
 

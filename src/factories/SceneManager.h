@@ -90,6 +90,26 @@ public:
 
 	void CalculateLinearQuadConstants(unsigned int entity);
 
+	const LightType GetLightType(unsigned int entity);
+	void SetLightType(unsigned int entity, LightType lightType);
+
+	const vec3 GetColour(unsigned int entity);
+	void SetColour(unsigned int entity, vec3 colour, float intensity);
+
+	const vec3 GetDirection(unsigned int entity);
+	void SetDirection(unsigned int entity, vec3 direction);
+
+	const float GetRange(unsigned int entity);
+	void SetRange(unsigned int entity, float range);
+	const float GetLinearAttenuation(unsigned int entity);
+	const float GetQuadraticAttenuation(unsigned int entity);
+
+	const float GetCutOff(unsigned int entity);
+	void SetCutOff(unsigned int entity, float cutOff);
+
+	const float GetOuterCutOff(unsigned int entity);
+	void SetOuterCutOff(unsigned int entity, float outerCutOff);
+
 #pragma endregion 
 	/// <summary>
 	/// Add a new render component to the provided entity id
