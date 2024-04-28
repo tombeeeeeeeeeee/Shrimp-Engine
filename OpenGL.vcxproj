@@ -149,10 +149,9 @@
   <ItemGroup>
     <ClCompile Include="src\components\LightComponent.cpp" />
     <ClCompile Include="src\systems\HierarchySystem.cpp" />
-    <ClCompile Include="src\components\TransformComponent.cpp" />
     <ClCompile Include="src\config.cpp" />
     <ClCompile Include="src\factories\AssetFactory.cpp" />
-    <ClCompile Include="src\factories\ComponentFactory.cpp" />
+    <ClCompile Include="src\factories\SceneManager.cpp" />
     <ClCompile Include="src\systems\LightSystem.cpp" />
     <ClCompile Include="src\systems\MotionSystem.cpp" />
     <ClCompile Include="src\systems\RenderSystem.cpp" />
@@ -169,7 +168,7 @@
     <ClInclude Include="src\components\LightComponent.h" />
     <ClInclude Include="src\systems\HierarchySystem.h" />
     <ClInclude Include="src\factories\AssetFactory.h" />
-    <ClInclude Include="src\factories\ComponentFactory.h" />
+    <ClInclude Include="src\factories\SceneManager.h" />
     <ClInclude Include="src\systems\LightSystem.h" />
     <ClInclude Include="src\systems\MotionSystem.h" />
     <ClInclude Include="src\systems\RenderSystem.h" />

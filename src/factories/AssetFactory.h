@@ -8,6 +8,7 @@ public:
     AssetFactory(std::string assetFolder);
     ~AssetFactory();
     AssetFactory(AssetFactory& assFact);
+    AssetFactory& operator=(AssetFactory const& other);
 
     //RAT AND CUBE STUFF FOR TESTING
     MaterialAsset* CubeMaterial();
@@ -44,7 +45,7 @@ public:
     /// </summary>
     /// <param name="filename"></param>
     /// <returns>Skybox Material Asset</returns>
-    unsigned int GetSkyBoxMaterial(std::string filename[6]);
+    unsigned int GetSkyBoxMaterial(std::string filename[6], std::string name = "skyBox");
 
 private:
 

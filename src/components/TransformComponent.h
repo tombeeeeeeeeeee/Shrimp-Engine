@@ -11,11 +11,4 @@ struct TransformComponent
 
 	unsigned int parent = 0;
 	std::vector<unsigned int> children;
-
-	vec3 Position();
-	vec3 LocalPosition();
-	vec3 Eulers(bool radians = true);
-	vec3 LocalEulers(bool radians = true);
-
-	mat4 LocalTransform();
 };

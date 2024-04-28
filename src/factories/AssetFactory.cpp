@@ -36,6 +36,30 @@ AssetFactory::AssetFactory(AssetFactory& assFact)
     materialAssets = assFact.materialAssets;
 }
 
+AssetFactory& AssetFactory::operator=(AssetFactory const& other)
+{
+    glDeleteBuffers(VBOs.size(), VBOs.data());
+    glDeleteVertexArrays(VAOs.size(), VAOs.data());
+
+    std::vector<unsigned int> texturesToDelete;
+    for (std::unordered_map<std::string, unsigned int>::iterator iter = textures.begin(); iter != textures.end(); iter++) texturesToDelete.push_back(iter->second);
+
+    glDeleteTextures(textures.size(), texturesToDelete.data());
+
+    meshAssets.clear();
+    materialAssets.clear();
+
+    assetFolder = other.assetFolder;
+
+    VBOs = other.VBOs;
+    VAOs = other.VAOs;
+    textures = other.textures;
+
+    meshAssets = other.meshAssets;
+    materialAssets = other.materialAssets;
+    return *this;
+}
+
 MaterialAsset* AssetFactory::CubeMaterial()
 {
     string textureFiles[] = {"img/cubeTexture.jpg","img/cubeNormal.png"};
@@ -280,9 +304,9 @@ MeshAsset* AssetFactory::GetMesh(std::string fileName)
     return  sendMeshToVRAM( vertices, vertexCount, indices.size(), indices.data());
 }
 
-unsigned int AssetFactory::GetSkyBoxMaterial(std::string fileName[6])
+unsigned int AssetFactory::GetSkyBoxMaterial(std::string fileName[6], std::string name)
 {
-    if (materialAssets.find("skyBox") != materialAssets.end()) return materialAssets["skyBox"]->materials[0];
+    if (materialAssets.find(name) != materialAssets.end()) return materialAssets[name]->materials[0];
 
     unsigned int fullscreenQuad;
     glGenTextures(1, &fullscreenQuad);
@@ -313,12 +337,12 @@ unsigned int AssetFactory::GetSkyBoxMaterial(std::string fileName[6])
     MaterialAsset* mat = new MaterialAsset();
 
     mat->materials[0] = fullscreenQuad;
-    if (textures.find("skyBox") != textures.end()) glDeleteTextures(1, &textures["skyBox"]);
-    textures["skyBox"] = fullscreenQuad;
+    if (textures.find(name) != textures.end()) glDeleteTextures(1, &textures[name]);
+    textures[name] = fullscreenQuad;
 
     mat->materialMask = 1;
     mat->shaderProgram = 0;
 
-    materialAssets["skyBox"] = mat;
+    materialAssets[name] = mat;
     return fullscreenQuad;
 }

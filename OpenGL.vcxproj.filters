@@ -51,10 +51,7 @@
     <ClCompile Include="src\factories\AssetFactory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\factories\ComponentFactory.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\components\TransformComponent.cpp">
+    <ClCompile Include="src\factories\SceneManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\systems\HierarchySystem.cpp">
@@ -989,7 +986,7 @@
     <ClInclude Include="src\factories\AssetFactory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\factories\ComponentFactory.h">
+    <ClInclude Include="src\factories\SceneManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\systems\HierarchySystem.h">

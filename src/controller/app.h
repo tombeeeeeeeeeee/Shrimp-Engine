@@ -6,13 +6,15 @@
 #include "../view/shader.h"
 
 #include "../factories/AssetFactory.h"
-#include "../factories/ComponentFactory.h"
+#include "../factories/SceneManager.h"
 
 class App {
 public:
     App();
     ~App();
     App(App& app);
+    App& operator=(App const& other);
+
     void Run();
 
     void SetUpOpengl();
@@ -21,10 +23,6 @@ public:
     void MakeFactories();
 
     //Components
-    std::unordered_map<unsigned int, LightComponent*> lightComponents;
-    std::unordered_map<unsigned int, PhysicsComponent*> physicsComponents;
-    std::unordered_map<unsigned int, RenderComponent*> renderComponents;
-    std::unordered_map<unsigned int, TransformComponent*> transformComponents;
     CameraComponent* cameraComponent;
     unsigned int cameraID;
 
@@ -51,7 +49,7 @@ private:
 
     //Factories
     AssetFactory* assetFactory;
-    ComponentFactory* componentFactory;
+    SceneManager* scene;
 
     //CameraMatricies
     mat4 viewMatrix;

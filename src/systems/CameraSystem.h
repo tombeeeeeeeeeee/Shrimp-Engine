@@ -18,7 +18,7 @@ public:
     /// <param name="mouseInputMask"> binary mask for mouse inputs</param>
     /// <returns></returns>
     bool Update(
-        std::unordered_map<unsigned int, TransformComponent*>& transformComponents,
+        const std::unordered_map<unsigned int, TransformComponent*>& transformComponents,
         unsigned int cameraID, CameraComponent& cameraComponent, mat4& _view, float dt,
         unsigned int mouseInputMask);
 

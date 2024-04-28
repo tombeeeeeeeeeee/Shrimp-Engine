@@ -19,7 +19,7 @@ RenderSystem::RenderSystem(std::vector<unsigned int>& _shaders, unsigned int _ca
 void RenderSystem::Start(unsigned int _skyboxTexture)
 {
     skyboxTexture = _skyboxTexture;
-    IBLBufferSetup();
+    IBLBufferSetup(skyboxTexture);
     HDRBufferSetUp();
     CreateMissingTexture();
 
@@ -43,14 +43,13 @@ void RenderSystem::Update(
     viewMatrix = view;
 
     vec3 cameraPos = transformComponents[cameraID]->Position();
-
+    
     //Clear Buffers
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
 
-    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     if (skyboxTexture != 0) DrawSkyBox();
 
@@ -62,7 +61,7 @@ void RenderSystem::Update(
     }
 
     //Render all components in Shader Order
-    for (int i = 0; i < MATERIAL_SHADER_COUNT; i++)
+    for (int i = 0; i < SHADER_MATERIAL_COUNT; i++)
     {
         glUseProgram((*shaders)[i]);
 
@@ -150,10 +149,10 @@ void RenderSystem::Update(
     glClear(GL_DEPTH_BUFFER_BIT);
     
     //HDR
-    glUseProgram((*shaders)[MATERIAL_MAPCOUNT]);;
-    glActiveTexture(GL_TEXTURE0);
+    glUseProgram((*shaders)[SHADER_MATERIAL_COUNT]);;
+    glActiveTexture(GL_TEXTURE0); 
     glBindTexture(GL_TEXTURE_2D, colorBuffer);
-    glUniform1f(glGetUniformLocation((*shaders)[MATERIAL_MAPCOUNT], "exposure"), exposure);
+    glUniform1f(glGetUniformLocation((*shaders)[SHADER_MATERIAL_COUNT], "exposure"), exposure);
     
     RenderQuad();
 
@@ -164,7 +163,7 @@ void RenderSystem::Update(
 void RenderSystem::SetSkyboxTexture(unsigned int texture)
 {
     skyboxTexture = texture;
-    IBLBufferSetup();
+    IBLBufferSetup(skyboxTexture);
 }
 
 void RenderSystem::BindLightUniform(unsigned int shaderProgram, 
@@ -247,26 +246,26 @@ void RenderSystem::BindLightUniform(unsigned int shaderProgram,
 
 void RenderSystem::HDRBufferSetUp()
 {
+    glGenFramebuffers(1, &hdrFBO);
     // create floating point color buffer
     glGenTextures(1, &colorBuffer);
     glBindTexture(GL_TEXTURE_2D, colorBuffer);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, 1920, 1080, 0, GL_RGBA, GL_FLOAT, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
     // create depth buffer (renderbuffer)
     glGenRenderbuffers(1, &rboDepth);
     glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, 1920, 1080);
     // attach buffers
-    glGenFramebuffers(1, &hdrFBO);
     glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorBuffer, 0);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
         std::cout << "Framebuffer not complete!" << std::endl;
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glUniform1i(glGetUniformLocation((*shaders)[MATERIAL_SHADER_COUNT], "hdrBuffer"), 0);
+
+    glUniform1i(glGetUniformLocation((*shaders)[SHADER_MATERIAL_COUNT], "hdrBuffer"), 0);
 }
 
 void RenderSystem::CreateMissingTexture()
@@ -291,42 +290,69 @@ void RenderSystem::CreateMissingTexture()
     missingTextureTexture = texture;
 }
 
-void RenderSystem::IBLBufferSetup()
+void RenderSystem::IBLBufferSetup(unsigned int skybox)
+{
+    SetIrradianceMap(skybox);
+
+    SetPrefilteredMap(skybox);
+    
+
+    glGenTextures(1, &brdfLUTTexture);
+    // pre-allocate enough memory for the LUT texture.
+    glBindTexture(GL_TEXTURE_2D, brdfLUTTexture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, 512, 512, 0, GL_RG, GL_FLOAT, 0);
+    // be sure to set wrapping mode to GL_CLAMP_TO_EDGE
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    // then re-configure capture framebuffer object and render screen-space quad with BRDF shader.
+    glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
+    glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 512, 512);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, brdfLUTTexture, 0);
+
+    glViewport(0, 0, 512, 512);
+
+    unsigned int currShader = (*shaders)[SHADER_MATERIAL_COUNT + 3];
+    glUseProgram(currShader);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    RenderQuad();
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+    glUseProgram((*shaders)[0]);
+
+
+    int scrWidth, scrHeight;
+    glfwGetFramebufferSize(window, &scrWidth, &scrHeight);
+    glViewport(0, 0, scrWidth, scrHeight);
+}
+
+void RenderSystem::SetIrradianceMap(unsigned int skybox)
 {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
-    glm::mat4 captureViews[] =
-    {
-        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
-        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(-1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
-        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  1.0f,  0.0f), glm::vec3(0.0f,  0.0f,  1.0f)),
-        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f,  0.0f), glm::vec3(0.0f,  0.0f, -1.0f)),
-        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f,  1.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
-        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f))
-    };
-
-    unsigned int captureFBO;
-    unsigned int captureRBO;
-
     glGenFramebuffers(1, &captureFBO);
     glGenRenderbuffers(1, &captureRBO);
 
     glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
     glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
-    
+
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 512, 512);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, captureRBO);
-  
+
     glViewport(0, 0, 512, 512); // don't forget to configure the viewport to the capture dimensions.
 
-    glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTexture);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, skybox);
     glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
     glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
-    
+
     //Convert skybox into an irradance version!
     glGenTextures(1, &irradianceMap);
     glBindTexture(GL_TEXTURE_CUBE_MAP, irradianceMap);
@@ -344,26 +370,33 @@ void RenderSystem::IBLBufferSetup()
     glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 32, 32);
 
-    unsigned int currShader = (*shaders)[MATERIAL_SHADER_COUNT + 1];
+    unsigned int currShader = (*shaders)[SHADER_MATERIAL_COUNT + 1];
     glUseProgram(currShader);
     glUniform1i(glGetUniformLocation(currShader, "environmentMap"), 0);
-    glUniformMatrix4fv(glGetUniformLocation(currShader, "projection"), 1, GL_FALSE,&captureProjection[0][0]);
+    glUniformMatrix4fv(glGetUniformLocation(currShader, "projection"), 1, GL_FALSE, &captureProjection[0][0]);
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTexture);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, skybox);
 
 
-    glViewport(0, 0, 32, 32); 
+    glViewport(0, 0, 32, 32);
     glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
     for (unsigned int i = 0; i < 6; ++i)
     {
-        glUniformMatrix4fv(glGetUniformLocation(currShader, "view"), 1, GL_FALSE,&captureViews[i][0][0]);
+        glUniformMatrix4fv(glGetUniformLocation(currShader, "view"), 1, GL_FALSE, &captureViews[i][0][0]);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, irradianceMap, 0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         RenderCube();
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    int scrWidth, scrHeight;
+    glfwGetFramebufferSize(window, &scrWidth, &scrHeight);
+    glViewport(0, 0, scrWidth, scrHeight);
+}
 
+void RenderSystem::SetPrefilteredMap(unsigned int skybox)
+{
+    glViewport(0, 0, 32, 32);
     glGenTextures(1, &prefilterMap);
     glBindTexture(GL_TEXTURE_CUBE_MAP, prefilterMap);
     for (unsigned int i = 0; i < 6; ++i)
@@ -378,14 +411,14 @@ void RenderSystem::IBLBufferSetup()
     // generate mipmaps for the cubemap so OpenGL automatically allocates the required memory.
     glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 
-    currShader = (*shaders)[MATERIAL_SHADER_COUNT + 2];
+    unsigned int currShader = (*shaders)[SHADER_MATERIAL_COUNT + 2];
     glUseProgram(currShader);
 
     glUniform1i(glGetUniformLocation(currShader, "environmentMap"), 0);
     glUniformMatrix4fv(glGetUniformLocation(currShader, "projection"), 1, GL_FALSE, &captureProjection[0][0]);
 
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTexture);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, skybox);
     glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
 
     unsigned int maxMipLevels = 5;
@@ -412,37 +445,6 @@ void RenderSystem::IBLBufferSetup()
         }
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    
-
-    glGenTextures(1, &brdfLUTTexture);
-    // pre-allocate enough memory for the LUT texture.
-    glBindTexture(GL_TEXTURE_2D, brdfLUTTexture);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, 512, 512, 0, GL_RG, GL_FLOAT, 0);
-    // be sure to set wrapping mode to GL_CLAMP_TO_EDGE
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    // then re-configure capture framebuffer object and render screen-space quad with BRDF shader.
-    glBindFramebuffer(GL_FRAMEBUFFER, captureFBO);
-    glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 512, 512);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, brdfLUTTexture, 0);
-
-    glViewport(0, 0, 512, 512);
-
-    currShader = (*shaders)[MATERIAL_SHADER_COUNT + 3];
-    glUseProgram(currShader);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    RenderQuad();
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glBindRenderbuffer(GL_RENDERBUFFER, 0);
-
-    glUseProgram((*shaders)[0]);
-
-
     int scrWidth, scrHeight;
     glfwGetFramebufferSize(window, &scrWidth, &scrHeight);
     glViewport(0, 0, scrWidth, scrHeight);

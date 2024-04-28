@@ -16,7 +16,7 @@ App::~App()
     delete hierarchySystem;
 
     delete assetFactory;
-    delete componentFactory;
+    delete scene;
 
     delete cameraComponent;
 
@@ -32,11 +32,42 @@ App::App(App& app)
     hierarchySystem = app.hierarchySystem;
 
     assetFactory = app.assetFactory;
-    componentFactory = app.componentFactory;
+    scene = app.scene;
 
     cameraID = app.cameraID;
     cameraComponent = app.cameraComponent;
     window = app.window;
+}
+
+App& App::operator=(App const& other)
+{
+    for (unsigned int shader : shaders)
+        glDeleteProgram(shader);
+
+    delete motionSystem;
+    delete cameraSystem;
+    delete renderSystem;
+    delete hierarchySystem;
+
+    delete assetFactory;
+    delete scene;
+
+    delete cameraComponent;
+
+    shaders = other.shaders;
+    motionSystem = other.motionSystem;
+    cameraSystem = other.cameraSystem;
+    renderSystem = other.renderSystem;
+    hierarchySystem = other.hierarchySystem;
+
+    assetFactory = other.assetFactory;
+    scene = other.scene;
+
+    cameraID = other.cameraID;
+    cameraComponent = other.cameraComponent;
+    window = other.window;
+
+    return *this;
 }
 
 
@@ -44,7 +75,7 @@ void App::Run()
 {
     bool shouldClose = false;
 
-    unsigned int cameraEntity = componentFactory->MakeCamera({ 0.0f, 1.0f, 0.0f }, { 0.0f, .0f,0.0f });
+    unsigned int cameraEntity = scene->MakeCamera({ 0.0f, 1.0f, 0.0f }, { 0.0f, .0f,0.0f });
 
     CameraComponent* camera = new CameraComponent();
     cameraComponent = camera;
@@ -66,11 +97,17 @@ void App::Run()
 
     while (!glfwWindowShouldClose(window) && !shouldClose) 
     {
-        motionSystem->Update( transformComponents, physicsComponents, 1.0f / 60.0f);
-        hierarchySystem->Update();
-        shouldClose = cameraSystem->Update(transformComponents, cameraID, *cameraComponent, viewMatrix, 1.0f / 60.0f, mouseInput);
+        const std::unordered_map<unsigned int, TransformComponent*>& transforms = scene->GetTransforms();
+        const std::unordered_map<unsigned int, RenderComponent*>& renders = scene->GetRenders();
+        const std::unordered_map<unsigned int, LightComponent*>& lights = scene->GetLights();
 
-        renderSystem->Update(transformComponents, renderComponents, lightComponents, projectionMatrix, viewMatrix);
+        //const std::unordered_map<unsigned int, PhysicsComponent*>& physics = scene->GetTransforms();
+        //motionSystem->Update(transforms, physicsComponents, 1.0f / 60.0f);
+
+        hierarchySystem->Update();
+        shouldClose = cameraSystem->Update(transforms, cameraID, *cameraComponent, viewMatrix, 1.0f / 60.0f, mouseInput);
+
+        renderSystem->Update(transforms, renders, lights, projectionMatrix, viewMatrix);
 
         Update();
     }
@@ -80,7 +117,6 @@ void App::Run()
 
 void App::SetUpGLFW() 
 {
-
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -106,12 +142,11 @@ void App::SetUpGLFW()
 void App::Start()
 {
     //Space to add things for the start
-
-    unsigned int cubeEntity = componentFactory->MakeEmptyTransform({ 0,0,0 }, { 0, 0, 0 });
-    componentFactory->AddRenderComponent(cubeEntity);
+    unsigned int cubeEntity = scene->MakeEmptyTransform({ 0,0,0 }, { 0, 0, 0 });
+    scene->AddRenderComponent(cubeEntity);
     renderComponents[cubeEntity]->mesh = assetFactory->GetMesh("models/Cerberus_LP.FBX");
     std::string textureMaps[3] = { "img/Cerberus_A.tga", "img/Cerberus_PBR.tga", "img/Cerberus_N.tga" };
-    transformComponents[2]->scale = { 0.25, 0.25, 0.25 };
+    scene->SetScale(2, { 0.25, 0.25, 0.25 });
 
     //renderComponents[cubeEntity]->mesh = assetFactory->GetMesh("models/whale.obj");
     //std::string textureMaps[3] = { "img/whale.jpg", "img/Cerberus_PBR.tga", "img/Cerberus_N.tga" };
@@ -119,17 +154,16 @@ void App::Start()
 
     renderComponents[cubeEntity]->material = assetFactory->GetMaterial(textureMaps, 7);
 
-
-    componentFactory->MakeAmbientLightEntity({0.8,0.8,0.8}, 0.001);
-    componentFactory->MakePointLightEntity(transformComponents[2]->Position(), 20, { 0.5,0.5,0.5 }, 2);
-    componentFactory->MakePointLightEntity({3,-5,12}, 200, { 255,192,20 }, 1/(float)255);
-    componentFactory->MakePointLightEntity({-12,-3,-2}, 200, { 50, 150, 255 }, 1/(float)255);
+    scene->MakeAmbientLightEntity({0.8,0.8,0.8}, 0.001);
+    scene->MakePointLightEntity(scene->GetPosition(2), 20, { 0.5,0.5,0.5 }, 2);
+    scene->MakePointLightEntity({3,-5,12}, 200, { 255,192,20 }, 1/(float)255);
+    scene->MakePointLightEntity({-12,-3,-2}, 200, { 50, 150, 255 }, 1/(float)255);
 }
 
 void App::Update()
 {
     //Space to add things to run on update
-    transformComponents[4]->position = {10 * (float)cos(glfwGetTime() * 2), -30 * (float)sin(glfwGetTime() * 0.05), 5 * (float)sin(glfwGetTime() * 2) };
+    scene->SetLocalPosition(4, { 10 * (float)cos(glfwGetTime() * 2), -30 * (float)sin(glfwGetTime() * 0.05), 5 * (float)sin(glfwGetTime() * 2) });
 
     if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) {
         renderSystem->exposure += 0.02f;
@@ -152,8 +186,6 @@ void App::SetUpOpengl()
     glfwGetFramebufferSize(window, &w, &h);
     //(left, top, width, height)
     glViewport(0, 0, w, h);
-
-
 
     //Material Shaders
     shaders.push_back(MakeShader());
@@ -184,7 +216,7 @@ void App::MakeSystems()
 void App::MakeFactories()
 {
     assetFactory = new AssetFactory("Assets/");
-    componentFactory = new ComponentFactory(lightComponents, physicsComponents, renderComponents, transformComponents, *assetFactory);
+    scene = new SceneManager(*assetFactory);
 }
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)

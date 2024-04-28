@@ -3,27 +3,20 @@
 #include "../components/ComponentInclude.h"
 #include "../factories/AssetFactory.h"
 /// <summary>
-/// Component Factory makes and alters Components
+/// Managers all componetns and entities in a scene
 /// </summary>
-class ComponentFactory
+class SceneManager
 {
 public:
 
-	ComponentFactory(
-		std::unordered_map<unsigned int, LightComponent*>& lightComponents,
-		std::unordered_map<unsigned int, PhysicsComponent*>& physicsComponents,
-		std::unordered_map<unsigned int, RenderComponent*>& renderComponents,
-		std::unordered_map<unsigned int, TransformComponent*>& transformComponents,
-		AssetFactory& _assFact
-	);
-	~ComponentFactory();
-	ComponentFactory(ComponentFactory& compFact) :
-		entityCount(compFact.entityCount),
-		lightComponents(compFact.lightComponents),
-		physicsComponents(compFact.physicsComponents),
-		renderComponents(compFact.renderComponents),
-		transformComponents(compFact.transformComponents),
-		assFact(compFact.assFact) {}
+	SceneManager(AssetFactory& _assFact);
+	~SceneManager();
+	SceneManager(SceneManager& sm) :assFact(sm.assFact) {}
+	SceneManager& operator=(SceneManager const& other);
+
+	const std::unordered_map<unsigned int, TransformComponent*> GetTransforms();
+	const std::unordered_map<unsigned int, RenderComponent*> GetRenders();
+	const std::unordered_map<unsigned int, LightComponent*> GetLights();
 
 	/// <summary>
 	/// Makes entity and adds to the entity count.
@@ -39,6 +32,8 @@ public:
 	/// <returns> unsigned int of entity</returns>
 	unsigned int MakeCamera(vec3 position, vec3 eulers);
 
+#pragma region Transform Components
+
 	/// <summary>
 	/// Makes a transform component with a position at 0,0,0
 	/// </summary>
@@ -53,22 +48,23 @@ public:
 	/// <returns>unsigned int transform component entity id</returns>
 	unsigned int MakeEmptyTransform(vec3 position, vec3 eulers = {0,0,0});
 
-	/// <summary>
-	/// Makes a rat with a render component and transform component
-	/// </summary>
-	/// <param name="position">position of component</param>
-	/// <param name="eulers">euler of component</param>
-	/// <returns>unsigned int rat entity id</returns>
-	unsigned int MakeRat(vec3 position, vec3 eulers);
+	const vec3 GetPosition(unsigned int entity);
+	const vec3 GetLocalPosition(unsigned int entity);
+	void SetLocalPosition(unsigned int entity, vec3 position);
 
-	/// <summary>
-	/// Makes a cube with a render component and transform component
-	/// </summary>
-	/// <param name="position">position of component</param>
-	/// <param name="eulers">euler of component</param>
-	/// <returns>unsigned int cube entity id</returns>
-	unsigned int MakeCube(vec3 position, vec3 eulers);
+	const vec3 GetEulers(unsigned int entity, bool radians = true);
+	const vec3 GetLocalEulers(unsigned int entity, bool radians = true);
+	void SetLocalEulers(unsigned int entity, vec3 eulers, bool radians = true);
 
+	const vec3 GetScale(unsigned int entity);
+	void SetScale(unsigned int entity, vec3 scale);
+
+	const mat4 GetLocalTransform(unsigned int entity);
+	const mat4 GetGlobalTransform(unsigned entity);
+
+#pragma endregion
+
+#pragma region Light Components
 	/// <summary>
 	/// Creates an ambient light entity
 	/// </summary>
@@ -92,6 +88,9 @@ public:
 	unsigned int MakeSpotLightEntity(vec3 pos, vec3 dir, float range, float cutOff, float outerCutOff, vec3 colour, float intensity = 1, bool debug = true);
 	unsigned int AddSpotLightComponent(unsigned int entity, vec3 dir, float range, float cutOff, float outerCutOff, vec3 colour, float intensity = 1);
 
+	void CalculateLinearQuadConstants(unsigned int entity);
+
+#pragma endregion 
 	/// <summary>
 	/// Add a new render component to the provided entity id
 	/// </summary>
@@ -137,22 +136,22 @@ private:
 	/// <summary>
 	/// Light Components in scene
 	/// </summary>
-	std::unordered_map<unsigned int, LightComponent*>& lightComponents;
+	std::unordered_map<unsigned int, LightComponent*> lightComponents;
 
 	/// <summary>
 	/// Physics Components in scene
 	/// </summary>
-	std::unordered_map<unsigned int, PhysicsComponent*>& physicsComponents;
+	std::unordered_map<unsigned int, PhysicsComponent*> physicsComponents;
 
 	/// <summary>
 	/// Render Components in scene
 	/// </summary>
-	std::unordered_map<unsigned int, RenderComponent*>& renderComponents;
+	std::unordered_map<unsigned int, RenderComponent*> renderComponents;
 
 	/// <summary>
 	/// Transform Components in scene
 	/// </summary>
-	std::unordered_map<unsigned int, TransformComponent*>& transformComponents;
+	std::unordered_map<unsigned int, TransformComponent*> transformComponents;
 
 	/// <summary>
 	/// Asset Factory for asset making

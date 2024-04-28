@@ -5,7 +5,7 @@
 #include "../components/RenderComponent.h"
 
 const int SHADER_PROGRAM_COUNT = 7;
-const int MATERIAL_SHADER_COUNT = 2;
+const int SHADER_MATERIAL_COUNT = 2;
 
 class RenderSystem {
 public:
@@ -20,9 +20,9 @@ public:
     /// <param name="transformComponents"> All transforms components</param>
     /// <param name="renderComponents"> All Render Components</param>
     void Update(
-        std::unordered_map<unsigned int, TransformComponent*>& transformComponents,
-        std::unordered_map<unsigned int, RenderComponent*>& renderComponents,
-        std::unordered_map<unsigned int, LightComponent*>& lightComponents,
+        const std::unordered_map<unsigned int, TransformComponent*>& transformComponents,
+        const std::unordered_map<unsigned int, RenderComponent*>& renderComponents,
+        const std::unordered_map<unsigned int, LightComponent*>& lightComponents,
         mat4& _view, mat4& _projection
     );
 
@@ -76,10 +76,16 @@ private:
     unsigned int colorBuffer;
     unsigned int rboDepth;
 
+
+    unsigned int captureFBO;
+    unsigned int captureRBO;
+    unsigned int skyboxTexture;
+    unsigned int irradianceMap;
     unsigned int brdfLUTTexture; 
     unsigned int prefilterMap;
-    void IBLBufferSetup();
-
+    void IBLBufferSetup(unsigned int skybox);
+    void SetIrradianceMap(unsigned int skybox);
+    void SetPrefilteredMap(unsigned int skybox);
 
 
     void RenderQuad();
@@ -90,8 +96,20 @@ private:
     unsigned int cubeVAO = 0;
     unsigned int cubeVBO = 0;
 
-    unsigned int skyboxTexture;
-    unsigned int irradianceMap;
+
+
+    //Captures for CubeMap
+    glm::mat4 captureProjection = glm::perspective(glm::radians(90.0f), 1.0f, 0.1f, 10.0f);
+    glm::mat4 captureViews[6] =
+    {
+        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(-1.0f,  0.0f,  0.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  1.0f,  0.0f), glm::vec3(0.0f,  0.0f,  1.0f)),
+        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f,  0.0f), glm::vec3(0.0f,  0.0f, -1.0f)),
+        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f,  1.0f), glm::vec3(0.0f, -1.0f,  0.0f)),
+        glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f,  0.0f, -1.0f), glm::vec3(0.0f, -1.0f,  0.0f))
+    };
+
 
     /// <summary>
     /// Draw Skybox as fullscreen quad.

@@ -6,7 +6,7 @@ CameraSystem::CameraSystem(GLFWwindow* window)
     cameraTransform = 0;
 }
 
-bool CameraSystem::Update(std::unordered_map<unsigned int, TransformComponent*>& transformComponents,
+bool CameraSystem::Update(const std::unordered_map<unsigned int, TransformComponent*>& transformComponents,
     unsigned int cameraID, CameraComponent& cameraComponent, mat4& view, float dt, unsigned int mouseInputMask) 
 {
     //if the camera transform hasn't been set yet, set it. (might just reset each tick)
