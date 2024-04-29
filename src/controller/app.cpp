@@ -13,7 +13,6 @@ App::~App()
     delete motionSystem;
     delete cameraSystem;
     delete renderSystem;
-    delete hierarchySystem;
 
     delete assetFactory;
     delete scene;
@@ -29,7 +28,6 @@ App::App(App& app)
     motionSystem = app.motionSystem;
     cameraSystem = app.cameraSystem;
     renderSystem = app.renderSystem;
-    hierarchySystem = app.hierarchySystem;
 
     assetFactory = app.assetFactory;
     scene = app.scene;
@@ -47,7 +45,6 @@ App& App::operator=(App const& other)
     delete motionSystem;
     delete cameraSystem;
     delete renderSystem;
-    delete hierarchySystem;
 
     delete assetFactory;
     delete scene;
@@ -58,7 +55,6 @@ App& App::operator=(App const& other)
     motionSystem = other.motionSystem;
     cameraSystem = other.cameraSystem;
     renderSystem = other.renderSystem;
-    hierarchySystem = other.hierarchySystem;
 
     assetFactory = other.assetFactory;
     scene = other.scene;
@@ -100,11 +96,8 @@ void App::Run()
         std::unordered_map<unsigned int, TransformComponent>* transforms = scene->GetTransforms();
         std::unordered_map<unsigned int, RenderComponent>* renders = scene->GetRenders();
         std::unordered_map<unsigned int, LightComponent>* lights = scene->GetLights();
+        scene->HierarchyUpdate();
 
-        //const std::unordered_map<unsigned int, PhysicsComponent>& physics = scene->GetTransforms();
-        //motionSystem->Update(transforms, physicsComponents, 1.0f / 60.0f);
-
-        hierarchySystem->Update();
         shouldClose = cameraSystem->Update(*transforms, cameraID, *cameraComponent, scene, viewMatrix, 1.0f / 60.0f, mouseInput);
 
         renderSystem->Update(*transforms, *renders, *lights, projectionMatrix, viewMatrix);
@@ -210,7 +203,6 @@ void App::MakeSystems()
     motionSystem = new MotionSystem();
     cameraSystem = new CameraSystem(window);
     renderSystem = new RenderSystem(shaders, cameraID, window);
-    hierarchySystem = new HierarchySystem(transformComponents);
 }
 
 void App::MakeFactories()

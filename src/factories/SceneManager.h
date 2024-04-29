@@ -159,6 +159,26 @@ public:
 	/// <returns>physics component</returns>
 	PhysicsComponent AddPhysicsComponent(unsigned int _entity);
 
+#pragma region Hierarchy Systems
+
+	/// <summary>
+	/// Recursivly updates global transfrom from parent to child.
+	/// </summary>
+	/// <param name="entity"> Transform ID to update</param>
+	/// <param name="transformComponents"> All transform components</param>
+	void GlobalTransformUpdate(unsigned int entity, bool first = true);
+
+	/// <summary>
+	/// Changes a transforms parent, and changes the parents listed children.
+	/// </summary>
+	/// <param name="child"> Transform ID of Child</param>
+	/// <param name="parent"> Transform ID of Parent</param>
+	void SetParent(unsigned int child, unsigned int parent = 0);
+
+
+	void HierarchyUpdate();
+#pragma endregion
+
 private:
 	/// <summary>
 	/// Starting entity count value (must be above 0)
@@ -184,6 +204,9 @@ private:
 	/// Transform Components in scene
 	/// </summary>
 	std::unordered_map<unsigned int, TransformComponent> transformComponents;
+
+	std::unordered_map<unsigned int, bool> UpdatedGlobalTransform;
+	std::vector<unsigned int> TransformsToUpdate;
 
 	/// <summary>
 	/// Asset Factory for asset making

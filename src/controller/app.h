@@ -45,7 +45,6 @@ private:
     MotionSystem* motionSystem;
     CameraSystem* cameraSystem;
     RenderSystem* renderSystem;
-    HierarchySystem* hierarchySystem;
 
     //Factories
     AssetFactory* assetFactory;

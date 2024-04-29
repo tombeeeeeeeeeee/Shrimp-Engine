@@ -54,9 +54,6 @@
     <ClCompile Include="src\factories\SceneManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\systems\HierarchySystem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\systems\LightSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -984,9 +981,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\factories\SceneManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\systems\HierarchySystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\components\LightComponent.h">

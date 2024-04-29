@@ -599,5 +599,51 @@ PhysicsComponent SceneManager::AddPhysicsComponent(unsigned int _entity)
     return physics;
 }
 
+void SceneManager::GlobalTransformUpdate(unsigned int entity, bool first)
+{
+    if (first && UpdatedGlobalTransform[entity])
+        return;
+
+    UpdatedGlobalTransform[entity] = true;
+
+    TransformComponent* tc = &transformComponents[entity];
+    mat4 local = GetLocalTransform(entity);
+
+    //Check if the entity has a parent
+    if (tc->parent > 0)
+        tc->globalTransform = transformComponents[tc->parent].globalTransform * local;
+    else
+        tc->globalTransform = local;
+
+    //Send recursion to children.
+    std::vector<unsigned int>::iterator iter;
+    for (iter = tc->children.begin(); iter != tc->children.end(); iter++)
+        GlobalTransformUpdate(*iter, false);
+}
+
+void SceneManager::SetParent(unsigned int child, unsigned int parent)
+{
+    bool realParent = transformComponents.find(parent) != transformComponents.end();
+    if ((realParent || parent == 0) && transformComponents.find(child) != transformComponents.end())
+    {
+        transformComponents[child].parent = parent;
+        if (realParent)
+        {
+            transformComponents[parent].children.push_back(child);
+            TransformsToUpdate.push_back(child);
+        }
+    }
+}
+
+void SceneManager::HierarchyUpdate()
+{
+    std::vector<unsigned int>::iterator iter;
+    for (iter = TransformsToUpdate.begin(); iter != TransformsToUpdate.end(); iter++)
+        GlobalTransformUpdate(*iter);
+
+    TransformsToUpdate.clear();
+    UpdatedGlobalTransform.clear();
+}
+
 
 
