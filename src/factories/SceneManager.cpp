@@ -29,19 +29,19 @@ SceneManager& SceneManager::operator=(SceneManager const& other)
     return *this;
 }
 
-const std::unordered_map<unsigned int, TransformComponent*> SceneManager::GetTransforms()
+std::unordered_map<unsigned int, TransformComponent>* SceneManager::GetTransforms()
 {
-    return transformComponents;
+    return &transformComponents;
 }
 
-const std::unordered_map<unsigned int, RenderComponent*> SceneManager::GetRenders()
+std::unordered_map<unsigned int, RenderComponent>* SceneManager::GetRenders()
 {
-    return renderComponents;
+    return &renderComponents;
 }
 
-const std::unordered_map<unsigned int, LightComponent*> SceneManager::GetLights()
+std::unordered_map<unsigned int, LightComponent>* SceneManager::GetLights()
 {
-    return lightComponents;
+    return &lightComponents;
 }
 
 unsigned int SceneManager::MakeCamera(vec3 position, vec3 eulers)
@@ -51,16 +51,16 @@ unsigned int SceneManager::MakeCamera(vec3 position, vec3 eulers)
 
 unsigned int SceneManager::MakeEmptyTransform()
 {
-    TransformComponent* transform = new TransformComponent();
+    TransformComponent transform = TransformComponent();
     transformComponents[entityCount] = transform;
     return entityCount++;
 }
 
 unsigned int SceneManager::MakeEmptyTransform(vec3 position, vec3 eulers)
 {
-    TransformComponent* transform = new TransformComponent();
-    transform->position = position;
-    transform->eulers = eulers;
+    TransformComponent transform = TransformComponent();
+    transform.position = position;
+    transform.eulers = eulers;
     transformComponents[entityCount] = transform;
     return entityCount++;
 }
@@ -68,14 +68,14 @@ unsigned int SceneManager::MakeEmptyTransform(vec3 position, vec3 eulers)
 const vec3 SceneManager::GetPosition(unsigned int entity)
 {                                                                                                     
     if (transformComponents.find(entity) != transformComponents.end()) 
-        return { transformComponents[entity]->globalTransform.entries[12], transformComponents[entity]->globalTransform.entries[13], transformComponents[entity]->globalTransform.entries[14] };
+        return { transformComponents[entity].globalTransform.entries[12], transformComponents[entity].globalTransform.entries[13], transformComponents[entity].globalTransform.entries[14] };
     return {NAN, NAN, NAN};
 }
 
 const vec3 SceneManager::GetLocalPosition(unsigned int entity)
 {
     if (transformComponents.find(entity) != transformComponents.end())
-        return transformComponents[entity]->position;
+        return transformComponents[entity].position;
     return { NAN, NAN, NAN };
 }
 
@@ -83,14 +83,14 @@ const vec3 SceneManager::GetLocalPosition(unsigned int entity)
 void SceneManager::SetLocalPosition(unsigned int entity, vec3 position)
 {
     if (transformComponents.find(entity) != transformComponents.end())
-        transformComponents[entity]->position = position;
+        transformComponents[entity].position = position;
 }
 
 const vec3 SceneManager::GetEulers(unsigned int entity, bool radians)
 {
     if (transformComponents.find(entity) != transformComponents.end())
     {
-        mat4 globalTransform = transformComponents[entity]->globalTransform;
+        mat4 globalTransform = transformComponents[entity].globalTransform;
 
         float eulX = 0;
         float eulY = 0;
@@ -147,7 +147,7 @@ const vec3 SceneManager::GetLocalEulers(unsigned int entity, bool radians)
 {
     if (transformComponents.find(entity) != transformComponents.end())
     {
-        return radians ? transformComponents[entity]->eulers : transformComponents[entity]->eulers * (180.0f / LA_PI);
+        return radians ? transformComponents[entity].eulers : transformComponents[entity].eulers * (180.0f / LA_PI);
     }
     else return { NAN, NAN, NAN };
 }
@@ -155,14 +155,14 @@ const vec3 SceneManager::GetLocalEulers(unsigned int entity, bool radians)
 void SceneManager::SetLocalEulers(unsigned int entity, vec3 eulers, bool radians)
 {
     if (transformComponents.find(entity) != transformComponents.end())
-        transformComponents[entity]->eulers = eulers;
+        transformComponents[entity].eulers = eulers;
 }
 
 const vec3 SceneManager::GetScale(unsigned int entity)
 {
     if (transformComponents.find(entity) != transformComponents.end())
     {
-        return transformComponents[entity]->scale;
+        return transformComponents[entity].scale;
     }
     else return { NAN, NAN, NAN };
 }
@@ -170,18 +170,18 @@ const vec3 SceneManager::GetScale(unsigned int entity)
 void SceneManager::SetScale(unsigned int entity, vec3 scale)
 {
     if (transformComponents.find(entity) != transformComponents.end())
-        transformComponents[entity]->scale = scale;
+        transformComponents[entity].scale = scale;
 }
 
 const mat4 SceneManager::GetLocalTransform(unsigned int entity)
 {
     if (transformComponents.find(entity) != transformComponents.end())
     {
-        return TranslationMatrix(transformComponents[entity]->position)
-            * RotationXMatrix(transformComponents[entity]->eulers.x)
-            * RotationXMatrix(transformComponents[entity]->eulers.y)
-            * RotationXMatrix(transformComponents[entity]->eulers.z)
-            * ScaleMatrix(transformComponents[entity]->scale);
+        return TranslationMatrix(transformComponents[entity].position)
+            * RotationXMatrix(transformComponents[entity].eulers.x)
+            * RotationXMatrix(transformComponents[entity].eulers.y)
+            * RotationXMatrix(transformComponents[entity].eulers.z)
+            * ScaleMatrix(transformComponents[entity].scale);
     }
     else return { 
         NAN, NAN, NAN, NAN,
@@ -194,7 +194,7 @@ const mat4 SceneManager::GetLocalTransform(unsigned int entity)
 const mat4 SceneManager::GetGlobalTransform(unsigned entity)
 {
     if (transformComponents.find(entity) != transformComponents.end())
-        return transformComponents[entity]->globalTransform;
+        return transformComponents[entity].globalTransform;
     else return {
         NAN, NAN, NAN, NAN,
         NAN, NAN, NAN, NAN,
@@ -213,8 +213,8 @@ unsigned int SceneManager::MakeAmbientLightEntity(vec3 colour, float intensity)
 
 unsigned int SceneManager::AddAmbientLightComponent(unsigned int entity, vec3 colour, float intensity)
 {
-    LightComponent* light = new LightComponent();
-    light->colour = colour * intensity;
+    LightComponent light = LightComponent();
+    light.colour = colour * intensity;
     AddLightComponent(entity, light);
     return entity;
 }
@@ -229,10 +229,10 @@ unsigned int SceneManager::MakeDirectionalLightEntity(vec3 direction, vec3 colou
 
 unsigned int SceneManager::AddDirectionalLightComponent(unsigned int entity,vec3 direction, vec3 colour, float intensity)
 {
-    LightComponent* light = new LightComponent();
-    light->colour = colour * intensity;
-    light->lightType = LightType::directional;
-    light->direction = direction;
+    LightComponent light = LightComponent();
+    light.colour = colour * intensity;
+    light.lightType = LightType::directional;
+    light.direction = direction;
     AddLightComponent(entity, light);
     return entity;
 }
@@ -244,12 +244,12 @@ unsigned int SceneManager::MakePointLightEntity(vec3 pos, float range, vec3 colo
     //PlaceHolder light Render
     if (debug)
     {
-        RenderComponent* lightCube = new RenderComponent();
-        lightCube->mesh = assFact.GetMesh("models/cube.obj");
-        lightCube->material = assFact.GetMaterial("img/light.png", 1);
-        lightCube->material->shaderProgram = 1;
+        RenderComponent lightCube = RenderComponent();
+        lightCube.mesh = assFact.GetMesh("models/cube.obj");
+        lightCube.material = assFact.GetMaterial("img/light.png", 1);
+        lightCube.material->shaderProgram = 1;
         AddRenderComponent(point, lightCube);
-        transformComponents[point]->scale = { 0.5,0.5,0.5 };
+        transformComponents[point].scale = { 0.5,0.5,0.5 };
     }
 
     return AddPointLightComponent(point, range, colour, intensity);
@@ -257,10 +257,10 @@ unsigned int SceneManager::MakePointLightEntity(vec3 pos, float range, vec3 colo
 
 unsigned int SceneManager::AddPointLightComponent(unsigned int entity, float range, vec3 colour, float intensity)
 {
-    LightComponent* light = new LightComponent();
-    light->colour = colour * intensity;
-    light->lightType = LightType::point;
-    light->range = range;
+    LightComponent light = LightComponent();
+    light.colour = colour * intensity;
+    light.lightType = LightType::point;
+    light.range = range;
     CalculateLinearQuadConstants(entity);
     AddLightComponent(entity, light);
     return entity;
@@ -273,12 +273,12 @@ unsigned int SceneManager::MakeSpotLightEntity(vec3 pos, vec3 dir, float range, 
     //PlaceHolder light Render
     if (debug)
     {
-        RenderComponent* lightCube = new RenderComponent();
-        lightCube->mesh = assFact.GetMesh("models/cube.obj");
-        lightCube->material = assFact.GetMaterial("img/light.png", 1);
-        lightCube->material->shaderProgram = 1;
+        RenderComponent lightCube = RenderComponent();
+        lightCube.mesh = assFact.GetMesh("models/cube.obj");
+        lightCube.material = assFact.GetMaterial("img/light.png", 1);
+        lightCube.material->shaderProgram = 1;
         AddRenderComponent(spot, lightCube);
-        transformComponents[spot]->scale = { 0.1,0.1,0.1 };
+        transformComponents[spot].scale = { 0.1,0.1,0.1 };
     }
 
     return AddSpotLightComponent(spot, dir, range, cutOff, outerCutOff, colour, intensity);
@@ -286,28 +286,28 @@ unsigned int SceneManager::MakeSpotLightEntity(vec3 pos, vec3 dir, float range, 
 
 unsigned int SceneManager::AddSpotLightComponent(unsigned int entity, vec3 dir, float range, float cutOff, float outerCutOff, vec3 colour, float intensity)
 {
-    LightComponent* light = new LightComponent();
-    light->colour = colour * intensity;
-    light->lightType = LightType::spot;
-    light->range = range;
-    light->direction = dir;
+    LightComponent light = LightComponent();
+    light.colour = colour * intensity;
+    light.lightType = LightType::spot;
+    light.range = range;
+    light.direction = dir;
     CalculateLinearQuadConstants(entity);
-    light->cutOff = cos(LA_PI * cutOff / 180);
-    light->outerCutOff = cos(LA_PI * outerCutOff / 180);
+    light.cutOff = cos(LA_PI * cutOff / 180);
+    light.outerCutOff = cos(LA_PI * outerCutOff / 180);
     AddLightComponent(entity, light);
     return entity;
 }
 
-LightComponent* SceneManager::AddLightComponent(unsigned int _entity)
+LightComponent SceneManager::AddLightComponent(unsigned int _entity)
 {
-    LightComponent* light = new LightComponent();
+    LightComponent light = LightComponent();
 
     lightComponents[_entity] = light;
 
     return light;
 }
 
-LightComponent* SceneManager::AddLightComponent(unsigned int _entity, LightComponent* light)
+LightComponent SceneManager::AddLightComponent(unsigned int _entity, LightComponent& light)
 {
     lightComponents[_entity] = light;
 
@@ -318,7 +318,7 @@ void SceneManager::CalculateLinearQuadConstants(unsigned int entity)
 {
     if (lightComponents.find(entity) == lightComponents.end()) return;
 
-    float range = lightComponents[entity]->range;
+    float range = lightComponents[entity].range;
     float linear, quad;
     if (range <= 7)
     {
@@ -411,15 +411,15 @@ void SceneManager::CalculateLinearQuadConstants(unsigned int entity)
         quad = 0.0002 + (0.000007 - 0.0002) * ratio;
     }
 
-    lightComponents[entity]->linear = linear;
-    lightComponents[entity]->quad = quad;
+    lightComponents[entity].linear = linear;
+    lightComponents[entity].quad = quad;
 }
 
 const LightType SceneManager::GetLightType(unsigned int entity)
 {
     if (lightComponents.find(entity) != lightComponents.end())
     {
-        return lightComponents[entity]->lightType;
+        return lightComponents[entity].lightType;
     }
     else return LightType::Not_A_Light;
 }
@@ -428,7 +428,7 @@ void SceneManager::SetLightType(unsigned int entity, LightType lightType)
 {
     if (lightComponents.find(entity) != lightComponents.end())
     {
-        lightComponents[entity]->lightType = lightType;
+        lightComponents[entity].lightType = lightType;
     }
 }
 
@@ -436,7 +436,7 @@ const vec3 SceneManager::GetColour(unsigned int entity)
 {
     if (lightComponents.find(entity) != lightComponents.end())
     {
-        return lightComponents[entity]->colour;
+        return lightComponents[entity].colour;
     }
     else return {0,0,0};
 }
@@ -445,7 +445,7 @@ void SceneManager::SetColour(unsigned int entity, vec3 colour, float intensity)
 {
     if (lightComponents.find(entity) != lightComponents.end())
     {
-        lightComponents[entity]->colour = colour * intensity;
+        lightComponents[entity].colour = colour * intensity;
     }
 }
 
@@ -453,7 +453,7 @@ const vec3 SceneManager::GetDirection(unsigned int entity)
 {
     if (lightComponents.find(entity) != lightComponents.end())
     {
-        return lightComponents[entity]->direction;
+        return lightComponents[entity].direction;
     }
     else return { NAN,NAN,NAN };
 }
@@ -462,7 +462,7 @@ void SceneManager::SetDirection(unsigned int entity, vec3 direction)
 {
     if (lightComponents.find(entity) != lightComponents.end())
     {
-        lightComponents[entity]->direction = direction;
+        lightComponents[entity].direction = direction;
     }
 }
 
@@ -470,7 +470,7 @@ const float SceneManager::GetRange(unsigned int entity)
 {
     if (lightComponents.find(entity) != lightComponents.end())
     {
-        return lightComponents[entity]->range;
+        return lightComponents[entity].range;
     }
     else return NAN;
 }
@@ -479,7 +479,7 @@ void SceneManager::SetRange(unsigned int entity, float range)
 {
     if (lightComponents.find(entity) != lightComponents.end())
     {
-        lightComponents[entity]->range = range;
+        lightComponents[entity].range = range;
         CalculateLinearQuadConstants(entity);
     }
 }
@@ -488,7 +488,7 @@ const float SceneManager::GetLinearAttenuation(unsigned int entity)
 {
     if (lightComponents.find(entity) != lightComponents.end())
     {
-        return lightComponents[entity]->linear;
+        return lightComponents[entity].linear;
     }
     else return NAN;
 }
@@ -497,7 +497,7 @@ const float SceneManager::GetQuadraticAttenuation(unsigned int entity)
 {
     if (lightComponents.find(entity) != lightComponents.end())
     {
-        return lightComponents[entity]->quad;
+        return lightComponents[entity].quad;
     }
     else return NAN;
 }
@@ -506,7 +506,7 @@ const float SceneManager::GetCutOff(unsigned int entity)
 {
     if (lightComponents.find(entity) != lightComponents.end())
     {
-        return lightComponents[entity]->cutOff;
+        return lightComponents[entity].cutOff;
     }
     else return NAN;
 }
@@ -515,9 +515,9 @@ void SceneManager::SetCutOff(unsigned int entity, float cutOff)
 {
     if (lightComponents.find(entity) != lightComponents.end())
     {
-       lightComponents[entity]->cutOff = cutOff;
-       if (lightComponents[entity]->outerCutOff < cutOff)
-           lightComponents[entity]->outerCutOff = cutOff;
+       lightComponents[entity].cutOff = cutOff;
+       if (lightComponents[entity].outerCutOff < cutOff)
+           lightComponents[entity].outerCutOff = cutOff;
     }
 }
 
@@ -525,7 +525,7 @@ const float SceneManager::GetOuterCutOff(unsigned int entity)
 {
     if (lightComponents.find(entity) != lightComponents.end())
     {
-        return lightComponents[entity]->outerCutOff;
+        return lightComponents[entity].outerCutOff;
     }
     else return NAN;
 }
@@ -534,22 +534,22 @@ void SceneManager::SetOuterCutOff(unsigned int entity, float outerCutOff)
 {
     if (lightComponents.find(entity) != lightComponents.end())
     {
-        lightComponents[entity]->outerCutOff = outerCutOff;
-        if (lightComponents[entity]->cutOff > outerCutOff)
-            lightComponents[entity]->cutOff = outerCutOff;
+        lightComponents[entity].outerCutOff = outerCutOff;
+        if (lightComponents[entity].cutOff > outerCutOff)
+            lightComponents[entity].cutOff = outerCutOff;
     }
 }
 
-RenderComponent* SceneManager::AddRenderComponent(unsigned int _entity)
+RenderComponent SceneManager::AddRenderComponent(unsigned int _entity)
 {
-    RenderComponent* rend = new RenderComponent();
+    RenderComponent rend = RenderComponent();
 
     renderComponents[_entity] = rend;
    
     return rend;
 }
 
-RenderComponent* SceneManager::AddRenderComponent(unsigned int _entity, RenderComponent* rend)
+RenderComponent SceneManager::AddRenderComponent(unsigned int _entity, RenderComponent& rend)
 {
     renderComponents[_entity] = rend;
 
@@ -560,7 +560,7 @@ const MaterialAsset* SceneManager::GetMaterial(unsigned int entity)
 {
     if (renderComponents.find(entity) != renderComponents.end())
     {
-        return renderComponents[entity]->material;
+        return renderComponents[entity].material;
     }
     else return nullptr;
 }
@@ -569,7 +569,7 @@ void SceneManager::SetMaterial(unsigned int entity, MaterialAsset* mat)
 {
     if (renderComponents.find(entity) != renderComponents.end())
     {
-       renderComponents[entity]->material = mat;
+       renderComponents[entity].material = mat;
     }
 }
 
@@ -577,7 +577,7 @@ const MeshAsset* SceneManager::GetMesh(unsigned int entity)
 {
     if (renderComponents.find(entity) != renderComponents.end())
     {
-        return renderComponents[entity]->mesh;
+        return renderComponents[entity].mesh;
     }
     else return nullptr;
 }
@@ -586,13 +586,13 @@ void SceneManager::SetMesh(unsigned int entity, MeshAsset* mesh)
 {
     if (renderComponents.find(entity) != renderComponents.end())
     {
-        renderComponents[entity]->mesh = mesh;
+        renderComponents[entity].mesh = mesh;
     }
 }
 
-PhysicsComponent* SceneManager::AddPhysicsComponent(unsigned int _entity)
+PhysicsComponent SceneManager::AddPhysicsComponent(unsigned int _entity)
 {
-    PhysicsComponent* physics = new PhysicsComponent();
+    PhysicsComponent physics = PhysicsComponent();
 
     physicsComponents[_entity] = physics;
 

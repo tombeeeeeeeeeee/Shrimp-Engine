@@ -14,9 +14,9 @@ public:
 	SceneManager(SceneManager& sm) :assFact(sm.assFact) {}
 	SceneManager& operator=(SceneManager const& other);
 
-	const std::unordered_map<unsigned int, TransformComponent*> GetTransforms();
-	const std::unordered_map<unsigned int, RenderComponent*> GetRenders();
-	const std::unordered_map<unsigned int, LightComponent*> GetLights();
+	std::unordered_map<unsigned int, TransformComponent>* GetTransforms();
+	std::unordered_map<unsigned int, RenderComponent>* GetRenders();
+	std::unordered_map<unsigned int, LightComponent>* GetLights();
 
 	/// <summary>
 	/// Makes entity and adds to the entity count.
@@ -93,7 +93,7 @@ public:
 	/// </summary>
 	/// <param name="_entity"> id to add component to</param>
 	/// <returns>light component</returns>
-	LightComponent* AddLightComponent(unsigned int _entity);
+	LightComponent AddLightComponent(unsigned int _entity);
 
 	/// <summary>
 	/// Adds a new light component to the provided entity id
@@ -101,7 +101,7 @@ public:
 	/// <param name="_entity"> id to add component to</param>
 	/// <param name="light"> light component to add to entity</param>
 	/// <returns>light component</returns>
-	LightComponent* AddLightComponent(unsigned int _entity, LightComponent* light);
+	LightComponent AddLightComponent(unsigned int _entity, LightComponent& light);
 
 	void CalculateLinearQuadConstants(unsigned int entity);
 
@@ -134,7 +134,7 @@ public:
 	/// </summary>
 	/// <param name="_entity"> id to add component to</param>
 	/// <returns> new render component</returns>
-	RenderComponent* AddRenderComponent(unsigned int _entity);
+	RenderComponent AddRenderComponent(unsigned int _entity);
 
 	/// <summary>
 	/// Add a provided render component to the provided entity id
@@ -142,7 +142,7 @@ public:
 	/// <param name="_entity"> id to add component to</param>
 	/// <param name="rend"> render component to add to entity</param>
 	/// <returns> render component</returns>
-	RenderComponent* AddRenderComponent(unsigned int _entity, RenderComponent* rend);
+	RenderComponent AddRenderComponent(unsigned int _entity, RenderComponent& rend);
 
 	const MaterialAsset* GetMaterial(unsigned int entity);
 	void SetMaterial(unsigned int entity, MaterialAsset* mat);
@@ -157,7 +157,7 @@ public:
 	/// </summary>
 	/// <param name="_entity"> id to add component to</param>
 	/// <returns>physics component</returns>
-	PhysicsComponent* AddPhysicsComponent(unsigned int _entity);
+	PhysicsComponent AddPhysicsComponent(unsigned int _entity);
 
 private:
 	/// <summary>
@@ -168,22 +168,22 @@ private:
 	/// <summary>
 	/// Light Components in scene
 	/// </summary>
-	std::unordered_map<unsigned int, LightComponent*> lightComponents;
+	std::unordered_map<unsigned int, LightComponent> lightComponents;
 
 	/// <summary>
 	/// Physics Components in scene
 	/// </summary>
-	std::unordered_map<unsigned int, PhysicsComponent*> physicsComponents;
+	std::unordered_map<unsigned int, PhysicsComponent> physicsComponents;
 
 	/// <summary>
 	/// Render Components in scene
 	/// </summary>
-	std::unordered_map<unsigned int, RenderComponent*> renderComponents;
+	std::unordered_map<unsigned int, RenderComponent> renderComponents;
 
 	/// <summary>
 	/// Transform Components in scene
 	/// </summary>
-	std::unordered_map<unsigned int, TransformComponent*> transformComponents;
+	std::unordered_map<unsigned int, TransformComponent> transformComponents;
 
 	/// <summary>
 	/// Asset Factory for asset making

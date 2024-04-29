@@ -2,6 +2,7 @@
 #include <config.h>
 #include "../components/CameraComponent.h"
 #include "../components/TransformComponent.h"
+#include "../factories/SceneManager.h"
 
 class CameraSystem {
 public:
@@ -18,8 +19,10 @@ public:
     /// <param name="mouseInputMask"> binary mask for mouse inputs</param>
     /// <returns></returns>
     bool Update(
-        const std::unordered_map<unsigned int, TransformComponent*>& transformComponents,
-        unsigned int cameraID, CameraComponent& cameraComponent, mat4& _view, float dt,
+        std::unordered_map<unsigned int, TransformComponent>& transformComponents,
+        unsigned int cameraID, CameraComponent& cameraComponent, 
+        SceneManager* scene,
+        mat4& _view, float dt,
         unsigned int mouseInputMask);
 
 private:

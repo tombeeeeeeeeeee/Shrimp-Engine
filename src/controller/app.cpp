@@ -97,17 +97,17 @@ void App::Run()
 
     while (!glfwWindowShouldClose(window) && !shouldClose) 
     {
-        const std::unordered_map<unsigned int, TransformComponent*>& transforms = scene->GetTransforms();
-        const std::unordered_map<unsigned int, RenderComponent*>& renders = scene->GetRenders();
-        const std::unordered_map<unsigned int, LightComponent*>& lights = scene->GetLights();
+        std::unordered_map<unsigned int, TransformComponent>* transforms = scene->GetTransforms();
+        std::unordered_map<unsigned int, RenderComponent>* renders = scene->GetRenders();
+        std::unordered_map<unsigned int, LightComponent>* lights = scene->GetLights();
 
-        //const std::unordered_map<unsigned int, PhysicsComponent*>& physics = scene->GetTransforms();
+        //const std::unordered_map<unsigned int, PhysicsComponent>& physics = scene->GetTransforms();
         //motionSystem->Update(transforms, physicsComponents, 1.0f / 60.0f);
 
         hierarchySystem->Update();
-        shouldClose = cameraSystem->Update(transforms, cameraID, *cameraComponent, viewMatrix, 1.0f / 60.0f, mouseInput);
+        shouldClose = cameraSystem->Update(*transforms, cameraID, *cameraComponent, scene, viewMatrix, 1.0f / 60.0f, mouseInput);
 
-        renderSystem->Update(transforms, renders, lights, projectionMatrix, viewMatrix);
+        renderSystem->Update(*transforms, *renders, *lights, projectionMatrix, viewMatrix);
 
         Update();
     }
@@ -144,7 +144,7 @@ void App::Start()
     //Space to add things for the start
     unsigned int cubeEntity = scene->MakeEmptyTransform({ 0,0,0 }, { 0, 0, 0 });
     scene->AddRenderComponent(cubeEntity);
-    renderComponents[cubeEntity]->mesh = assetFactory->GetMesh("models/Cerberus_LP.FBX");
+    scene->SetMesh(cubeEntity, assetFactory->GetMesh("models/Cerberus_LP.FBX"));
     std::string textureMaps[3] = { "img/Cerberus_A.tga", "img/Cerberus_PBR.tga", "img/Cerberus_N.tga" };
     scene->SetScale(2, { 0.25, 0.25, 0.25 });
 
@@ -152,7 +152,7 @@ void App::Start()
     //std::string textureMaps[3] = { "img/whale.jpg", "img/Cerberus_PBR.tga", "img/Cerberus_N.tga" };
     //transformComponents[2]->scale = { 0.05, 0.05, 0.05 };
 
-    renderComponents[cubeEntity]->material = assetFactory->GetMaterial(textureMaps, 7);
+    scene->SetMaterial(cubeEntity, assetFactory->GetMaterial(textureMaps, 7));
 
     scene->MakeAmbientLightEntity({0.8,0.8,0.8}, 0.001);
     scene->MakePointLightEntity(scene->GetPosition(2), 20, { 0.5,0.5,0.5 }, 2);

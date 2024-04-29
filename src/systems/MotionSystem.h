@@ -14,8 +14,8 @@ public:
     /// <param name="physicsComponents">physics Components</param>
     /// <param name="deltaTime"> time since last frame</param>
     void Update(
-        std::unordered_map<unsigned int, TransformComponent*>& transformComponents,
-        std::unordered_map<unsigned int, PhysicsComponent*>& physicsComponents, float deltaTime
+        std::unordered_map<unsigned int, TransformComponent>& transformComponents,
+        std::unordered_map<unsigned int, PhysicsComponent>& physicsComponents, float deltaTime
     );
 };
 

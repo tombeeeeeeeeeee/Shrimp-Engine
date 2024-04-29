@@ -20,9 +20,9 @@ public:
     /// <param name="transformComponents"> All transforms components</param>
     /// <param name="renderComponents"> All Render Components</param>
     void Update(
-        const std::unordered_map<unsigned int, TransformComponent*>& transformComponents,
-        const std::unordered_map<unsigned int, RenderComponent*>& renderComponents,
-        const std::unordered_map<unsigned int, LightComponent*>& lightComponents,
+        std::unordered_map<unsigned int, TransformComponent>& transformComponents,
+        std::unordered_map<unsigned int, RenderComponent>& renderComponents,
+        std::unordered_map<unsigned int, LightComponent>& lightComponents,
         mat4& _view, mat4& _projection
     );
 
@@ -68,8 +68,8 @@ private:
     std::vector<unsigned int>* shaders;
 
     void BindLightUniform(unsigned int shaderProgram,
-        const std::unordered_map<unsigned int, LightComponent*>& lightComponents,
-        const std::unordered_map<unsigned int, TransformComponent*>& transComponents);
+        std::unordered_map<unsigned int, LightComponent>& lightComponents,
+        std::unordered_map<unsigned int, TransformComponent>& transComponents);
 
     void HDRBufferSetUp();
     unsigned int hdrFBO;

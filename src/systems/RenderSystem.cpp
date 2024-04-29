@@ -13,7 +13,6 @@ RenderSystem::RenderSystem(std::vector<unsigned int>& _shaders, unsigned int _ca
     //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     //create missing texture texture
-    
 }
 
 void RenderSystem::Start(unsigned int _skyboxTexture)
@@ -34,15 +33,20 @@ void RenderSystem::Start(unsigned int _skyboxTexture)
 }
 
 void RenderSystem::Update(
-    const std::unordered_map<unsigned int, TransformComponent*>& transformComponents,
-    const std::unordered_map<unsigned int, RenderComponent*>& renderComponents,
-    const std::unordered_map<unsigned int, LightComponent*>& lightComponents,
+    std::unordered_map<unsigned int, TransformComponent>& transformComponents,
+    std::unordered_map<unsigned int, RenderComponent>& renderComponents,
+    std::unordered_map<unsigned int, LightComponent>& lightComponents,
     mat4& projection, mat4& view)
 {
     projectionMatrix = projection;
     viewMatrix = view;
 
-    vec3 cameraPos = transformComponents[cameraID]->Position();
+    vec3 cameraPos = 
+    {  
+        transformComponents[cameraID].globalTransform.entries[12], 
+        transformComponents[cameraID].globalTransform.entries[13], 
+        transformComponents[cameraID].globalTransform.entries[14],
+    };
     
     //Clear Buffers
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -54,10 +58,10 @@ void RenderSystem::Update(
     if (skyboxTexture != 0) DrawSkyBox();
 
     //Check if render Component is in shader order array
-    for (std::pair<unsigned int, RenderComponent*> entity : renderComponents)
+    for (std::pair<unsigned int, RenderComponent> entity : renderComponents)
     {
-        if(entity.second->material != nullptr)
-            entityShaderOrder[entity.second->material->shaderProgram].push_back(entity.first);
+        if(entity.second.material != nullptr)
+            entityShaderOrder[entity.second.material->shaderProgram].push_back(entity.first);
     }
 
     //Render all components in Shader Order
@@ -85,12 +89,10 @@ void RenderSystem::Update(
         for (std::vector<unsigned int>::iterator iter = entityShaderOrder[i].begin(); iter != entityShaderOrder[i].end(); iter++)
         {
             //If the mesh is bugged, do not render. TO BE REPLACED WITH BROKEN MESH MESH
-            if (renderComponents[*iter]->mesh == nullptr) continue;
+            if (renderComponents[*iter].mesh == nullptr) continue;
 
             //Get transform pair's model transform
-            TransformComponent transform = *transformComponents[*iter];
-            mat4 model = transform.globalTransform;
-            glUniformMatrix4fv(modelLocation, 1, GL_FALSE, model.entries);
+            glUniformMatrix4fv(modelLocation, 1, GL_FALSE, transformComponents[*iter].globalTransform.entries);
 
             glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -98,7 +100,7 @@ void RenderSystem::Update(
             unsigned int materialMask = 1;
             for (int i = 0; i < MATERIAL_MAPCOUNT; i++)
             {
-                if (renderComponents[*iter]->material == nullptr || renderComponents[*iter]->material->materials[0] == 0)
+                if (renderComponents[*iter].material == nullptr || renderComponents[*iter].material->materials[0] == 0)
                 {
                     //Bind missing texture if the material doesnt exist.
                     glBindTexture(GL_TEXTURE_2D, missingTextureTexture);
@@ -106,17 +108,17 @@ void RenderSystem::Update(
                 }
 
                 //if the current material/texture map matches the current binary
-                else if ((renderComponents[*iter]->material->materialMask & materialMask) == materialMask)
+                else if ((renderComponents[*iter].material->materialMask & materialMask) == materialMask)
                 {
                     glActiveTexture(GL_TEXTURE0 + i);
-                    if (renderComponents[*iter]->material->materials[i] == 0 && i == 0)
+                    if (renderComponents[*iter].material->materials[i] == 0 && i == 0)
                     {
                         //Bind missing texture if the diffuse doesnt exist.
                         glBindTexture(GL_TEXTURE_2D, missingTextureTexture);
                     }
                     else
                     {
-                        glBindTexture(GL_TEXTURE_2D, renderComponents[*iter]->material->materials[i]);
+                        glBindTexture(GL_TEXTURE_2D, renderComponents[*iter].material->materials[i]);
                     }
                 }
                 materialMask *= 2;
@@ -134,12 +136,12 @@ void RenderSystem::Update(
 
 
             //Bind mesh for drawing
-            glBindVertexArray(renderComponents[*iter]->mesh->VAO);
+            glBindVertexArray(renderComponents[*iter].mesh->VAO);
 
-            if (renderComponents[*iter]->mesh->IBO != 0)
-                glDrawElements(GL_TRIANGLES, 3 * renderComponents[*iter]->mesh->triCount, GL_UNSIGNED_INT, 0);
+            if (renderComponents[*iter].mesh->IBO != 0)
+                glDrawElements(GL_TRIANGLES, 3 * renderComponents[*iter].mesh->triCount, GL_UNSIGNED_INT, 0);
             else
-                glDrawArrays(GL_TRIANGLES, 0, 3 * renderComponents[*iter]->mesh->triCount);
+                glDrawArrays(GL_TRIANGLES, 0, 3 * renderComponents[*iter].mesh->triCount);
         }
     }
 
@@ -167,24 +169,24 @@ void RenderSystem::SetSkyboxTexture(unsigned int texture)
 }
 
 void RenderSystem::BindLightUniform(unsigned int shaderProgram, 
-    const std::unordered_map<unsigned int, LightComponent*>& lightComponents, 
-    const std::unordered_map<unsigned int, TransformComponent*>& transformComponents)
+    std::unordered_map<unsigned int, LightComponent>& lightComponents, 
+    std::unordered_map<unsigned int, TransformComponent>& transformComponents)
 {
     
     int packetCount = 0;
     std::vector<float> lightPackets;
-    std::unordered_map<unsigned int, LightComponent*>::iterator iter;
+    std::unordered_map<unsigned int, LightComponent>::iterator iter;
 
     for (iter = lightComponents.begin(); iter != lightComponents.end(); iter++)
     {
         //Colour
-        lightPackets.push_back(iter->second->colour.x);
-        lightPackets.push_back(iter->second->colour.y);
-        lightPackets.push_back(iter->second->colour.z);
+        lightPackets.push_back(iter->second.colour.x);
+        lightPackets.push_back(iter->second.colour.y);
+        lightPackets.push_back(iter->second.colour.z);
         //Light Type
-        lightPackets.push_back((float)iter->second->lightType);
+        lightPackets.push_back((float)iter->second.lightType);
 
-        switch(iter->second->lightType)
+        switch(iter->second.lightType)
         {
             case LightType::ambient:
                 packetCount += 1;
@@ -192,9 +194,9 @@ void RenderSystem::BindLightUniform(unsigned int shaderProgram,
 
             case LightType::directional:
                 //Direction (needs to be changed to the transfrom's forward vector)
-                lightPackets.push_back(iter->second->direction.x);
-                lightPackets.push_back(iter->second->direction.y);
-                lightPackets.push_back(iter->second->direction.z);
+                lightPackets.push_back(iter->second.direction.x);
+                lightPackets.push_back(iter->second.direction.y);
+                lightPackets.push_back(iter->second.direction.z);
 
                 lightPackets.push_back(0);//Unused value
                 packetCount += 2;
@@ -202,38 +204,38 @@ void RenderSystem::BindLightUniform(unsigned int shaderProgram,
 
             case LightType::point:
                 //Position
-                lightPackets.push_back(transformComponents[iter->first]->Position().x);
-                lightPackets.push_back(transformComponents[iter->first]->Position().y);
-                lightPackets.push_back(transformComponents[iter->first]->Position().z);
+                lightPackets.push_back(transformComponents[iter->first].globalTransform.entries[12]);
+                lightPackets.push_back(transformComponents[iter->first].globalTransform.entries[13]);
+                lightPackets.push_back(transformComponents[iter->first].globalTransform.entries[14]);
                 lightPackets.push_back(0); //Unused value
 
                 //Attenuation Constants
                 lightPackets.push_back(1);
-                lightPackets.push_back(iter->second->linear);
-                lightPackets.push_back(iter->second->quad);
-                lightPackets.push_back(iter->second->range); //unused in calculations
+                lightPackets.push_back(iter->second.linear);
+                lightPackets.push_back(iter->second.quad);
+                lightPackets.push_back(iter->second.range); //unused in calculations
                 packetCount += 3;
                 break;
 
             case LightType::spot:
                 //Position
-                lightPackets.push_back(transformComponents[iter->first]->Position().x);
-                lightPackets.push_back(transformComponents[iter->first]->Position().y);
-                lightPackets.push_back(transformComponents[iter->first]->Position().z);
+                lightPackets.push_back(transformComponents[iter->first].globalTransform.entries[12]);
+                lightPackets.push_back(transformComponents[iter->first].globalTransform.entries[13]);
+                lightPackets.push_back(transformComponents[iter->first].globalTransform.entries[14]);
                 lightPackets.push_back(0); //Unused value
 
 
                 //Direction (needs to be changed to the transfrom's forward vector)
-                lightPackets.push_back(iter->second->direction.x);
-                lightPackets.push_back(iter->second->direction.y);
-                lightPackets.push_back(iter->second->direction.z);
+                lightPackets.push_back(iter->second.direction.x);
+                lightPackets.push_back(iter->second.direction.y);
+                lightPackets.push_back(iter->second.direction.z);
                 lightPackets.push_back(0); 
                 
                 //Attentuation and Angle calcs
-                lightPackets.push_back(iter->second->cutOff);
-                lightPackets.push_back(iter->second->linear);
-                lightPackets.push_back(iter->second->quad);
-                lightPackets.push_back(iter->second->outerCutOff);
+                lightPackets.push_back(iter->second.cutOff);
+                lightPackets.push_back(iter->second.linear);
+                lightPackets.push_back(iter->second.quad);
+                lightPackets.push_back(iter->second.outerCutOff);
                 packetCount += 4;
         }      
     }

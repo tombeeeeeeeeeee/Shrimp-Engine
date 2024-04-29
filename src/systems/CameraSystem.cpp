@@ -6,17 +6,21 @@ CameraSystem::CameraSystem(GLFWwindow* window)
     cameraTransform = 0;
 }
 
-bool CameraSystem::Update(const std::unordered_map<unsigned int, TransformComponent*>& transformComponents,
-    unsigned int cameraID, CameraComponent& cameraComponent, mat4& view, float dt, unsigned int mouseInputMask) 
+bool CameraSystem::Update(std::unordered_map<unsigned int, TransformComponent>& transformComponents,
+    unsigned int cameraID, CameraComponent& cameraComponent, SceneManager* scene, mat4& view, float dt, unsigned int mouseInputMask) 
 {
     //if the camera transform hasn't been set yet, set it. (might just reset each tick)
-    if (cameraTransform == nullptr) cameraTransform = transformComponents[cameraID];
+    if (cameraTransform == nullptr) cameraTransform = &transformComponents[cameraID];
 
     if ((mouseInputMask & 2) == 2) RotateCamera();
     else glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
-    vec3 pos = transformComponents[cameraID]->Position();
-    vec3 eulers = transformComponents[cameraID]->LocalEulers();
+    vec3 pos = { 
+        transformComponents[cameraID].globalTransform.entries[12],
+        transformComponents[cameraID].globalTransform.entries[13],
+        transformComponents[cameraID].globalTransform.entries[14],
+    };
+    vec3 eulers = transformComponents[cameraID].eulers;
 
     vec3& forwards = cameraComponent.forward;
     vec3& up = cameraComponent.up;
@@ -58,15 +62,15 @@ bool CameraSystem::Update(const std::unordered_map<unsigned int, TransformCompon
         if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) dPos *= 2;
         vec3 dForward = 0.1f * dPos.x * forwards;
         vec3 dRight = 0.1f * dPos.y * right;
-        transformComponents[cameraID]->position = transformComponents[cameraID]->LocalPosition() + dForward + dRight;   
+        scene->SetLocalPosition(cameraID, transformComponents[cameraID].position + dForward + dRight);
     }
 
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-        transformComponents[cameraID]->position += vec3(0, 0, 0.1f);
+        scene->SetLocalPosition(cameraID, transformComponents[cameraID].position + vec3(0, 0, 0.1f));
     }
 
     if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
-        transformComponents[cameraID]->position -= vec3(0, 0, 0.1f);
+        scene->SetLocalPosition(cameraID, transformComponents[cameraID].position - vec3(0, 0, 0.1f));
     }
 
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
