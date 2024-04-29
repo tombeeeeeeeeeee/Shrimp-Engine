@@ -34,9 +34,9 @@ void RenderSystem::Start(unsigned int _skyboxTexture)
 }
 
 void RenderSystem::Update(
-    std::unordered_map<unsigned int, TransformComponent*>& transformComponents,
-    std::unordered_map<unsigned int, RenderComponent*>& renderComponents,
-    std::unordered_map<unsigned int, LightComponent*>& lightComponents,
+    const std::unordered_map<unsigned int, TransformComponent*>& transformComponents,
+    const std::unordered_map<unsigned int, RenderComponent*>& renderComponents,
+    const std::unordered_map<unsigned int, LightComponent*>& lightComponents,
     mat4& projection, mat4& view)
 {
     projectionMatrix = projection;
@@ -167,8 +167,8 @@ void RenderSystem::SetSkyboxTexture(unsigned int texture)
 }
 
 void RenderSystem::BindLightUniform(unsigned int shaderProgram, 
-    std::unordered_map<unsigned int, LightComponent*>& lightComponents, 
-    std::unordered_map<unsigned int, TransformComponent*>& transformComponents)
+    const std::unordered_map<unsigned int, LightComponent*>& lightComponents, 
+    const std::unordered_map<unsigned int, TransformComponent*>& transformComponents)
 {
     
     int packetCount = 0;

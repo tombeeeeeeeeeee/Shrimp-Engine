@@ -88,6 +88,21 @@ public:
 	unsigned int MakeSpotLightEntity(vec3 pos, vec3 dir, float range, float cutOff, float outerCutOff, vec3 colour, float intensity = 1, bool debug = true);
 	unsigned int AddSpotLightComponent(unsigned int entity, vec3 dir, float range, float cutOff, float outerCutOff, vec3 colour, float intensity = 1);
 
+	/// <summary>
+	/// Adds a new light component to the provided entity id
+	/// </summary>
+	/// <param name="_entity"> id to add component to</param>
+	/// <returns>light component</returns>
+	LightComponent* AddLightComponent(unsigned int _entity);
+
+	/// <summary>
+	/// Adds a new light component to the provided entity id
+	/// </summary>
+	/// <param name="_entity"> id to add component to</param>
+	/// <param name="light"> light component to add to entity</param>
+	/// <returns>light component</returns>
+	LightComponent* AddLightComponent(unsigned int _entity, LightComponent* light);
+
 	void CalculateLinearQuadConstants(unsigned int entity);
 
 	const LightType GetLightType(unsigned int entity);
@@ -111,6 +126,9 @@ public:
 	void SetOuterCutOff(unsigned int entity, float outerCutOff);
 
 #pragma endregion 
+
+#pragma region Render Components
+
 	/// <summary>
 	/// Add a new render component to the provided entity id
 	/// </summary>
@@ -126,6 +144,14 @@ public:
 	/// <returns> render component</returns>
 	RenderComponent* AddRenderComponent(unsigned int _entity, RenderComponent* rend);
 
+	const MaterialAsset* GetMaterial(unsigned int entity);
+	void SetMaterial(unsigned int entity, MaterialAsset* mat);
+
+	const MeshAsset* GetMesh(unsigned int entity);
+	void SetMesh(unsigned int entity, MeshAsset* mesh);
+
+#pragma endregion
+
 	/// <summary>
 	/// Adds a new physics component to the provided entity id
 	/// </summary>
@@ -133,20 +159,6 @@ public:
 	/// <returns>physics component</returns>
 	PhysicsComponent* AddPhysicsComponent(unsigned int _entity);
 
-	/// <summary>
-	/// Adds a new light component to the provided entity id
-	/// </summary>
-	/// <param name="_entity"> id to add component to</param>
-	/// <returns>light component</returns>
-	LightComponent* AddLightComponent(unsigned int _entity);
-
-	/// <summary>
-	/// Adds a new light component to the provided entity id
-	/// </summary>
-	/// <param name="_entity"> id to add component to</param>
-	/// <param name="light"> light component to add to entity</param>
-	/// <returns>light component</returns>
-	LightComponent* AddLightComponent(unsigned int _entity, LightComponent* light);
 private:
 	/// <summary>
 	/// Starting entity count value (must be above 0)

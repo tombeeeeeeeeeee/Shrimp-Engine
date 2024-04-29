@@ -298,6 +298,22 @@ unsigned int SceneManager::AddSpotLightComponent(unsigned int entity, vec3 dir, 
     return entity;
 }
 
+LightComponent* SceneManager::AddLightComponent(unsigned int _entity)
+{
+    LightComponent* light = new LightComponent();
+
+    lightComponents[_entity] = light;
+
+    return light;
+}
+
+LightComponent* SceneManager::AddLightComponent(unsigned int _entity, LightComponent* light)
+{
+    lightComponents[_entity] = light;
+
+    return light;
+}
+
 void SceneManager::CalculateLinearQuadConstants(unsigned int entity)
 {
     if (lightComponents.find(entity) == lightComponents.end()) return;
@@ -540,6 +556,40 @@ RenderComponent* SceneManager::AddRenderComponent(unsigned int _entity, RenderCo
     return rend;
 }
 
+const MaterialAsset* SceneManager::GetMaterial(unsigned int entity)
+{
+    if (renderComponents.find(entity) != renderComponents.end())
+    {
+        return renderComponents[entity]->material;
+    }
+    else return nullptr;
+}
+
+void SceneManager::SetMaterial(unsigned int entity, MaterialAsset* mat)
+{
+    if (renderComponents.find(entity) != renderComponents.end())
+    {
+       renderComponents[entity]->material = mat;
+    }
+}
+
+const MeshAsset* SceneManager::GetMesh(unsigned int entity)
+{
+    if (renderComponents.find(entity) != renderComponents.end())
+    {
+        return renderComponents[entity]->mesh;
+    }
+    else return nullptr;
+}
+
+void SceneManager::SetMesh(unsigned int entity, MeshAsset* mesh)
+{
+    if (renderComponents.find(entity) != renderComponents.end())
+    {
+        renderComponents[entity]->mesh = mesh;
+    }
+}
+
 PhysicsComponent* SceneManager::AddPhysicsComponent(unsigned int _entity)
 {
     PhysicsComponent* physics = new PhysicsComponent();
@@ -549,19 +599,5 @@ PhysicsComponent* SceneManager::AddPhysicsComponent(unsigned int _entity)
     return physics;
 }
 
-LightComponent* SceneManager::AddLightComponent(unsigned int _entity)
-{
-    LightComponent* light = new LightComponent();
 
-    lightComponents[_entity] = light;
-
-    return light;
-}
-
-LightComponent* SceneManager::AddLightComponent(unsigned int _entity, LightComponent* light)
-{
-    lightComponents[_entity] = light;
-
-    return light;
-}
 

@@ -68,8 +68,8 @@ private:
     std::vector<unsigned int>* shaders;
 
     void BindLightUniform(unsigned int shaderProgram,
-        std::unordered_map<unsigned int, LightComponent*>& lightComponents,
-        std::unordered_map<unsigned int, TransformComponent*>& transComponents);
+        const std::unordered_map<unsigned int, LightComponent*>& lightComponents,
+        const std::unordered_map<unsigned int, TransformComponent*>& transComponents);
 
     void HDRBufferSetUp();
     unsigned int hdrFBO;

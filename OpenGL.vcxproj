@@ -147,7 +147,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\components\LightComponent.cpp" />
     <ClCompile Include="src\systems\HierarchySystem.cpp" />
     <ClCompile Include="src\config.cpp" />
     <ClCompile Include="src\factories\AssetFactory.cpp" />
