@@ -46,7 +46,7 @@ void main()
 	vec3 albedo = texture(diffuse, fragmentTexCoord).rgb;
 
 	vec3 Lo = vec3(0.0);
-	vec3 ambientLightColour = vec3(0.0); //TO DO ON CPU
+	vec3 ambientLightColour = vec3(0.0);
 
 	vec3 F0 = vec3(0.04); 
     F0 = mix(F0, albedo, metallic);

@@ -104,7 +104,7 @@ public:
 	LightComponent AddLightComponent(unsigned int _entity, LightComponent& light);
 
 	void CalculateLinearQuadConstants(unsigned int entity);
-
+	void CalculateLinearQuadConstants(float range, float& linear, float& quad);
 	const LightType GetLightType(unsigned int entity);
 	void SetLightType(unsigned int entity, LightType lightType);
 

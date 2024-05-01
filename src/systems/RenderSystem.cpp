@@ -155,7 +155,7 @@ void RenderSystem::Update(
     glActiveTexture(GL_TEXTURE0); 
     glBindTexture(GL_TEXTURE_2D, colorBuffer);
     glUniform1f(glGetUniformLocation((*shaders)[SHADER_MATERIAL_COUNT], "exposure"), exposure);
-    
+
     RenderQuad();
 
     glfwSwapBuffers(window);
