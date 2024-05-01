@@ -22,7 +22,7 @@ public:
         std::unordered_map<unsigned int, TransformComponent>& transformComponents,
         unsigned int cameraID, CameraComponent& cameraComponent, 
         SceneManager* scene,
-        mat4& _view, float dt,
+        glm::mat4& _view, float dt,
         unsigned int mouseInputMask);
 
 private:
@@ -44,6 +44,6 @@ private:
     /// <summary>
     /// Stores up direction (Understood around the system to be z axis is up.)
     /// </summary>
-    vec3 globalUp = { 0.0f, 0.0f, 1.0f };
+    glm::vec3 globalUp = { 0.0f, 0.0f, 1.0f };
     GLFWwindow* window;
 };

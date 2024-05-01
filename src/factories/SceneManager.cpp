@@ -44,7 +44,7 @@ std::unordered_map<unsigned int, LightComponent>* SceneManager::GetLights()
     return &lightComponents;
 }
 
-unsigned int SceneManager::MakeCamera(vec3 position, vec3 eulers)
+unsigned int SceneManager::MakeCamera(glm::vec3 position, glm::vec3 eulers)
 {
     return MakeEmptyTransform(position, eulers);
 }
@@ -56,7 +56,7 @@ unsigned int SceneManager::MakeEmptyTransform()
     return entityCount++;
 }
 
-unsigned int SceneManager::MakeEmptyTransform(vec3 position, vec3 eulers)
+unsigned int SceneManager::MakeEmptyTransform(glm::vec3 position, glm::vec3 eulers)
 {
     TransformComponent transform = TransformComponent();
     transform.position = position;
@@ -66,14 +66,14 @@ unsigned int SceneManager::MakeEmptyTransform(vec3 position, vec3 eulers)
     return entityCount++;
 }
 
-const vec3 SceneManager::GetPosition(unsigned int entity)
+const glm::vec3 SceneManager::GetPosition(unsigned int entity)
 {                                                                                                     
     if (transformComponents.find(entity) != transformComponents.end()) 
-        return { transformComponents[entity].globalTransform.entries[12], transformComponents[entity].globalTransform.entries[13], transformComponents[entity].globalTransform.entries[14] };
+        return { transformComponents[entity].globalTransform[3][0], transformComponents[entity].globalTransform[3][1], transformComponents[entity].globalTransform[3][2] };
     return {NAN, NAN, NAN};
 }
 
-const vec3 SceneManager::GetLocalPosition(unsigned int entity)
+const glm::vec3 SceneManager::GetLocalPosition(unsigned int entity)
 {
     if (transformComponents.find(entity) != transformComponents.end())
         return transformComponents[entity].position;
@@ -81,7 +81,7 @@ const vec3 SceneManager::GetLocalPosition(unsigned int entity)
 }
 
 //TODO Add flag that it needs to be updated in the heirarchy
-void SceneManager::SetLocalPosition(unsigned int entity, vec3 position)
+void SceneManager::SetLocalPosition(unsigned int entity, glm::vec3 position)
 {
     if (transformComponents.find(entity) != transformComponents.end())
     {
@@ -90,64 +90,64 @@ void SceneManager::SetLocalPosition(unsigned int entity, vec3 position)
     }
 }
 
-const vec3 SceneManager::GetEulers(unsigned int entity, bool radians)
+const glm::vec3 SceneManager::GetEulers(unsigned int entity, bool radians)
 {
     if (transformComponents.find(entity) != transformComponents.end())
     {
-        mat4 globalTransform = transformComponents[entity].globalTransform;
+        glm::mat4 globalTransform = transformComponents[entity].globalTransform;
 
         float eulX = 0;
         float eulY = 0;
         float eulZ = 0;
 
-        float sy = sqrt(globalTransform.entries[0] * globalTransform.entries[0] + globalTransform.entries[1] * globalTransform.entries[1]);
+        float sy = sqrt(globalTransform[0][0] * globalTransform[0][0] + globalTransform[0][1] * globalTransform[0][1]);
 
         bool singular = sy < 1e-6; // If
 
         float x, y, z;
         if (!singular)
         {
-            x = atan2(globalTransform.entries[6], globalTransform.entries[10]);
-            y = atan2(-globalTransform.entries[2], sy);
-            z = atan2(globalTransform.entries[1], globalTransform.entries[0]);
+            x = atan2(globalTransform[1][2], globalTransform[2][2]);
+            y = atan2(-globalTransform[0][2], sy);
+            z = atan2(globalTransform[0][1], globalTransform[0][0]);
         }
         else
         {
-            x = atan2(-globalTransform.entries[9], globalTransform.entries[5]);
-            y = atan2(-globalTransform.entries[2], sy);
+            x = atan2(-globalTransform[2][1], globalTransform[1][1]);
+            y = atan2(-globalTransform[0][2], sy);
             z = 0;
         }
-        return vec3(x, y, z);
+        return glm::vec3(x, y, z);
 
-        if (abs(globalTransform.entries[2]) != 1)
+        if (abs(globalTransform[0][2]) != 1)
         {
-            eulY = asinf(globalTransform.entries[2]);
+            eulY = asinf(globalTransform[0][2]);
             float c = cos(eulY);
-            eulX = atan2f(globalTransform.entries[6] / c, globalTransform.entries[10] / c);
-            eulZ = atan2f(globalTransform.entries[1] / c, globalTransform.entries[0] / c);
+            eulX = atan2f(globalTransform[1][2] / c, globalTransform[2][2] / c);
+            eulZ = atan2f(globalTransform[0][1] / c, globalTransform[0][0] / c);
         }
         else
         {
             eulZ = 0;
-            eulY = LA_PI / 2.0f;
-            if (globalTransform.entries[2] == -1)
+            eulY = glm::pi<float>() / 2.0f;
+            if (globalTransform[0][2] == -1)
             {
-                eulX = atan2f(globalTransform.entries[4], globalTransform.entries[8]);
+                eulX = atan2f(globalTransform[1][1], globalTransform[2][1]);
             }
             else
             {
                 eulY *= -1;
-                eulX = atan2f(-globalTransform.entries[4], -globalTransform.entries[8]);
+                eulX = atan2f(-globalTransform[1][1], -globalTransform[2][1]);
             }
         }
-        vec3 eul = { eulX, eulY, eulZ };
-        if (!radians) eul *= 180 / LA_PI;
+        glm::vec3 eul = { eulX, eulY, eulZ };
+        if (!radians) eul *= 180 / glm::pi<float>();
         return eul;
     }
     else return { NAN, NAN, NAN };
 }
 
-const vec3 SceneManager::GetLocalEulers(unsigned int entity, bool radians)
+const glm::vec3 SceneManager::GetLocalEulers(unsigned int entity, bool radians)
 {
     if (transformComponents.find(entity) != transformComponents.end())
     {
@@ -156,7 +156,7 @@ const vec3 SceneManager::GetLocalEulers(unsigned int entity, bool radians)
     else return { NAN, NAN, NAN };
 }
 //TODO Add flag that it needs to be updated in the heirarchy
-void SceneManager::SetLocalEulers(unsigned int entity, vec3 eulers, bool radians)
+void SceneManager::SetLocalEulers(unsigned int entity, glm::vec3 eulers, bool radians)
 {
     if (transformComponents.find(entity) != transformComponents.end())
     {
@@ -165,7 +165,7 @@ void SceneManager::SetLocalEulers(unsigned int entity, vec3 eulers, bool radians
     }
 }
 
-const vec3 SceneManager::GetScale(unsigned int entity)
+const glm::vec3 SceneManager::GetScale(unsigned int entity)
 {
     if (transformComponents.find(entity) != transformComponents.end())
     {
@@ -174,7 +174,7 @@ const vec3 SceneManager::GetScale(unsigned int entity)
     else return { NAN, NAN, NAN };
 }
 //TODO Add flag that it needs to be updated in the heirarchy
-void SceneManager::SetScale(unsigned int entity, vec3 scale)
+void SceneManager::SetScale(unsigned int entity, glm::vec3 scale)
 {
     if (transformComponents.find(entity) != transformComponents.end())
     {
@@ -183,14 +183,14 @@ void SceneManager::SetScale(unsigned int entity, vec3 scale)
     }
 }
 
-const mat4 SceneManager::GetLocalTransform(unsigned int entity)
+const glm::mat4 SceneManager::GetLocalTransform(unsigned int entity)
 {
     if (transformComponents.find(entity) != transformComponents.end())
     {
         return TranslationMatrix(transformComponents[entity].position)
             * RotationXMatrix(transformComponents[entity].eulers.x)
-            * RotationXMatrix(transformComponents[entity].eulers.y)
-            * RotationXMatrix(transformComponents[entity].eulers.z)
+            * RotationYMatrix(transformComponents[entity].eulers.y)
+            * RotationZMatrix(transformComponents[entity].eulers.z)
             * ScaleMatrix(transformComponents[entity].scale);
     }
     else return { 
@@ -201,7 +201,7 @@ const mat4 SceneManager::GetLocalTransform(unsigned int entity)
     };
 }
 
-const mat4 SceneManager::GetGlobalTransform(unsigned entity)
+const glm::mat4 SceneManager::GetGlobalTransform(unsigned entity)
 {
     if (transformComponents.find(entity) != transformComponents.end())
         return transformComponents[entity].globalTransform;
@@ -215,13 +215,13 @@ const mat4 SceneManager::GetGlobalTransform(unsigned entity)
 
 
 
-unsigned int SceneManager::MakeAmbientLightEntity(vec3 colour, float intensity)
+unsigned int SceneManager::MakeAmbientLightEntity(glm::vec3 colour, float intensity)
 {
     unsigned int ambi = MakeEmptyTransform();
     return AddAmbientLightComponent(ambi,colour,intensity);
 }
 
-unsigned int SceneManager::AddAmbientLightComponent(unsigned int entity, vec3 colour, float intensity)
+unsigned int SceneManager::AddAmbientLightComponent(unsigned int entity, glm::vec3 colour, float intensity)
 {
     LightComponent light = LightComponent();
     light.colour = colour * intensity;
@@ -229,15 +229,15 @@ unsigned int SceneManager::AddAmbientLightComponent(unsigned int entity, vec3 co
     return entity;
 }
 
-unsigned int SceneManager::MakeDirectionalLightEntity(vec3 direction, vec3 colour, float intensity)
+unsigned int SceneManager::MakeDirectionalLightEntity(glm::vec3 direction, glm::vec3 colour, float intensity)
 {
-    vec3 trueDirection = GetNormalised(direction);
+    glm::vec3 trueDirection = glm::normalize(direction);
     
     unsigned int directional = MakeEmptyTransform();
     return AddDirectionalLightComponent(directional, trueDirection, colour, intensity);
 }
 
-unsigned int SceneManager::AddDirectionalLightComponent(unsigned int entity,vec3 direction, vec3 colour, float intensity)
+unsigned int SceneManager::AddDirectionalLightComponent(unsigned int entity, glm::vec3 direction, glm::vec3 colour, float intensity)
 {
     LightComponent light = LightComponent();
     light.colour = colour * intensity;
@@ -247,7 +247,7 @@ unsigned int SceneManager::AddDirectionalLightComponent(unsigned int entity,vec3
     return entity;
 }
 
-unsigned int SceneManager::MakePointLightEntity(vec3 pos, float range, vec3 colour, float intensity, bool debug)
+unsigned int SceneManager::MakePointLightEntity(glm::vec3 pos, float range, glm::vec3 colour, float intensity, bool debug)
 {
     unsigned int point = MakeEmptyTransform(pos);
 
@@ -265,7 +265,7 @@ unsigned int SceneManager::MakePointLightEntity(vec3 pos, float range, vec3 colo
     return AddPointLightComponent(point, range, colour, intensity);
 }
 
-unsigned int SceneManager::AddPointLightComponent(unsigned int entity, float range, vec3 colour, float intensity)
+unsigned int SceneManager::AddPointLightComponent(unsigned int entity, float range, glm::vec3 colour, float intensity)
 {
     LightComponent light = LightComponent();
     light.colour = colour * intensity;

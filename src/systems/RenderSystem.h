@@ -23,7 +23,7 @@ public:
         std::unordered_map<unsigned int, TransformComponent>& transformComponents,
         std::unordered_map<unsigned int, RenderComponent>& renderComponents,
         std::unordered_map<unsigned int, LightComponent>& lightComponents,
-        mat4& _view, mat4& _projection
+        glm::mat4& _view, glm::mat4& _projection
     );
 
     void SetSkyboxTexture(unsigned int texture);
@@ -45,7 +45,7 @@ private:
     /// </summary>
     unsigned int modelLocation;
 
-    mat4 projectionMatrix, viewMatrix;
+    glm::mat4 projectionMatrix, viewMatrix;
 
     /// <summary>
     /// Pointer to current window

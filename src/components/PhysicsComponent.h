@@ -3,6 +3,6 @@
 
 struct PhysicsComponent
 {
-	vec3 velocity;
-	vec3 eulerVelocity;
+	glm::vec3 velocity;
+	glm::vec3 eulerVelocity;
 };

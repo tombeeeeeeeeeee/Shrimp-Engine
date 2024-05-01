@@ -8,6 +8,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <assimp/scene.h>
 #include <assimp/cimport.h>
-#include <LinearAlgebra.h>
+//#include <LinearAlgebra.h>
 #include "../Utilities.h"
 

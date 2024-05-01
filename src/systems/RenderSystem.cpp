@@ -36,12 +36,12 @@ void RenderSystem::Update(
     std::unordered_map<unsigned int, TransformComponent>& transformComponents,
     std::unordered_map<unsigned int, RenderComponent>& renderComponents,
     std::unordered_map<unsigned int, LightComponent>& lightComponents,
-    mat4& projection, mat4& view)
+    glm::mat4& projection, glm::mat4& view)
 {
     projectionMatrix = projection;
     viewMatrix = view;
 
-    vec3 cameraPos = 
+    glm::vec3 cameraPos =
     {  
         transformComponents[cameraID].globalTransform.entries[12], 
         transformComponents[cameraID].globalTransform.entries[13], 
@@ -81,8 +81,8 @@ void RenderSystem::Update(
 
         BindLightUniform((*shaders)[i], lightComponents, transformComponents);
 
-        glUniformMatrix4fv(glGetUniformLocation((*shaders)[i], "view"), 1, GL_FALSE, view.entries);
-        glUniformMatrix4fv(glGetUniformLocation((*shaders)[i], "projection"), 1, GL_FALSE, projection.entries);
+        glUniformMatrix4fv(glGetUniformLocation((*shaders)[i], "view"), 1, GL_FALSE, &view[0][0]);
+        glUniformMatrix4fv(glGetUniformLocation((*shaders)[i], "projection"), 1, GL_FALSE, &projection[0][0]);
 
         glUniform3f(glGetUniformLocation((*shaders)[i], "cameraPos"), cameraPos.x, cameraPos.y, cameraPos.z);
 
@@ -562,9 +562,8 @@ void RenderSystem::DrawSkyBox()
     unsigned int emptyVAO;
     glUseProgram((*shaders)[SHADER_PROGRAM_COUNT - 1]);
 
-    mat4 inversePV = projectionMatrix * viewMatrix;
-    glm::mat4* PV = (glm::mat4*)(&inversePV);
-    glm::mat4 iPV = glm::inverse(*PV);
+    glm::mat4 PV = projectionMatrix * viewMatrix;
+    glm::mat4 iPV = glm::inverse(PV);
 
     glUniformMatrix4fv(glGetUniformLocation((*shaders)[SHADER_PROGRAM_COUNT - 1], "PV"), 1, GL_FALSE, &iPV[0][0]);
     glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTexture);

@@ -3,7 +3,7 @@
 
 struct CameraComponent
 {
-	vec3 right;
-	vec3 up;
-	vec3 forward;
+	glm::vec3 right;
+	glm::vec3 up;
+	glm::vec3 forward;
 };

@@ -6,7 +6,7 @@ void MotionSystem::Update(std::unordered_map<unsigned int, TransformComponent>& 
     //Is a placeholder atm and is used for testing.
    for (std::pair<unsigned int, PhysicsComponent> entity : physicsComponents)
    {
-       vec3 eulerDisplacement = entity.second.eulerVelocity * deltaTime;
+       glm::vec3 eulerDisplacement = entity.second.eulerVelocity * deltaTime;
 
        transformComponents[entity.first].eulers += eulerDisplacement;
    }
