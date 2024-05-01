@@ -83,7 +83,10 @@ const vec3 SceneManager::GetLocalPosition(unsigned int entity)
 void SceneManager::SetLocalPosition(unsigned int entity, vec3 position)
 {
     if (transformComponents.find(entity) != transformComponents.end())
+    {
         transformComponents[entity].position = position;
+        TransformsToUpdate.push_back(entity);
+    }
 }
 
 const vec3 SceneManager::GetEulers(unsigned int entity, bool radians)
@@ -155,7 +158,10 @@ const vec3 SceneManager::GetLocalEulers(unsigned int entity, bool radians)
 void SceneManager::SetLocalEulers(unsigned int entity, vec3 eulers, bool radians)
 {
     if (transformComponents.find(entity) != transformComponents.end())
+    {
         transformComponents[entity].eulers = eulers;
+        TransformsToUpdate.push_back(entity);
+    }
 }
 
 const vec3 SceneManager::GetScale(unsigned int entity)
@@ -170,7 +176,10 @@ const vec3 SceneManager::GetScale(unsigned int entity)
 void SceneManager::SetScale(unsigned int entity, vec3 scale)
 {
     if (transformComponents.find(entity) != transformComponents.end())
+    {
         transformComponents[entity].scale = scale;
+        TransformsToUpdate.push_back(entity);
+    }
 }
 
 const mat4 SceneManager::GetLocalTransform(unsigned int entity)
