@@ -279,7 +279,7 @@ unsigned int SceneManager::AddPointLightComponent(unsigned int entity, float ran
     return entity;
 }
 
-unsigned int SceneManager::MakeSpotLightEntity(vec3 pos, vec3 dir, float range, float cutOff, float outerCutOff, vec3 colour, float intensity, bool debug)
+unsigned int SceneManager::MakeSpotLightEntity(glm::vec3 pos, glm::vec3 dir, float range, float cutOff, float outerCutOff, glm::vec3 colour, float intensity, bool debug)
 {
     unsigned int spot = MakeEmptyTransform(pos);
 
@@ -297,7 +297,7 @@ unsigned int SceneManager::MakeSpotLightEntity(vec3 pos, vec3 dir, float range, 
     return AddSpotLightComponent(spot, dir, range, cutOff, outerCutOff, colour, intensity);
 }
 
-unsigned int SceneManager::AddSpotLightComponent(unsigned int entity, vec3 dir, float range, float cutOff, float outerCutOff, vec3 colour, float intensity)
+unsigned int SceneManager::AddSpotLightComponent(unsigned int entity, glm::vec3 dir, float range, float cutOff, float outerCutOff, glm::vec3 colour, float intensity)
 {
     LightComponent light = LightComponent();
     light.colour = colour * intensity;

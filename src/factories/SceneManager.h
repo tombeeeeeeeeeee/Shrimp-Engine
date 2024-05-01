@@ -30,7 +30,7 @@ public:
 	/// <param name="position"> transform position</param>
 	/// <param name="eulers"> camera position </param>
 	/// <returns> unsigned int of entity</returns>
-	unsigned int MakeCamera(vec3 position, vec3 eulers);
+	unsigned int MakeCamera(glm::vec3 position, glm::vec3 eulers);
 
 #pragma region Transform Components
 
@@ -46,21 +46,21 @@ public:
 	/// <param name="position">position of component</param>
 	/// <param name="eulers">euler of component</param>
 	/// <returns>unsigned int transform component entity id</returns>
-	unsigned int MakeEmptyTransform(vec3 position, vec3 eulers = {0,0,0});
+	unsigned int MakeEmptyTransform(glm::vec3 position, glm::vec3 eulers = {0,0,0});
 
-	const vec3 GetPosition(unsigned int entity);
-	const vec3 GetLocalPosition(unsigned int entity);
-	void SetLocalPosition(unsigned int entity, vec3 position);
+	const glm::vec3 GetPosition(unsigned int entity);
+	const glm::vec3 GetLocalPosition(unsigned int entity);
+	void SetLocalPosition(unsigned int entity, glm::vec3 position);
 
-	const vec3 GetEulers(unsigned int entity, bool radians = true);
-	const vec3 GetLocalEulers(unsigned int entity, bool radians = true);
-	void SetLocalEulers(unsigned int entity, vec3 eulers, bool radians = true);
+	const glm::vec3 GetEulers(unsigned int entity, bool radians = true);
+	const glm::vec3 GetLocalEulers(unsigned int entity, bool radians = true);
+	void SetLocalEulers(unsigned int entity, glm::vec3 eulers, bool radians = true);
 
-	const vec3 GetScale(unsigned int entity);
-	void SetScale(unsigned int entity, vec3 scale);
+	const glm::vec3 GetScale(unsigned int entity);
+	void SetScale(unsigned int entity, glm::vec3 scale);
 
-	const mat4 GetLocalTransform(unsigned int entity);
-	const mat4 GetGlobalTransform(unsigned entity);
+	const glm::mat4 GetLocalTransform(unsigned int entity);
+	const glm::mat4 GetGlobalTransform(unsigned entity);
 
 #pragma endregion
 
@@ -71,7 +71,7 @@ public:
 	/// <param name="colour">colour for the light</param>
 	/// <param name="intensity"> intensity of the colour </param>
 	/// <returns> entity id </returns>
-	unsigned int MakeAmbientLightEntity(vec3 colour, float intensity = 1);
+	unsigned int MakeAmbientLightEntity(glm::vec3 colour, float intensity = 1);
 
 	/// <summary>
 	/// Adds an ambient light to an entity
@@ -80,13 +80,13 @@ public:
 	/// <param name="colour">colour for the light</param>
 	/// <param name="intensity"> intensity of the colour </param>
 	/// <returns> entity id </returns>
-	unsigned int AddAmbientLightComponent(unsigned int entity, vec3 colour, float intensity = 1);
-	unsigned int MakeDirectionalLightEntity(vec3 direction, vec3 colour, float intensity = 1);
-	unsigned int AddDirectionalLightComponent(unsigned int entity, vec3 direction, vec3 colour, float intensity = 1);
-	unsigned int MakePointLightEntity(vec3 pos, float range, vec3 colour, float intensity = 1, bool debug = true);
-	unsigned int AddPointLightComponent(unsigned int entity, float range, vec3 colour, float intensity = 1);
-	unsigned int MakeSpotLightEntity(vec3 pos, vec3 dir, float range, float cutOff, float outerCutOff, vec3 colour, float intensity = 1, bool debug = true);
-	unsigned int AddSpotLightComponent(unsigned int entity, vec3 dir, float range, float cutOff, float outerCutOff, vec3 colour, float intensity = 1);
+	unsigned int AddAmbientLightComponent(unsigned int entity, glm::vec3 colour, float intensity = 1);
+	unsigned int MakeDirectionalLightEntity(glm::vec3 direction, glm::vec3 colour, float intensity = 1);
+	unsigned int AddDirectionalLightComponent(unsigned int entity, glm::vec3 direction, glm::vec3 colour, float intensity = 1);
+	unsigned int MakePointLightEntity(glm::vec3 pos, float range, glm::vec3 colour, float intensity = 1, bool debug = true);
+	unsigned int AddPointLightComponent(unsigned int entity, float range, glm::vec3 colour, float intensity = 1);
+	unsigned int MakeSpotLightEntity(glm::vec3 pos, glm::vec3 dir, float range, float cutOff, float outerCutOff, glm::vec3 colour, float intensity = 1, bool debug = true);
+	unsigned int AddSpotLightComponent(unsigned int entity, glm::vec3 dir, float range, float cutOff, float outerCutOff, glm::vec3 colour, float intensity = 1);
 
 	/// <summary>
 	/// Adds a new light component to the provided entity id
@@ -108,11 +108,11 @@ public:
 	const LightType GetLightType(unsigned int entity);
 	void SetLightType(unsigned int entity, LightType lightType);
 
-	const vec3 GetColour(unsigned int entity);
-	void SetColour(unsigned int entity, vec3 colour, float intensity);
+	const glm::vec3 GetColour(unsigned int entity);
+	void SetColour(unsigned int entity, glm::vec3 colour, float intensity);
 
-	const vec3 GetDirection(unsigned int entity);
-	void SetDirection(unsigned int entity, vec3 direction);
+	const glm::vec3 GetDirection(unsigned int entity);
+	void SetDirection(unsigned int entity, glm::vec3 direction);
 
 	const float GetRange(unsigned int entity);
 	void SetRange(unsigned int entity, float range);

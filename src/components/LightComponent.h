@@ -13,8 +13,8 @@ enum class LightType
 struct LightComponent
 {
 	LightType lightType = LightType::ambient;
-	vec3 colour = { 0,0,0 };
-	vec3 direction = { 1,0,0 };
+	glm::vec3 colour = { 0,0,0 };
+	glm::vec3 direction = { 1,0,0 };
 	float range = 0;
 	float linear = 1;
 	float quad = 1;
