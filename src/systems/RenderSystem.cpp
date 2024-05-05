@@ -43,9 +43,9 @@ void RenderSystem::Update(
 
     glm::vec3 cameraPos =
     {  
-        transformComponents[cameraID].globalTransform.entries[12], 
-        transformComponents[cameraID].globalTransform.entries[13], 
-        transformComponents[cameraID].globalTransform.entries[14],
+        transformComponents[cameraID].globalTransform[3][0], 
+        transformComponents[cameraID].globalTransform[3][1], 
+        transformComponents[cameraID].globalTransform[3][2],
     };
     
     //Clear Buffers
@@ -92,7 +92,7 @@ void RenderSystem::Update(
             if (renderComponents[*iter].mesh == nullptr) continue;
 
             //Get transform pair's model transform
-            glUniformMatrix4fv(modelLocation, 1, GL_FALSE, transformComponents[*iter].globalTransform.entries);
+            glUniformMatrix4fv(modelLocation, 1, GL_FALSE, &transformComponents[*iter].globalTransform[0][0]);
 
             glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -204,9 +204,9 @@ void RenderSystem::BindLightUniform(unsigned int shaderProgram,
 
             case LightType::point:
                 //Position
-                lightPackets.push_back(transformComponents[iter->first].globalTransform.entries[12]);
-                lightPackets.push_back(transformComponents[iter->first].globalTransform.entries[13]);
-                lightPackets.push_back(transformComponents[iter->first].globalTransform.entries[14]);
+                lightPackets.push_back(transformComponents[iter->first].globalTransform[3][0]);
+                lightPackets.push_back(transformComponents[iter->first].globalTransform[3][1]);
+                lightPackets.push_back(transformComponents[iter->first].globalTransform[3][2]);
                 lightPackets.push_back(0); //Unused value
 
                 //Attenuation Constants
@@ -219,9 +219,9 @@ void RenderSystem::BindLightUniform(unsigned int shaderProgram,
 
             case LightType::spot:
                 //Position
-                lightPackets.push_back(transformComponents[iter->first].globalTransform.entries[12]);
-                lightPackets.push_back(transformComponents[iter->first].globalTransform.entries[13]);
-                lightPackets.push_back(transformComponents[iter->first].globalTransform.entries[14]);
+                lightPackets.push_back(transformComponents[iter->first].globalTransform[3][0]);
+                lightPackets.push_back(transformComponents[iter->first].globalTransform[3][1]);
+                lightPackets.push_back(transformComponents[iter->first].globalTransform[3][2]);
                 lightPackets.push_back(0); //Unused value
 
 

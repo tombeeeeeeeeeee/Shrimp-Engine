@@ -108,22 +108,22 @@ public:
 	const LightType GetLightType(unsigned int entity);
 	void SetLightType(unsigned int entity, LightType lightType);
 
-	const glm::vec3 GetColour(unsigned int entity);
-	void SetColour(unsigned int entity, glm::vec3 colour, float intensity);
+	const glm::vec3 GetLightColour(unsigned int entity);
+	void SetLightColour(unsigned int entity, glm::vec3 colour, float intensity);
 
-	const glm::vec3 GetDirection(unsigned int entity);
-	void SetDirection(unsigned int entity, glm::vec3 direction);
+	const glm::vec3 GetLightDirection(unsigned int entity);
+	void SetLightDirection(unsigned int entity, glm::vec3 direction);
 
-	const float GetRange(unsigned int entity);
-	void SetRange(unsigned int entity, float range);
+	const float GetLightRange(unsigned int entity);
+	void SetLightRange(unsigned int entity, float range);
 	const float GetLinearAttenuation(unsigned int entity);
 	const float GetQuadraticAttenuation(unsigned int entity);
 
-	const float GetCutOff(unsigned int entity);
-	void SetCutOff(unsigned int entity, float cutOff);
+	const float GetLightCutOff(unsigned int entity);
+	void SetLightCutOff(unsigned int entity, float cutOff);
 
-	const float GetOuterCutOff(unsigned int entity);
-	void SetOuterCutOff(unsigned int entity, float outerCutOff);
+	const float GetLightOuterCutOff(unsigned int entity);
+	void SetLightOuterCutOff(unsigned int entity, float outerCutOff);
 
 #pragma endregion 
 

@@ -10,12 +10,6 @@ public:
     AssetFactory(AssetFactory& assFact);
     AssetFactory& operator=(AssetFactory const& other);
 
-    //RAT AND CUBE STUFF FOR TESTING
-    MaterialAsset* CubeMaterial();
-    MeshAsset* CubeMesh();
-
-    MaterialAsset* RatMaterial();
-    MeshAsset* RatMesh();
 
     /// <summary>
     /// Make a material asset with one texture

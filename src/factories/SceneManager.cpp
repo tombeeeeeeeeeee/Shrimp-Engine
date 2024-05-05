@@ -151,7 +151,7 @@ const glm::vec3 SceneManager::GetLocalEulers(unsigned int entity, bool radians)
 {
     if (transformComponents.find(entity) != transformComponents.end())
     {
-        return radians ? transformComponents[entity].eulers : transformComponents[entity].eulers * (180.0f / LA_PI);
+        return radians ? transformComponents[entity].eulers : transformComponents[entity].eulers * (180.0f / glm::pi<float>());
     }
     else return { NAN, NAN, NAN };
 }
@@ -187,11 +187,13 @@ const glm::mat4 SceneManager::GetLocalTransform(unsigned int entity)
 {
     if (transformComponents.find(entity) != transformComponents.end())
     {
-        return TranslationMatrix(transformComponents[entity].position)
-            * RotationXMatrix(transformComponents[entity].eulers.x)
-            * RotationYMatrix(transformComponents[entity].eulers.y)
-            * RotationZMatrix(transformComponents[entity].eulers.z)
-            * ScaleMatrix(transformComponents[entity].scale);
+        glm::mat4 translate = glm::translate(glm::identity<glm::mat4>(), transformComponents[entity].position);
+        glm::mat4 scale = glm::scale(glm::identity<glm::mat4>(), transformComponents[entity].scale);
+        glm::mat4 rotationX = glm::rotate(glm::identity<glm::mat4>(), transformComponents[entity].eulers.x, {1,0,0});
+        glm::mat4 rotationY = glm::rotate(glm::identity<glm::mat4>(), transformComponents[entity].eulers.y, {0,1,0});
+        glm::mat4 rotationZ = glm::rotate(glm::identity<glm::mat4>(), transformComponents[entity].eulers.z, {0,0,1});
+
+        return translate * rotationX * rotationY * rotationZ * scale;
     }
     else return { 
         NAN, NAN, NAN, NAN,
@@ -232,7 +234,6 @@ unsigned int SceneManager::AddAmbientLightComponent(unsigned int entity, glm::ve
 unsigned int SceneManager::MakeDirectionalLightEntity(glm::vec3 direction, glm::vec3 colour, float intensity)
 {
     glm::vec3 trueDirection = glm::normalize(direction);
-    
     unsigned int directional = MakeEmptyTransform();
     return AddDirectionalLightComponent(directional, trueDirection, colour, intensity);
 }
@@ -308,8 +309,8 @@ unsigned int SceneManager::AddSpotLightComponent(unsigned int entity, glm::vec3 
     CalculateLinearQuadConstants(range, linear, quad);
     light.linear = linear;
     light.quad = quad;
-    light.cutOff = cos(LA_PI * cutOff / 180);
-    light.outerCutOff = cos(LA_PI * outerCutOff / 180);
+    light.cutOff = cos(glm::pi<float>() * cutOff / 180);
+    light.outerCutOff = cos(glm::pi<float>() * outerCutOff / 180);
     AddLightComponent(entity, light);
     return entity;
 }
@@ -542,7 +543,7 @@ void SceneManager::SetLightType(unsigned int entity, LightType lightType)
     }
 }
 
-const vec3 SceneManager::GetColour(unsigned int entity)
+const glm::vec3 SceneManager::GetColour(unsigned int entity)
 {
     if (lightComponents.find(entity) != lightComponents.end())
     {
@@ -551,7 +552,7 @@ const vec3 SceneManager::GetColour(unsigned int entity)
     else return {0,0,0};
 }
 
-void SceneManager::SetColour(unsigned int entity, vec3 colour, float intensity)
+void SceneManager::SetColour(unsigned int entity, glm::vec3 colour, float intensity)
 {
     if (lightComponents.find(entity) != lightComponents.end())
     {
@@ -559,7 +560,7 @@ void SceneManager::SetColour(unsigned int entity, vec3 colour, float intensity)
     }
 }
 
-const vec3 SceneManager::GetDirection(unsigned int entity)
+const glm::vec3 SceneManager::GetDirection(unsigned int entity)
 {
     if (lightComponents.find(entity) != lightComponents.end())
     {
@@ -568,7 +569,7 @@ const vec3 SceneManager::GetDirection(unsigned int entity)
     else return { NAN,NAN,NAN };
 }
 
-void SceneManager::SetDirection(unsigned int entity, vec3 direction)
+void SceneManager::SetDirection(unsigned int entity, glm::vec3 direction)
 {
     if (lightComponents.find(entity) != lightComponents.end())
     {
@@ -717,7 +718,7 @@ void SceneManager::GlobalTransformUpdate(unsigned int entity, bool first)
     UpdatedGlobalTransform[entity] = true;
 
     TransformComponent* tc = &transformComponents[entity];
-    mat4 local = GetLocalTransform(entity);
+    glm::mat4 local = GetLocalTransform(entity);
 
     //Check if the entity has a parent
     if (tc->parent > 0)

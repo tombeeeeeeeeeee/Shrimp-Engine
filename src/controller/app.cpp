@@ -202,7 +202,8 @@ void App::SetUpOpengl()
 
     glUseProgram(shaders[0]);
 
-    projectionMatrix = ProjectionMatrix( 45.0f, (float)w/(float)h , 0.1f, 1000.0f);
+
+    projectionMatrix = glm::perspective( 45.0f, (float)w/(float)h , 0.1f, 1000.0f);
     
 }
 

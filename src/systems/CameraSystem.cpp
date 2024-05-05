@@ -16,9 +16,9 @@ bool CameraSystem::Update(std::unordered_map<unsigned int, TransformComponent>& 
     else glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
     glm::vec3 pos = { 
-        transformComponents[cameraID].globalTransform.entries[12],
-        transformComponents[cameraID].globalTransform.entries[13],
-        transformComponents[cameraID].globalTransform.entries[14],
+        transformComponents[cameraID].globalTransform[3][0],
+        transformComponents[cameraID].globalTransform[3][1],
+        transformComponents[cameraID].globalTransform[3][2],
     };
     glm::vec3 eulers = transformComponents[cameraID].eulers;
 
