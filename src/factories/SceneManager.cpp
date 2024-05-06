@@ -543,7 +543,7 @@ void SceneManager::SetLightType(unsigned int entity, LightType lightType)
     }
 }
 
-const glm::vec3 SceneManager::GetColour(unsigned int entity)
+const glm::vec3 SceneManager::GetLightColour(unsigned int entity)
 {
     if (lightComponents.find(entity) != lightComponents.end())
     {
@@ -552,7 +552,7 @@ const glm::vec3 SceneManager::GetColour(unsigned int entity)
     else return {0,0,0};
 }
 
-void SceneManager::SetColour(unsigned int entity, glm::vec3 colour, float intensity)
+void SceneManager::SetLightColour(unsigned int entity, glm::vec3 colour, float intensity)
 {
     if (lightComponents.find(entity) != lightComponents.end())
     {
@@ -560,7 +560,7 @@ void SceneManager::SetColour(unsigned int entity, glm::vec3 colour, float intens
     }
 }
 
-const glm::vec3 SceneManager::GetDirection(unsigned int entity)
+const glm::vec3 SceneManager::GetLightDirection(unsigned int entity)
 {
     if (lightComponents.find(entity) != lightComponents.end())
     {
@@ -569,7 +569,7 @@ const glm::vec3 SceneManager::GetDirection(unsigned int entity)
     else return { NAN,NAN,NAN };
 }
 
-void SceneManager::SetDirection(unsigned int entity, glm::vec3 direction)
+void SceneManager::SetLightDirection(unsigned int entity, glm::vec3 direction)
 {
     if (lightComponents.find(entity) != lightComponents.end())
     {
@@ -577,7 +577,7 @@ void SceneManager::SetDirection(unsigned int entity, glm::vec3 direction)
     }
 }
 
-const float SceneManager::GetRange(unsigned int entity)
+const float SceneManager::GetLightRange(unsigned int entity)
 {
     if (lightComponents.find(entity) != lightComponents.end())
     {
@@ -586,7 +586,7 @@ const float SceneManager::GetRange(unsigned int entity)
     else return NAN;
 }
 
-void SceneManager::SetRange(unsigned int entity, float range)
+void SceneManager::SetLightRange(unsigned int entity, float range)
 {
     if (lightComponents.find(entity) != lightComponents.end())
     {
@@ -613,7 +613,7 @@ const float SceneManager::GetQuadraticAttenuation(unsigned int entity)
     else return NAN;
 }
 
-const float SceneManager::GetCutOff(unsigned int entity)
+const float SceneManager::GetLightCutOff(unsigned int entity)
 {
     if (lightComponents.find(entity) != lightComponents.end())
     {
@@ -622,7 +622,7 @@ const float SceneManager::GetCutOff(unsigned int entity)
     else return NAN;
 }
 
-void SceneManager::SetCutOff(unsigned int entity, float cutOff)
+void SceneManager::SetLightCutOff(unsigned int entity, float cutOff)
 {
     if (lightComponents.find(entity) != lightComponents.end())
     {
@@ -632,7 +632,7 @@ void SceneManager::SetCutOff(unsigned int entity, float cutOff)
     }
 }
 
-const float SceneManager::GetOuterCutOff(unsigned int entity)
+const float SceneManager::GetLightOuterCutOff(unsigned int entity)
 {
     if (lightComponents.find(entity) != lightComponents.end())
     {
@@ -641,7 +641,7 @@ const float SceneManager::GetOuterCutOff(unsigned int entity)
     else return NAN;
 }
 
-void SceneManager::SetOuterCutOff(unsigned int entity, float outerCutOff)
+void SceneManager::SetLightOuterCutOff(unsigned int entity, float outerCutOff)
 {
     if (lightComponents.find(entity) != lightComponents.end())
     {

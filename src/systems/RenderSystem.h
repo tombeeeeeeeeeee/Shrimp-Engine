@@ -29,6 +29,9 @@ public:
     void SetSkyboxTexture(unsigned int texture);
     unsigned int GetSkyBoxTexture() { return skyboxTexture; };
 
+    void SetIrradianceMap(unsigned int skybox);
+    void SetPrefilteredMap(unsigned int skybox);
+
     void SetCameraID(unsigned int _cameraID) { cameraID = _cameraID; }
     unsigned int GetCameraID() { return cameraID; };
 
@@ -84,8 +87,7 @@ private:
     unsigned int brdfLUTTexture; 
     unsigned int prefilterMap;
     void IBLBufferSetup(unsigned int skybox);
-    void SetIrradianceMap(unsigned int skybox);
-    void SetPrefilteredMap(unsigned int skybox);
+
 
 
     void RenderQuad();

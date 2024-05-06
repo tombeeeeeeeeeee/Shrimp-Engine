@@ -78,23 +78,23 @@ void App::Run()
     cameraID = cameraEntity;
     renderSystem->SetCameraID(cameraID);
 
-    //std::string skyboxTextureFiles[6] = {
-    //"img/px.png",
-    //"img/nx.png",
-    //"img/nz.png",
-    //"img/pz.png",
-    //"img/py.png",
-    //"img/ny.png",
-    //};
-
     std::string skyboxTextureFiles[6] = {
-    "img/darkness.png",
-    "img/darkness.png",
-    "img/darkness.png",
-    "img/darkness.png",
-    "img/darkness.png",
-    "img/darkness.png",
+    "img/px.png",
+    "img/nx.png",
+    "img/nz.png",
+    "img/pz.png",
+    "img/py.png",
+    "img/ny.png",
     };
+
+   //std::string skyboxTextureFiles[6] = {
+   //"img/darkness.png",
+   //"img/darkness.png",
+   //"img/darkness.png",
+   //"img/darkness.png",
+   //"img/darkness.png",
+   //"img/darkness.png",
+   //};
 
     renderSystem->Start(assetFactory->GetSkyBoxMaterial(skyboxTextureFiles));
 
@@ -157,9 +157,9 @@ void App::Start()
     scene->SetMaterial(cubeEntity, assetFactory->GetMaterial(textureMaps, 7));
 
     scene->MakeAmbientLightEntity({0.8,0.8,0.8}, 0.001);
-    scene->MakePointLightEntity(scene->GetPosition(2), 200, { 0.5,0.5,0.5 }, 2);
-    scene->MakePointLightEntity({3,-5,12}, 200, { 255,192,20 }, 1/(float)255);
-    scene->MakePointLightEntity({-12,-3,-2}, 200, { 50, 150, 255 }, 1/(float)255);
+    scene->MakePointLightEntity(scene->GetPosition(2), 20, { 0.5,0.5,0.5 }, 2);
+    scene->MakePointLightEntity({3,-5,12}, 20, { 255,192,20 }, 1/(float)255);
+    scene->MakePointLightEntity({-12,-3,-2}, 20, { 50, 150, 255 }, 1/(float)255);
 }
 
 void App::Update()
