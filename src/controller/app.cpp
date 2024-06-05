@@ -148,7 +148,7 @@ void App::Start()
     scene->AddRenderComponent(cubeEntity);
     scene->SetMesh(cubeEntity, assetFactory->GetMesh("models/Cerberus_LP.FBX"));
     std::string textureMaps[3] = { "img/Cerberus_A.tga", "img/Cerberus_PBR.tga", "img/Cerberus_N.tga" };
-    scene->SetScale(2, { 0.25, 0.25, 0.25 });
+    scene->SetScale(2, { 0.25f, 0.25f, 0.25f });
 
     //renderComponents[cubeEntity]->mesh = assetFactory->GetMesh("models/whale.obj");
     //std::string textureMaps[3] = { "img/whale.jpg", "img/Cerberus_PBR.tga", "img/Cerberus_N.tga" };
@@ -156,8 +156,8 @@ void App::Start()
 
     scene->SetMaterial(cubeEntity, assetFactory->GetMaterial(textureMaps, 7));
 
-    scene->MakeAmbientLightEntity({0.8,0.8,0.8}, 0.001);
-    scene->MakePointLightEntity(scene->GetPosition(2), 20, { 0.5,0.5,0.5 }, 2);
+    scene->MakeAmbientLightEntity({0.8f,0.8f,0.8f}, 0.001f);
+    scene->MakePointLightEntity(scene->GetPosition(2), 20, { 0.5f,0.5f,0.5f }, 2);
     scene->MakePointLightEntity({3,-5,12}, 20, { 255,192,20 }, 1/(float)255);
     scene->MakePointLightEntity({-12,-3,-2}, 20, { 50, 150, 255 }, 1/(float)255);
 }
@@ -165,7 +165,7 @@ void App::Start()
 void App::Update()
 {
     //Space to add things to run on update
-    scene->SetLocalPosition(4, { 10 * (float)cos(glfwGetTime() * 2), -30 * (float)sin(glfwGetTime() * 0.05), 5 * (float)sin(glfwGetTime() * 2) });
+    scene->SetLocalPosition(4, { 10 * (float)cos(glfwGetTime() * 2), -30 * (float)sin(glfwGetTime() * 0.05f), 5 * (float)sin(glfwGetTime() * 2) });
 
     if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) {
         renderSystem->exposure += 0.02f;
@@ -222,7 +222,7 @@ void App::MakeFactories()
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 {
-    int buttonBinary = pow(2, button);
+    int buttonBinary = (int)pow(2, button);
     App* app = reinterpret_cast<App*>(glfwGetWindowUserPointer(window));
     unsigned int mouseMask = app->mouseInput;
 

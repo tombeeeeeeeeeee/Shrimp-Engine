@@ -17,6 +17,7 @@ public:
 	std::unordered_map<unsigned int, TransformComponent>* GetTransforms();
 	std::unordered_map<unsigned int, RenderComponent>* GetRenders();
 	std::unordered_map<unsigned int, LightComponent>* GetLights();
+	std::unordered_map<unsigned int, PhysicsComponent>* GetPhysics();
 
 	/// <summary>
 	/// Makes entity and adds to the entity count.
@@ -152,12 +153,90 @@ public:
 
 #pragma endregion
 
+#pragma region Physics Components
+
+
+	unsigned int MakePhysicsEntity();
+
 	/// <summary>
 	/// Adds a new physics component to the provided entity id
 	/// </summary>
 	/// <param name="_entity"> id to add component to</param>
 	/// <returns>physics component</returns>
-	PhysicsComponent AddPhysicsComponent(unsigned int _entity);
+	PhysicsComponent AddPhysicsComponent(unsigned int _entity, float invMass = 0);
+
+	const glm::vec3 GetMomentOfInertiaScale(unsigned int _enity);
+	void SetMomentOfInertiaScale(unsigned int _entity, glm::vec3 scale);
+	void SetMomentOfInertiaScale(unsigned int _entity, float x, float y, float z);
+
+	const glm::vec3 GetForce(unsigned int _entity);
+	void SetForce(unsigned int _entity, glm::vec3 force);
+	void SetForce(unsigned int _entity, float x, float y, float z);
+	void AddForce(unsigned int _entity, glm::vec3 force);
+
+	const glm::vec3 GetVelocity(unsigned int _entity);
+	void SetVelocity(unsigned int _entity, glm::vec3 velocity);
+	void SetVelocity(unsigned int _entity, float x, float y, float z);
+	void AddVelocity(unsigned int _entity, glm::vec3 velocity);
+
+	const glm::vec3 GetMomentum(unsigned int _entity);
+	void SetMomentum(unsigned int _entity, glm::vec3 momentum);
+	void SetMomentum(unsigned int _entity, float x, float y, float z);
+	void AddMomentum(unsigned int _entity, glm::vec3 momentum);
+
+	const glm::vec3 GetNetDepenertation(unsigned int _entity);
+	void SetNetDepenertation(unsigned int _entity, glm::vec3 depenertration);
+
+	const glm::mat3 GetInverseBodyInertiaTensor(unsigned int _entity);
+	void SetInverseBodyInertiaTensor(unsigned int _entity, glm::mat3 invBodyTensor);
+	void UpdateBodyInertiaTensor(unsigned int _entity);
+
+	const glm::mat3 GetInverseWorldInertiaTensor(unsigned int _entity);
+	void SetInverseWorldInertiaTensor(unsigned int _entity, glm::mat3 invBodyTensor);
+
+	const glm::vec3 GetTorque(unsigned int _entity);
+	void SetTorque(unsigned int _entity, glm::vec3 torque);
+	void AddTorque(unsigned int _entity, glm::vec3 torque);
+
+	const glm::vec3 GetAngularVelocity(unsigned int _entity);
+	void SetAngularVelocity(unsigned int _entity, glm::vec3 angularVel);
+	void AddAngularVelocity(unsigned int _entity, glm::vec3 angularVel);
+
+	const glm::vec3 GetAngularMomentum(unsigned int _entity);
+	void SetAngularMomentum(unsigned int _entity, glm::vec3 angularMom);
+	void AddAngularMomentum(unsigned int _entity, glm::vec3 angularMom);
+
+	const std::vector<Shape>* GetPhysicsComponentShapes(unsigned int _entity);
+	void SetPhysicsComponentShapes(unsigned int _entity, std::vector<Shape>* shapes);
+	void AddPhysicsShape(unsigned int _entity, Shape shape, glm::vec3 offset = glm::zero<glm::vec3>());
+	void AddPhysicsSphere(unsigned int _entity, float radius = 0.5f, glm::vec3 offset = glm::zero<glm::vec3>());
+	//TODO
+	void AddPhysicsShapeBox(unsigned int _entity, float x = 0.5f, float y = 0.5f, float z = 0.5f, glm::vec3 offset = glm::zero<glm::vec3>());
+	//TODO
+	void AddPhysicsShapeBox(unsigned int _entity, glm::vec3 bottomLeft, glm::vec3 topRight);
+	void AddPhysicsShapePill(unsigned int _entity, float radius = 0.5f, glm::vec3 offset = glm::zero<glm::vec3>());
+	void AddPhysicsShapePill(unsigned int _entity, glm::vec3 bottom, glm::vec3 top, float radius);
+
+	const float GetInverseMass(unsigned int _entity);
+	const float GetMass(unsigned int _entity);
+	void SetInverseMass(unsigned int _entity, float invMass);
+	void SetMass(unsigned int _entity, float mass);
+
+	const glm::vec3 GetCentreOfMass(unsigned int _entity);
+	void SetCentreOfMass(unsigned int _entity, glm::vec3 CoM);
+
+	const bool GetIsGravitated(unsigned int _entity);
+	void SetIsGravitated(unsigned int _entity, bool gravitated);
+
+	const float GetElasticCoef(unsigned int _entity);
+	void SetElasticCoef(unsigned int _entity, float elasticCoef);
+
+	const float GetPhysicsDrag(unsigned int _entity);
+	void SetPhysicsDrag(unsigned int _entity, float drag);
+
+	const float GetPhysicsAngularDrag(unsigned int _entity);
+	void SetPhysicsAngularDrag(unsigned int _entity, float angularDrag);
+#pragma endregion
 
 #pragma region Hierarchy Systems
 

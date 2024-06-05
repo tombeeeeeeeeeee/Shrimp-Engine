@@ -339,93 +339,93 @@ void SceneManager::CalculateLinearQuadConstants(unsigned int entity)
     float linear, quad;
     if (range <= 7)
     {
-        linear = 1 - range * 0.3 / 7;
-        quad = 1.8 + (7 - range) * 0.5;
+        linear = 1 - range * 0.3f / 7;
+        quad = 1.8f + (7 - range) * 0.5f;
     }
 
     else if (range <= 13)
     {
         float ratio = range - (13 - 7);
         ratio /= 7;
-        linear = 0.7 + (0.35 - 0.7) * ratio;
-        quad = 1.8 + (0.44 - 1.8) * ratio;
+        linear = 0.7f + (0.35f - 0.7f) * ratio;
+        quad = 1.8f + (0.44f - 1.8f) * ratio;
     }
 
     else if (range <= 20)
     {
         float ratio = range - (20 - 13);
         ratio /= 13;
-        linear = 0.35 + (0.22 - 0.35) * ratio;
-        quad = 0.44 + (0.2 - 0.44) * ratio;
+        linear = 0.35f + (0.22f - 0.35f) * ratio;
+        quad = 0.44f + (0.2f - 0.44f) * ratio;
     }
 
     else if (range <= 32)
     {
         float ratio = range - (32 - 20);
         ratio /= 20;
-        linear = 0.22 + (0.14 - 0.22) * ratio;
-        quad = 0.2 + (0.07 - 0.2) * ratio;
+        linear = 0.22f + (0.14f - 0.22f) * ratio;
+        quad = 0.2f + (0.07f - 0.2f) * ratio;
     }
 
     else if (range <= 50)
     {
         float ratio = range - (50 - 32);
         ratio /= 32;
-        linear = 0.14 + (0.09 - 0.14) * ratio;
-        quad = 0.07 + (0.032 - 0.07) * ratio;
+        linear = 0.14f + (0.09f - 0.14f) * ratio;
+        quad = 0.07f + (0.032f - 0.07f) * ratio;
     }
 
     else if (range <= 65)
     {
         float ratio = range - (65 - 50);
         ratio /= 50;
-        linear = 0.09 + (0.07 - 0.09) * ratio;
-        quad = 0.032 + (0.017 - 0.032) * ratio;
+        linear = 0.09f + (0.07f - 0.09f) * ratio;
+        quad = 0.032f + (0.017f - 0.032f) * ratio;
     }
 
     else if (range <= 100)
     {
         float ratio = range - (100 - 65);
         ratio /= 65;
-        linear = 0.07 + (0.045 - 0.07) * ratio;
-        quad = 0.017 + (0.0075 - 0.017) * ratio;
+        linear = 0.07f + (0.045f - 0.07f) * ratio;
+        quad = 0.017f + (0.0075f - 0.017f) * ratio;
     }
 
     else if (range <= 160)
     {
         float ratio = range - (160 - 100);
         ratio /= 100;
-        linear = 0.045 + (0.027 - 0.045) * ratio;
-        quad = 0.0075 + (0.0028 - 0.0075) * ratio;
+        linear = 0.045f + (0.027f - 0.045f) * ratio;
+        quad = 0.0075f + (0.0028f - 0.0075f) * ratio;
     }
     else if (range <= 200)
     {
         float ratio = range - (200 - 160);
         ratio /= 160;
-        linear = 0.027 + (0.022 - 0.027) * ratio;
-        quad = 0.0028 + (0.0019 - 0.0028) * ratio;
+        linear = 0.027f + (0.022f - 0.027f) * ratio;
+        quad = 0.0028f + (0.0019f - 0.0028f) * ratio;
     }
     else if (range <= 325)
     {
         float ratio = range - (325 - 200);
         ratio /= 200;
-        linear = 0.022 + (0.014 - 0.022) * ratio;
-        quad = 0.0019 + (0.0007 - 0.0019) * ratio;
+        linear = 0.022f + (0.014f - 0.022f) * ratio;
+        quad = 0.0019f + (0.0007f - 0.0019f) * ratio;
     }
     else if (range <= 600)
     {
         float ratio = range - (600 - 325);
         ratio /= 325;
 
-        linear = 0.014 + (0.007 - 0.014) * ratio;
-        quad = 0.0007 + (0.0002 - 0.0007) * ratio;
+        linear = 0.014f + (0.007f - 0.014f) * ratio;
+        quad = 0.0007f + (0.0002f - 0.0007f) * ratio;
     }
     else
     {
         float ratio = range - (3250 - 600);
         ratio /= 600;
-        linear = 0.007 + (0.0014 - 0.007) * ratio;
-        quad = 0.0002 + (0.000007 - 0.0002) * ratio;
+        linear = 0.007f + (0.0014f - 0.007f) * ratio;
+        quad = 0.0002f + (0.000007f - 0.0002f) * ratio;
     }
 
     lightComponents[entity].linear = linear;
@@ -436,93 +436,93 @@ void SceneManager::CalculateLinearQuadConstants(float range, float& linear, floa
 {
     if (range <= 7)
     {
-        linear = 1 - range * 0.3 / 7;
-        quad = 1.8 + (7 - range) * 0.5;
+        linear = 1 - range * 0.3f / 7;
+        quad = 1.8f + (7 - range) * 0.5f;
     }
 
     else if (range <= 13)
     {
         float ratio = range - (13 - 7);
         ratio /= 7;
-        linear = 0.7 + (0.35 - 0.7) * ratio;
-        quad = 1.8 + (0.44 - 1.8) * ratio;
+        linear = 0.7f + (0.35f - 0.7f) * ratio;
+        quad = 1.8f + (0.44f - 1.8f) * ratio;
     }
 
     else if (range <= 20)
     {
         float ratio = range - (20 - 13);
         ratio /= 13;
-        linear = 0.35 + (0.22 - 0.35) * ratio;
-        quad = 0.44 + (0.2 - 0.44) * ratio;
+        linear = 0.35f + (0.22f - 0.35f) * ratio;
+        quad = 0.44f + (0.2f - 0.44f) * ratio;
     }
 
     else if (range <= 32)
     {
         float ratio = range - (32 - 20);
         ratio /= 20;
-        linear = 0.22 + (0.14 - 0.22) * ratio;
-        quad = 0.2 + (0.07 - 0.2) * ratio;
+        linear = 0.22f + (0.14f - 0.22f) * ratio;
+        quad = 0.2f + (0.07f - 0.2f) * ratio;
     }
 
     else if (range <= 50)
     {
         float ratio = range - (50 - 32);
         ratio /= 32;
-        linear = 0.14 + (0.09 - 0.14) * ratio;
-        quad = 0.07 + (0.032 - 0.07) * ratio;
+        linear = 0.14f + (0.09f - 0.14f) * ratio;
+        quad = 0.07f + (0.032f - 0.07f) * ratio;
     }
 
     else if (range <= 65)
     {
         float ratio = range - (65 - 50);
         ratio /= 50;
-        linear = 0.09 + (0.07 - 0.09) * ratio;
-        quad = 0.032 + (0.017 - 0.032) * ratio;
+        linear = 0.09f + (0.07f - 0.09f) * ratio;
+        quad = 0.032f + (0.017f - 0.032f) * ratio;
     }
 
     else if (range <= 100)
     {
         float ratio = range - (100 - 65);
         ratio /= 65;
-        linear = 0.07 + (0.045 - 0.07) * ratio;
-        quad = 0.017 + (0.0075 - 0.017) * ratio;
+        linear = 0.07f + (0.045f - 0.07f) * ratio;
+        quad = 0.017f + (0.0075f - 0.017f) * ratio;
     }
 
     else if (range <= 160)
     {
         float ratio = range - (160 - 100);
         ratio /= 100;
-        linear = 0.045 + (0.027 - 0.045) * ratio;
-        quad = 0.0075 + (0.0028 - 0.0075) * ratio;
+        linear = 0.045f + (0.027f - 0.045f) * ratio;
+        quad = 0.0075f + (0.0028f - 0.0075f) * ratio;
     }
     else if (range <= 200)
     {
         float ratio = range - (200 - 160);
         ratio /= 160;
-        linear = 0.027 + (0.022 - 0.027) * ratio;
-        quad = 0.0028 + (0.0019 - 0.0028) * ratio;
+        linear = 0.027f + (0.022f - 0.027f) * ratio;
+        quad = 0.0028f + (0.0019f - 0.0028f) * ratio;
     }
     else if (range <= 325)
     {
         float ratio = range - (325 - 200);
         ratio /= 200;
-        linear = 0.022 + (0.014 - 0.022) * ratio;
-        quad = 0.0019 + (0.0007 - 0.0019) * ratio;
+        linear = 0.022f + (0.014f - 0.022f) * ratio;
+        quad = 0.0019f + (0.0007f - 0.0019f) * ratio;
     }
     else if (range <= 600)
     {
         float ratio = range - (600 - 325);
         ratio /= 325;
 
-        linear = 0.014 + (0.007 - 0.014) * ratio;
-        quad = 0.0007 + (0.0002 - 0.0007) * ratio;
+        linear = 0.014f + (0.007f - 0.014f) * ratio;
+        quad = 0.0007f + (0.0002f - 0.0007f) * ratio;
     }
     else
     {
         float ratio = range - (3250 - 600);
         ratio /= 600;
-        linear = 0.007 + (0.0014 - 0.007) * ratio;
-        quad = 0.0002 + (0.000007 - 0.0002) * ratio;
+        linear = 0.007f + (0.0014f - 0.007f) * ratio;
+        quad = 0.0002f + (0.000007f - 0.0002f) * ratio;
     }
 }
 
@@ -701,13 +701,519 @@ void SceneManager::SetMesh(unsigned int entity, MeshAsset* mesh)
     }
 }
 
-PhysicsComponent SceneManager::AddPhysicsComponent(unsigned int _entity)
+unsigned int SceneManager::MakePhysicsEntity()
+{
+    unsigned int physics = MakeEmptyTransform();
+    AddPhysicsComponent(physics);
+    return physics;
+}
+
+PhysicsComponent SceneManager::AddPhysicsComponent(unsigned int _entity, float invMass)
 {
     PhysicsComponent physics = PhysicsComponent();
+
+    physics.centreOfMass = glm::zero<glm::vec3>();
+    physics.netDepen = glm::zero<glm::vec3>();
+    physics.dX = physics.dY = physics.dZ = 0.0f;
+    physics.force = glm::zero<glm::vec3>();
+    physics.torque = glm::zero<glm::vec3>();
+    physics.velocity = glm::zero<glm::vec3>();
+    physics.angularVelocity = glm::zero<glm::vec3>();
+    physics.angularMomentum = glm::zero<glm::vec3>();
+    physics.isGravitated = false;
+    physics.elasticCoef = 0.65f;
+    physics.drag = 1;
+    physics.angularDrag = 5;
+    physics.invMass = invMass;
+    physics.momentOfInertia = glm::zero<glm::vec3>();
+    physics.invBodyIT = glm::zero<glm::mat3>();
+    physics.invWorldIT = glm::zero<glm::mat3>();
 
     physicsComponents[_entity] = physics;
 
     return physics;
+}
+
+const glm::vec3 SceneManager::GetMomentOfInertiaScale(unsigned int _entity)
+{
+    if (physicsComponents.find(_entity) != physicsComponents.end())
+    {
+        return physicsComponents[_entity].momentOfInertia;
+    }
+    else return glm::vec3(NAN, NAN, NAN);
+}
+
+void SceneManager::SetMomentOfInertiaScale(unsigned int _entity, glm::vec3 scale)
+{
+    if (physicsComponents.find(_entity) != physicsComponents.end())
+    {
+        physicsComponents[_entity].momentOfInertia = scale;
+        UpdateBodyInertiaTensor(_entity);
+    }
+}
+
+void SceneManager::SetMomentOfInertiaScale(unsigned int _entity, float x, float y, float z)
+{
+    if (physicsComponents.find(_entity) != physicsComponents.end())
+    {
+        physicsComponents[_entity].momentOfInertia = glm::vec3(x,y,z);
+        UpdateBodyInertiaTensor(_entity);
+    }
+}
+
+const glm::vec3 SceneManager::GetForce(unsigned int _entity)
+{
+    if (physicsComponents.find(_entity) != physicsComponents.end())
+    {
+        return physicsComponents[_entity].force;
+    }
+    else return glm::vec3(NAN, NAN, NAN);
+}
+
+void SceneManager::SetForce(unsigned int _entity, glm::vec3 force)
+{
+    if (physicsComponents.find(_entity) != physicsComponents.end())
+    {
+        physicsComponents[_entity].force = force;
+    }
+}
+
+void SceneManager::SetForce(unsigned int _entity, float x, float y, float z)
+{
+    if (physicsComponents.find(_entity) != physicsComponents.end())
+    {
+        physicsComponents[_entity].force = glm::vec3(x, y, z);
+    }
+}
+
+void SceneManager::AddForce(unsigned int _entity, glm::vec3 force)
+{
+    if (physicsComponents.find(_entity) != physicsComponents.end())
+    {
+        physicsComponents[_entity].force += force;
+    }
+}
+
+const glm::vec3 SceneManager::GetVelocity(unsigned int _entity)
+{
+    if (physicsComponents.find(_entity) != physicsComponents.end())
+    {
+        return physicsComponents[_entity].velocity;
+    }
+    else return glm::vec3(NAN, NAN, NAN);
+}
+
+void SceneManager::SetVelocity(unsigned int _entity, glm::vec3 velocity)
+{
+    if (physicsComponents.find(_entity) != physicsComponents.end())
+    {
+        physicsComponents[_entity].velocity = velocity;
+    }
+}
+
+void SceneManager::SetVelocity(unsigned int _entity, float x, float y, float z)
+{
+    if (physicsComponents.find(_entity) != physicsComponents.end())
+    {
+        physicsComponents[_entity].velocity = glm::vec3(x, y, z);
+    }
+}
+
+void SceneManager::AddVelocity(unsigned int _entity, glm::vec3 velocity)
+{
+    if (physicsComponents.find(_entity) != physicsComponents.end())
+    {
+        physicsComponents[_entity].velocity += velocity;
+    }
+}
+
+const glm::vec3 SceneManager::GetMomentum(unsigned int _entity)
+{
+    if (physicsComponents.find(_entity) != physicsComponents.end() && physicsComponents[_entity].invMass != 0)
+    {
+        return physicsComponents[_entity].velocity / physicsComponents[_entity].invMass;
+    }
+    else return glm::vec3(NAN, NAN, NAN);
+}
+
+void SceneManager::SetMomentum(unsigned int _entity, glm::vec3 momentum)
+{
+    if (physicsComponents.find(_entity) != physicsComponents.end())
+    {
+        physicsComponents[_entity].velocity = momentum * physicsComponents[_entity].invMass;;
+    }
+}
+
+void SceneManager::SetMomentum(unsigned int _entity, float x, float y, float z)
+{
+    if (physicsComponents.find(_entity) != physicsComponents.end())
+    {
+        physicsComponents[_entity].velocity = glm::vec3(x, y, z) * physicsComponents[_entity].invMass;
+    }
+}
+
+void SceneManager::AddMomentum(unsigned int _entity, glm::vec3 momentum)
+{
+    if (physicsComponents.find(_entity) != physicsComponents.end())
+    {
+        physicsComponents[_entity].velocity += momentum * physicsComponents[_entity].invMass;
+    }
+}
+
+const glm::vec3 SceneManager::GetNetDepenertation(unsigned int _entity)
+{
+    if (physicsComponents.find(_entity) != physicsComponents.end())
+    {
+        return physicsComponents[_entity].netDepen;
+    }
+    else return glm::vec3(NAN, NAN, NAN);
+}
+
+void SceneManager::SetNetDepenertation(unsigned int _entity, glm::vec3 depenertration)
+{
+    if (physicsComponents.find(_entity) != physicsComponents.end())
+    {
+        physicsComponents[_entity].netDepen = depenertration;
+    }
+}
+
+const glm::mat3 SceneManager::GetInverseBodyInertiaTensor(unsigned int _entity)
+{
+    if (physicsComponents.find(_entity) != physicsComponents.end())
+    {
+        return physicsComponents[_entity].invBodyIT;
+    }
+    else return glm::mat3(
+        NAN, NAN, NAN,
+        NAN, NAN, NAN,
+        NAN, NAN, NAN
+        );
+}
+
+void SceneManager::SetInverseBodyInertiaTensor(unsigned int _entity, glm::mat3 invBodyTensor)
+{
+    if (physicsComponents.find(_entity) != physicsComponents.end())
+    {
+        physicsComponents[_entity].invBodyIT = invBodyTensor;
+    }
+}
+
+
+void SceneManager::UpdateBodyInertiaTensor(unsigned int _entity)
+{
+    if (physicsComponents.find(_entity) != physicsComponents.end())
+    {
+        float dx = physicsComponents[_entity].dX;
+        float dy = physicsComponents[_entity].dY;
+        float dz = physicsComponents[_entity].dZ;
+        float invMass = physicsComponents[_entity].invMass;
+
+        glm::vec3 scale = physicsComponents[_entity].momentOfInertia;
+        physicsComponents[_entity].invBodyIT = glm::mat3(
+            (scale.x * invMass * 12) / (dy * dy + dz * dz), 0, 0,
+            0, (scale.y * invMass * 12) / (dx * dx + dz * dz), 0,
+            0, 0, (scale.z * invMass * 12) / (dx * dx + dy * dy)
+            );
+    }
+}
+
+
+const glm::mat3 SceneManager::GetInverseWorldInertiaTensor(unsigned int _entity)
+{
+    if (physicsComponents.find(_entity) != physicsComponents.end())
+    {
+        return physicsComponents[_entity].invWorldIT;
+    }
+    else return glm::mat3(
+        NAN, NAN, NAN,
+        NAN, NAN, NAN,
+        NAN, NAN, NAN
+    );
+}
+
+void SceneManager::SetInverseWorldInertiaTensor(unsigned int _entity, glm::mat3 invWorldTensor)
+{
+    if (physicsComponents.find(_entity) != physicsComponents.end())
+    {
+        physicsComponents[_entity].invWorldIT = invWorldTensor;
+    }
+}
+
+const glm::vec3 SceneManager::GetTorque(unsigned int _entity)
+{
+    if (physicsComponents.find(_entity) != physicsComponents.end())
+    {
+        return physicsComponents[_entity].torque;
+    }
+    else return glm::vec3(NAN, NAN, NAN);
+}
+
+void SceneManager::SetTorque(unsigned int _entity, glm::vec3 torque)
+{
+    if (physicsComponents.find(_entity) != physicsComponents.end())
+    {
+        physicsComponents[_entity].torque = torque;
+    }
+}
+
+void SceneManager::AddTorque(unsigned int _entity, glm::vec3 torque)
+{
+    if (physicsComponents.find(_entity) != physicsComponents.end())
+    {
+        physicsComponents[_entity].torque += torque;
+    }
+}
+
+const glm::vec3 SceneManager::GetAngularVelocity(unsigned int _entity)
+{
+    if (physicsComponents.find(_entity) != physicsComponents.end())
+    {
+        return physicsComponents[_entity].angularVelocity;
+    }
+    else return glm::vec3(NAN, NAN, NAN);
+}
+
+void SceneManager::SetAngularVelocity(unsigned int _entity, glm::vec3 angularVel)
+{
+    if (physicsComponents.find(_entity) != physicsComponents.end())
+    {
+        physicsComponents[_entity].angularVelocity = angularVel;
+    }
+}
+
+void SceneManager::AddAngularVelocity(unsigned int _entity, glm::vec3 angularVel)
+{
+    if (physicsComponents.find(_entity) != physicsComponents.end())
+    {
+        physicsComponents[_entity].angularVelocity += angularVel;
+    }
+}
+
+const glm::vec3 SceneManager::GetAngularMomentum(unsigned int _entity)
+{
+    if (physicsComponents.find(_entity) != physicsComponents.end())
+    {
+        return physicsComponents[_entity].angularMomentum;
+    }
+    else return glm::vec3(NAN, NAN, NAN);
+}
+
+void SceneManager::SetAngularMomentum(unsigned int _entity, glm::vec3 angularMom)
+{
+    if (physicsComponents.find(_entity) != physicsComponents.end())
+    {
+        physicsComponents[_entity].angularMomentum = angularMom;
+    }
+}
+
+void SceneManager::AddAngularMomentum(unsigned int _entity, glm::vec3 angularMom)
+{
+    if (physicsComponents.find(_entity) != physicsComponents.end())
+    {
+        physicsComponents[_entity].angularMomentum += angularMom;
+    }
+}
+
+const std::vector<Shape>* SceneManager::GetPhysicsComponentShapes(unsigned int _entity)
+{
+    if (physicsComponents.find(_entity) != physicsComponents.end())
+    {
+        return &physicsComponents[_entity].shapes;
+    }
+    else return nullptr;
+}
+
+void SceneManager::SetPhysicsComponentShapes(unsigned int _entity, std::vector<Shape>* shapes)
+{
+    if (physicsComponents.find(_entity) != physicsComponents.end())
+    {
+        physicsComponents[_entity].shapes = *shapes;
+    }
+}
+
+void SceneManager::AddPhysicsShape(unsigned int _entity, Shape shape, glm::vec3 offset)
+{
+    if (physicsComponents.find(_entity) != physicsComponents.end())
+    {
+        for (int i = 0; i < shape.vertices.size(); i++)
+        {
+            shape.vertices[i].vert += offset;
+        }
+        physicsComponents[_entity].shapes.push_back(shape);
+    }
+}
+
+void SceneManager::AddPhysicsSphere(unsigned int _entity, float radius, glm::vec3 offset)
+{
+    if (physicsComponents.find(_entity) != physicsComponents.end())
+    {
+        Vertex vert;
+        vert.vert = offset;
+        Shape shape;
+        shape.radius = radius;
+        shape.vertices.push_back(vert);
+        physicsComponents[_entity].shapes.push_back(shape);
+    }
+}
+
+void SceneManager::AddPhysicsShapePill(unsigned int _entity, float radius, glm::vec3 offset)
+{
+    if (physicsComponents.find(_entity) != physicsComponents.end())
+    {
+        Vertex vertBot;
+        Vertex vertTop;
+        vertBot.vert = offset + glm::vec3(0,radius,0);
+        vertTop.vert = offset + glm::vec3(0,-radius,0);
+        vertBot.edges.push_back(1);
+        vertTop.edges.push_back(0);
+
+        Shape shape;
+        shape.radius = radius;
+        shape.vertices.push_back(vertBot);
+        shape.vertices.push_back(vertTop);
+        physicsComponents[_entity].shapes.push_back(shape);
+    }
+}
+
+void SceneManager::AddPhysicsShapePill(unsigned int _entity, glm::vec3 bottom, glm::vec3 top, float radius)
+{
+    if (physicsComponents.find(_entity) != physicsComponents.end())
+    {
+        Vertex vertBot;
+        Vertex vertTop;
+        vertBot.vert = bottom;
+        vertTop.vert = top;
+        vertBot.edges.push_back(1);
+        vertTop.edges.push_back(0);
+
+        Shape shape;
+        shape.radius = radius;
+        shape.vertices.push_back(vertBot);
+        shape.vertices.push_back(vertTop);
+        physicsComponents[_entity].shapes.push_back(shape);
+    }
+}
+
+const float SceneManager::GetInverseMass(unsigned int _entity)
+{
+    if (physicsComponents.find(_entity) != physicsComponents.end())
+    {
+        return physicsComponents[_entity].invMass;
+    }
+    else return NAN;
+}
+
+const float SceneManager::GetMass(unsigned int _entity)
+{
+    if (physicsComponents.find(_entity) != physicsComponents.end())
+    {
+        if (physicsComponents[_entity].invMass != 0)
+            return 1 / physicsComponents[_entity].invMass;
+        else return NAN;
+    }
+    else return NAN;
+}
+
+void SceneManager::SetInverseMass(unsigned int _entity, float invMass)
+{
+    if (physicsComponents.find(_entity) != physicsComponents.end())
+    {
+        physicsComponents[_entity].invMass = invMass;
+    }
+}
+
+void SceneManager::SetMass(unsigned int _entity, float mass)
+{
+    if (physicsComponents.find(_entity) != physicsComponents.end())
+    {
+        if (mass != 0)
+            physicsComponents[_entity].invMass = 1 / mass;
+    }
+}
+
+const glm::vec3 SceneManager::GetCentreOfMass(unsigned int _entity)
+{
+    if (physicsComponents.find(_entity) != physicsComponents.end())
+    {
+        return physicsComponents[_entity].centreOfMass;
+    }
+    else return glm::vec3(NAN,NAN,NAN);
+}
+
+void SceneManager::SetCentreOfMass(unsigned int _entity, glm::vec3 CoM)
+{
+    if (physicsComponents.find(_entity) != physicsComponents.end())
+    {
+        physicsComponents[_entity].centreOfMass = CoM;
+    }
+}
+
+const bool SceneManager::GetIsGravitated(unsigned int _entity)
+{
+    if (physicsComponents.find(_entity) != physicsComponents.end())
+    {
+        return physicsComponents[_entity].isGravitated;
+    }
+    else return false;
+}
+
+void SceneManager::SetIsGravitated(unsigned int _entity, bool gravitated)
+{
+    if (physicsComponents.find(_entity) != physicsComponents.end())
+    {
+        physicsComponents[_entity].isGravitated = gravitated;
+    }
+}
+
+const float SceneManager::GetElasticCoef(unsigned int _entity)
+{
+    if (physicsComponents.find(_entity) != physicsComponents.end())
+    {
+        return physicsComponents[_entity].elasticCoef;
+    }
+    else return NAN;
+}
+
+void SceneManager::SetElasticCoef(unsigned int _entity, float elasticCoef)
+{
+    if (physicsComponents.find(_entity) != physicsComponents.end())
+    {
+        physicsComponents[_entity].elasticCoef = elasticCoef;
+    }
+}
+
+const float SceneManager::GetPhysicsDrag(unsigned int _entity)
+{
+    if (physicsComponents.find(_entity) != physicsComponents.end())
+    {
+        return physicsComponents[_entity].drag;
+    }
+    else return NAN;
+}
+
+void SceneManager::SetPhysicsDrag(unsigned int _entity, float drag)
+{
+    if (physicsComponents.find(_entity) != physicsComponents.end())
+    {
+        physicsComponents[_entity].drag = drag;
+    }
+}
+
+const float SceneManager::GetPhysicsAngularDrag(unsigned int _entity)
+{
+    if (physicsComponents.find(_entity) != physicsComponents.end())
+    {
+        return physicsComponents[_entity].angularDrag;
+    }
+    else return NAN;
+}
+
+void SceneManager::SetPhysicsAngularDrag(unsigned int _entity, float angularDrag)
+{
+    if (physicsComponents.find(_entity) != physicsComponents.end())
+    {
+        physicsComponents[_entity].angularDrag = angularDrag;
+    }
 }
 
 void SceneManager::GlobalTransformUpdate(unsigned int entity, bool first)
@@ -732,6 +1238,7 @@ void SceneManager::GlobalTransformUpdate(unsigned int entity, bool first)
         GlobalTransformUpdate(*iter, false);
 }
 
+
 void SceneManager::SetParent(unsigned int child, unsigned int parent)
 {
     bool realParent = transformComponents.find(parent) != transformComponents.end();
@@ -755,6 +1262,3 @@ void SceneManager::HierarchyUpdate()
     TransformsToUpdate.clear();
     UpdatedGlobalTransform.clear();
 }
-
-
-
