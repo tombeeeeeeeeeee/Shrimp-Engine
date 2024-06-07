@@ -44,6 +44,11 @@ std::unordered_map<unsigned int, LightComponent>* SceneManager::GetLights()
     return &lightComponents;
 }
 
+std::unordered_map<unsigned int, PhysicsComponent>* SceneManager::GetPhysics()
+{
+    return &physicsComponents;
+}
+
 unsigned int SceneManager::MakeCamera(glm::vec3 position, glm::vec3 eulers)
 {
     return MakeEmptyTransform(position, eulers);
@@ -734,6 +739,40 @@ PhysicsComponent SceneManager::AddPhysicsComponent(unsigned int _entity, float i
     return physics;
 }
 
+PhysicsComponent SceneManager::AddPhysicsComponent(
+    unsigned int _entity, glm::vec3 momentOfInertia, 
+    glm::vec3 force, glm::vec3 velocity, glm::vec3 netDepen, 
+    glm::mat3 invBodyIT, glm::mat3 invWorldIT, glm::vec3 torque, 
+    glm::vec3 angularVelocity, glm::vec3 angularMomentum, 
+    float dX, float dY, float dZ, std::vector<Shape> shapes,
+    float invMass, glm::vec3 centreOfMass, bool isGravitated, 
+    float elasiticCoef, float drag, float angularDrag)
+{
+    PhysicsComponent physics = PhysicsComponent();
+
+    physics.momentOfInertia = momentOfInertia;
+    physics.force = force;
+    physics.velocity = velocity;
+    physics.netDepen = netDepen;
+    physics.invBodyIT = invBodyIT;
+    physics.invWorldIT = invWorldIT;
+    physics.torque = torque;
+    physics.angularVelocity = angularVelocity;
+    physics.angularMomentum = angularMomentum;
+    physics.dX = dX; physics.dY = dY; physics.dZ = dZ;
+    physics.shapes = shapes;
+    physics.invMass = invMass;
+    physics.centreOfMass = centreOfMass;
+    physics.isGravitated = isGravitated;
+    physics.elasticCoef = elasiticCoef;
+    physics.drag = drag;
+    physics.angularDrag = angularDrag;
+
+    physicsComponents[_entity] = physics;
+
+    return physics;
+}
+
 const glm::vec3 SceneManager::GetMomentOfInertiaScale(unsigned int _entity)
 {
     if (physicsComponents.find(_entity) != physicsComponents.end())
@@ -840,7 +879,7 @@ void SceneManager::SetMomentum(unsigned int _entity, glm::vec3 momentum)
 {
     if (physicsComponents.find(_entity) != physicsComponents.end())
     {
-        physicsComponents[_entity].velocity = momentum * physicsComponents[_entity].invMass;;
+        physicsComponents[_entity].velocity = momentum * physicsComponents[_entity].invMass;
     }
 }
 
@@ -860,7 +899,7 @@ void SceneManager::AddMomentum(unsigned int _entity, glm::vec3 momentum)
     }
 }
 
-const glm::vec3 SceneManager::GetNetDepenertation(unsigned int _entity)
+const glm::vec3 SceneManager::GetNetDepenetration(unsigned int _entity)
 {
     if (physicsComponents.find(_entity) != physicsComponents.end())
     {
@@ -869,7 +908,7 @@ const glm::vec3 SceneManager::GetNetDepenertation(unsigned int _entity)
     else return glm::vec3(NAN, NAN, NAN);
 }
 
-void SceneManager::SetNetDepenertation(unsigned int _entity, glm::vec3 depenertration)
+void SceneManager::SetNetDepenetration(unsigned int _entity, glm::vec3 depenertration)
 {
     if (physicsComponents.find(_entity) != physicsComponents.end())
     {
@@ -897,7 +936,6 @@ void SceneManager::SetInverseBodyInertiaTensor(unsigned int _entity, glm::mat3 i
         physicsComponents[_entity].invBodyIT = invBodyTensor;
     }
 }
-
 
 void SceneManager::UpdateBodyInertiaTensor(unsigned int _entity)
 {

@@ -162,31 +162,163 @@ public:
 	/// Adds a new physics component to the provided entity id
 	/// </summary>
 	/// <param name="_entity"> id to add component to</param>
+	/// <param name="invMass"> 1 over the Mass of the body</param>
 	/// <returns>physics component</returns>
 	PhysicsComponent AddPhysicsComponent(unsigned int _entity, float invMass = 0);
 
+	/// <summary>
+	/// Adds a new physics component to a provided entity id
+	/// </summary>
+	/// <param name="_entity"> id to add component to</param>
+	/// <param name="momentOfInertia"> Scale components for the inverse moment of inertia</param>
+	/// <param name="force"> current net force acting on the body</param>
+	/// <param name="velocity"> current velocity of the body</param>
+	/// <param name="netDepen"> current depen on the body</param>
+	/// <param name="invBodyIT"> inverse ineretia tensor in local space</param>
+	/// <param name="invWorldIT"> inverse world inertia tensor in world space</param>
+	/// <param name="torque"> current torque acting on the body</param>
+	/// <param name="angularVelocity"> current angular velocity acting on the body</param>
+	/// <param name="angularMomentum"> current angular momentum acting on the body</param>
+	/// <param name="dX"> maximum delta along the x axis from transform to vertex</param>
+	/// <param name="dY"> maximum delta along the y axis from transform to vertex</param>
+	/// <param name="dZ"> maximum delta along the z axis from transform to vertex</param>
+	/// <param name="shapes"> shapes comprising the body</param>
+	/// <param name="centreOfMass"> displacement from transform for the centre of mass</param>
+	/// <param name="isGravitated"> whether the shape is impacted by gravity</param>
+	/// <param name="elasiticCoef"> elastiity of the object (between 0 and 1 for realistic collisions)</param>
+	/// <param name="drag"> linear drag impacting the body</param>
+	/// <param name="angularDrag"> angular drag impacting the body</param>
+	/// <returns> new physics component</returns>
+	PhysicsComponent AddPhysicsComponent(unsigned int _entity,
+		glm::vec3 momentOfInertia, glm::vec3 force,
+		glm::vec3 velocity, glm::vec3 netDepen,
+		glm::mat3 invBodyIT, glm::mat3 invWorldIT,
+		glm::vec3 torque, glm::vec3 angularVelocity,
+		glm::vec3 angularMomentum, float dX, float dY, float dZ,
+		std::vector<Shape> shapes, float invMass, glm::vec3 centreOfMass, bool isGravitated,
+		float elasiticCoef, float drag, float angularDrag);
+
+
+	/// <summary>
+	/// Gets the scale components of the moment of inertia of a body
+	/// </summary>
+	/// <param name="_entity"> entity id</param>
+	/// <returns>returns scale components of the moment of inertia or NAN if entity has no physics component</returns>
 	const glm::vec3 GetMomentOfInertiaScale(unsigned int _enity);
+	/// <summary>
+	/// Sets the moment of inertia scale for a provided entity
+	/// </summary>
+	/// <param name="_entity"> entity id</param>
+	/// <param name="scale"> scale as a vector 3</param>
 	void SetMomentOfInertiaScale(unsigned int _entity, glm::vec3 scale);
+	/// <summary>
+	/// Sets the moment of inertia scale for a provided entity
+	/// </summary>
+	/// <param name="_entity"> entity id</param>
+	/// <param name="x"> x component of scale vector</param>
+	/// <param name="y"> y component of scale vector</param>
+	/// <param name="z"> z component of scale vector</param>
 	void SetMomentOfInertiaScale(unsigned int _entity, float x, float y, float z);
 
+	/// <summary>
+	/// Gets the current net force acting on a body
+	/// </summary>
+	/// <param name="_entity"> entity id</param>
+	/// <returns>returns current force acting or NAN if entity has no physics component</returns>
 	const glm::vec3 GetForce(unsigned int _entity);
+	/// <summary>
+	/// Sets the force for a provided entity
+	/// </summary>
+	/// <param name="_entity"> entity id</param>
+	/// <param name="force"> force as a vector 3</param>
 	void SetForce(unsigned int _entity, glm::vec3 force);
+	/// <summary>
+	/// Sets the force for a provided entity
+	/// </summary>
+	/// <param name="_entity"> entity id</param>
+	/// <param name="x"> x component of force vector</param>
+	/// <param name="y"> y component of force vector</param>
+	/// <param name="z"> z component of force vector</param>
 	void SetForce(unsigned int _entity, float x, float y, float z);
+	/// <summary>
+	/// Adds force to the current force a body is experiencing
+	/// </summary>
+	/// <param name="_entity"> entity id</param>
+	/// <param name="force"> force as a vector 3</param>
 	void AddForce(unsigned int _entity, glm::vec3 force);
 
+	/// <summary>
+	/// Gets the current velocity of a body
+	/// </summary>
+	/// <param name="_entity">entity id of body</param>
+	/// <returns>current veloctiy of body or NAN if entity does not have a physics component</returns>
 	const glm::vec3 GetVelocity(unsigned int _entity);
+	/// <summary>
+	/// Sets the current velocity of a body
+	/// </summary>
+	/// <param name="_entity"> entity id of body</param>
+	/// <param name="velocity"> velocity as a vector3</param>
 	void SetVelocity(unsigned int _entity, glm::vec3 velocity);
+	/// <summary>
+	/// Sets the current current velocity of a body
+	/// </summary>
+	/// <param name="_entity"> entity id of body</param>
+	/// <param name="x"> x component of veloctiy vector</param>
+	/// <param name="y"> y component of veloctiy vector</param>
+	/// <param name="z"> z component of veloctiy vector</param>
 	void SetVelocity(unsigned int _entity, float x, float y, float z);
+	/// <summary>
+	/// Adds velocity to a body
+	/// </summary>
+	/// <param name="_entity"> entity id of body</param>
+	/// <param name="velocity"> additional velocity</param>
 	void AddVelocity(unsigned int _entity, glm::vec3 velocity);
 
+	/// <summary>
+	/// Get current momentum of a body
+	/// </summary>
+	/// <param name="_entity"> entity id of body</param>
+	/// <returns> returns current momentum of a body or NAN if the entity is static or doesnt have a physics component</returns>
 	const glm::vec3 GetMomentum(unsigned int _entity);
+	/// <summary>
+	/// Sets current momentum of a body
+	/// </summary>
+	/// <param name="_entity"> entity id of a body</param>
+	/// <param name="momentum"> momentum as a vector3</param>
 	void SetMomentum(unsigned int _entity, glm::vec3 momentum);
+	/// <summary>
+	/// Sets current momentum of a body
+	/// </summary>
+	/// <param name="_entity"> entity id of a body</param>
+	/// <param name="x"> x component of momentum vector</param>
+	/// <param name="y"> y component of momentum vector</param>
+	/// <param name="z"> z component of momentum vector</param>
 	void SetMomentum(unsigned int _entity, float x, float y, float z);
+	/// <summary>
+	/// Adds momentum to a body
+	/// </summary>
+	/// <param name="_entity"> entity id of a body</param>
+	/// <param name="momentum"> additional momentum</param>
 	void AddMomentum(unsigned int _entity, glm::vec3 momentum);
 
-	const glm::vec3 GetNetDepenertation(unsigned int _entity);
-	void SetNetDepenertation(unsigned int _entity, glm::vec3 depenertration);
+	/// <summary>
+	/// Gets the current net depenertation
+	/// </summary>
+	/// <param name="_entity"> entity id of body</param>
+	/// <returns>current net depenetration or NAN if the entity doesnt have a physics component</returns>
+	const glm::vec3 GetNetDepenetration(unsigned int _entity);
+	/// <summary>
+	/// Set the net depenetration of a body
+	/// </summary>
+	/// <param name="_entity"> entity id of body</param>
+	/// <param name="depenetration"> depenetration of body</param>
+	void SetNetDepenetration(unsigned int _entity, glm::vec3 depenetration);
 
+	/// <summary>
+	/// Get inverse inertia tensor in local space
+	/// </summary>
+	/// <param name="_entity"> entity id of a body </param>
+	/// <returns> inverse local inertia tensor </returns>
 	const glm::mat3 GetInverseBodyInertiaTensor(unsigned int _entity);
 	void SetInverseBodyInertiaTensor(unsigned int _entity, glm::mat3 invBodyTensor);
 	void UpdateBodyInertiaTensor(unsigned int _entity);
@@ -223,6 +355,7 @@ public:
 	void SetMass(unsigned int _entity, float mass);
 
 	const glm::vec3 GetCentreOfMass(unsigned int _entity);
+	void NewFunc();
 	void SetCentreOfMass(unsigned int _entity, glm::vec3 CoM);
 
 	const bool GetIsGravitated(unsigned int _entity);
