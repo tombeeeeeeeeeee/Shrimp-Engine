@@ -185,7 +185,7 @@ public:
 	/// <param name="shapes"> shapes comprising the body</param>
 	/// <param name="centreOfMass"> displacement from transform for the centre of mass</param>
 	/// <param name="isGravitated"> whether the shape is impacted by gravity</param>
-	/// <param name="elasiticCoef"> elastiity of the object (between 0 and 1 for realistic collisions)</param>
+	/// <param name="elasiticCoef"> elasticity of the object (between 0 and 1 for realistic collisions)</param>
 	/// <param name="drag"> linear drag impacting the body</param>
 	/// <param name="angularDrag"> angular drag impacting the body</param>
 	/// <returns> new physics component</returns>
@@ -320,54 +320,230 @@ public:
 	/// <param name="_entity"> entity id of a body </param>
 	/// <returns> inverse local inertia tensor </returns>
 	const glm::mat3 GetInverseBodyInertiaTensor(unsigned int _entity);
+	/// <summary>
+	/// Set local inverse inertia tensor in local space
+	/// </summary>
+	/// <param name="_entity">entity id of a body</param>
+	/// <param name="invBodyTensor"> inverse local inertia tensor or NAN if entity doesnt have a physics component</param>
 	void SetInverseBodyInertiaTensor(unsigned int _entity, glm::mat3 invBodyTensor);
+	/// <summary>
+	/// Updates the local inertia tensor.
+	/// Called when a new shape is added to the body.
+	/// </summary>
+	/// <param name="_entity">entity id of body</param>
 	void UpdateBodyInertiaTensor(unsigned int _entity);
 
+	/// <summary>
+	/// Gets inverse inertia tensor in world space.
+	/// </summary>
+	/// <param name="_entity"></param>
+	/// <returns> inertia tensor in world space or NAN if entity doesnt have a physics component</returns>
 	const glm::mat3 GetInverseWorldInertiaTensor(unsigned int _entity);
-	void SetInverseWorldInertiaTensor(unsigned int _entity, glm::mat3 invBodyTensor);
+	/// <summary>
+	/// Set inverse inertia tensor in world space.
+	/// the invWorldIT is set every integration step of the Physics system and will rend this function useless if it is being called.
+	/// </summary>
+	/// <param name="_entity"> entity id of body</param>
+	/// <param name="invWorldTensor"> inverse world inertia tensor</param>
+	void SetInverseWorldInertiaTensor(unsigned int _entity, glm::mat3 invWorldTensor);
 
+	/// <summary>
+	/// Get the current torque acting on a body
+	/// </summary>
+	/// <param name="_entity"> entity id of a body</param>
+	/// <returns> current torque acting on a body or NAN if the entity doesnt have a physics component</returns>
 	const glm::vec3 GetTorque(unsigned int _entity);
+	/// <summary>
+	/// Sets the current torque acting on a body
+	/// </summary>
+	/// <param name="_entity"> entity id of a body</param>
+	/// <param name="torque"> torque</param>
 	void SetTorque(unsigned int _entity, glm::vec3 torque);
+	/// <summary>
+	/// Adds to the current torque acting on a body
+	/// </summary>
+	/// <param name="_entity"> entity id of a body</param>
+	/// <param name="torque"> additional torque</param>
 	void AddTorque(unsigned int _entity, glm::vec3 torque);
 
+	/// <summary>
+	/// Gets the angular velocity acting on a body
+	/// </summary>
+	/// <param name="_entity"> entity id of the body</param>
+	/// <returns> angular veloctiy in revolutions per second or NAN if the entity doesnt have a physics component</returns>
 	const glm::vec3 GetAngularVelocity(unsigned int _entity);
+	/// <summary>
+	/// Sets the angular velocity acting on a body
+	/// </summary>
+	/// <param name="_entity"> entity id of the body</param>
+	/// <param name="angularVel"> angular veloctiy in revolutions per second</param>
 	void SetAngularVelocity(unsigned int _entity, glm::vec3 angularVel);
+	/// <summary>
+	/// Adds to the currenbt angular velocity acting on a body
+	/// </summary>
+	/// <param name="_entity"> entity id of a body</param>
+	/// <param name="angularVel"> additional angular velocity in revolutions per second</param>
 	void AddAngularVelocity(unsigned int _entity, glm::vec3 angularVel);
 
+	/// <summary>
+	/// Get the angular momentum of a body
+	/// </summary>
+	/// <param name="_entity"> entity id of body</param>
+	/// <returns> current angular momentum or NAN if the entity doesnt have a physics component</returns>
 	const glm::vec3 GetAngularMomentum(unsigned int _entity);
+	/// <summary>
+	/// Sets the current angular momentum of a body
+	/// </summary>
+	/// <param name="_entity"> entity id of body</param>
+	/// <param name="angularMom"> angular momentum in world space</param>
 	void SetAngularMomentum(unsigned int _entity, glm::vec3 angularMom);
+	/// <summary>
+	/// Adds to the current angular momentum of a body
+	/// </summary>
+	/// <param name="_entity"> entity id of body</param>
+	/// <param name="angularMom"> additional angular momentum in world space</param>
 	void AddAngularMomentum(unsigned int _entity, glm::vec3 angularMom);
 
+	/// <summary>
+	/// Gets the shapes that make up a physics body
+	/// </summary>
+	/// <param name="_entity"> entity id of the body</param>
+	/// <returns> pointer to the vectro of shapes or nullptr if the entity doesnt have a physics component</returns>
 	const std::vector<Shape>* GetPhysicsComponentShapes(unsigned int _entity);
+
+	/// <summary>
+	/// Sets the shapes that make up a physics body
+	/// </summary>
+	/// <param name="_entity"> entity id of the body</param>
+	/// <param name="shapes"> pointer to shapes vector</param>
 	void SetPhysicsComponentShapes(unsigned int _entity, std::vector<Shape>* shapes);
+
+	/// <summary>
+	/// Add shape to current physics body shape
+	/// </summary>
+	/// <param name="_entity"> entity id of body</param>
+	/// <param name="shape"> shape</param>
+	/// <param name="offset"> offset from transform position to shape</param>
 	void AddPhysicsShape(unsigned int _entity, Shape shape, glm::vec3 offset = glm::zero<glm::vec3>());
+	/// <summary>
+	/// Add Sphere to net shape of body
+	/// </summary>
+	/// <param name="_entity"> entity id of body</param>
+	/// <param name="radius"> radius of sphere</param>
+	/// <param name="offset"> offset from transform position to sphere</param>
 	void AddPhysicsSphere(unsigned int _entity, float radius = 0.5f, glm::vec3 offset = glm::zero<glm::vec3>());
 	//TODO
 	void AddPhysicsShapeBox(unsigned int _entity, float x = 0.5f, float y = 0.5f, float z = 0.5f, glm::vec3 offset = glm::zero<glm::vec3>());
 	//TODO
 	void AddPhysicsShapeBox(unsigned int _entity, glm::vec3 bottomLeft, glm::vec3 topRight);
+
+	/// <summary>
+	/// Adds upright pill shape to net shape of a body
+	/// </summary>
+	/// <param name="_entity"> entity id of body</param>
+	/// <param name="radius"> radius and space half space between tips of pill</param>
+	/// <param name="offset"> offset from transform position to pill</param>
 	void AddPhysicsShapePill(unsigned int _entity, float radius = 0.5f, glm::vec3 offset = glm::zero<glm::vec3>());
+	/// <summary>
+	/// Add pill shape to net shape of a body
+	/// </summary>
+	/// <param name="_entity"> entity id of body</param>
+	/// <param name="bottom"> position of bottom of the pill</param>
+	/// <param name="top"> position of top of pill</param>
+	/// <param name="radius"> radius around these points</param>
 	void AddPhysicsShapePill(unsigned int _entity, glm::vec3 bottom, glm::vec3 top, float radius);
 
+	/// <summary>
+	/// Get the inverse mass of a body
+	/// </summary>
+	/// <param name="_entity"> entity id of body</param>
+	/// <returns> inverse mass of a body or NAN if the entity has no physics component</returns>
 	const float GetInverseMass(unsigned int _entity);
+	/// <summary>
+	/// Get the mass of a body
+	/// </summary>
+	/// <param name="_entity"> entity id of body</param>
+	/// <returns> mass of object or NAN if its inverse mass is 0 or if the entity has no physics component</returns>
 	const float GetMass(unsigned int _entity);
+
+	/// <summary>
+	/// Sets the inverse mass of a body, set invMass to 0 if the body should remain static
+	/// </summary>
+	/// <param name="_entity"> entity id of body</param>
+	/// <param name="invMass"> inverse mass, will be set to absolute value</param>
 	void SetInverseMass(unsigned int _entity, float invMass);
+	/// <summary>
+	/// Sets the mass of a body, cannot be used to make an body static
+	/// </summary>
+	/// <param name="_entity"> entity id of body</param>
+	/// <param name="mass"> mass will be set to absolute value</param>
 	void SetMass(unsigned int _entity, float mass);
 
+	/// <summary>
+	/// Get Centre of Mass of an body
+	/// </summary>
+	/// <param name="_entity"> entity id of body</param>
+	/// <returns> centre of mass or NAN if the entity does not have a physics component</returns>
 	const glm::vec3 GetCentreOfMass(unsigned int _entity);
-	void NewFunc();
+	/// <summary>
+	/// Set the centre of mass of a body
+	/// </summary>
+	/// <param name="_entity"> entity id of body</param>
+	/// <param name="CoM"> centre of mass in local space</param>
 	void SetCentreOfMass(unsigned int _entity, glm::vec3 CoM);
 
+	/// <summary>
+	/// Get whether a body is affected by gravity
+	/// </summary>
+	/// <param name="_entity"> entity id of body</param>
+	/// <returns> whether the body is affected by gravity or false if the entity does not have a physics component </returns>
 	const bool GetIsGravitated(unsigned int _entity);
+	/// <summary>
+	/// Set whether a body is affected by gravity
+	/// </summary>
+	/// <param name="_entity"> entity id of body</param>
 	void SetIsGravitated(unsigned int _entity, bool gravitated);
 
+	/// <summary>
+	/// Get elastic coefficent of body
+	/// collisions use average elasticity of bodies in collision.
+	/// </summary>
+	/// <param name="_entity"> entity id of body</param>
+	/// <returns> elasitic coef or NAN if the entity doesnt have a physics component</returns>
 	const float GetElasticCoef(unsigned int _entity);
+	/// <summary>
+	/// Sets the elastic coefficient of a body
+	/// </summary>
+	/// <param name="_entity"> entity id of body</param>
+	/// <param name="elasticCoef"> elastic coef (between 0 and 1 for "realistic" collisions)</param>
 	void SetElasticCoef(unsigned int _entity, float elasticCoef);
 
+	/// <summary>
+	/// Gets linear drag of body.
+	/// During the integration step, the current velocity is multipiled by 1 - (0.0001f * drag)
+	/// </summary>
+	/// <param name="_entity"> entity id of body</param>
+	/// <returns> drag or NAN if the entity dopesnt have a physics component</returns>
 	const float GetPhysicsDrag(unsigned int _entity);
+	/// <summary>
+	/// Sets linear drag of body.
+	/// During the integration step, the current velocity is multipiled by 1 - (0.0001f * drag)
+	/// </summary>
+	/// <param name="_entity"> entity id of body</param>
 	void SetPhysicsDrag(unsigned int _entity, float drag);
 
+	/// <summary>
+	/// Get angular drag of body
+	/// During the integration step, the current angularVelocity is multipiled by 1 - (0.01f * angularDrag)
+	/// </summary>
+	/// <param name="_entity">entity of body</param>
+	/// <returns>angular drag or NAN if entity doesnt have a physics component</returns>
 	const float GetPhysicsAngularDrag(unsigned int _entity);
+	/// <summary>
+	/// Set angular drag of body
+	/// During the integration step, the current angularVelocity is multipiled by 1 - (0.01f * angularDrag)
+	/// </summary>
+	/// <param name="_entity"> entity id of body</param>
 	void SetPhysicsAngularDrag(unsigned int _entity, float angularDrag);
 #pragma endregion
 

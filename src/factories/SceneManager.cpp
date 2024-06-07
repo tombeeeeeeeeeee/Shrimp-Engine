@@ -946,11 +946,15 @@ void SceneManager::UpdateBodyInertiaTensor(unsigned int _entity)
         float dz = physicsComponents[_entity].dZ;
         float invMass = physicsComponents[_entity].invMass;
 
+        float scaleX = transformComponents[_entity].scale.x;
+        float scaleY = transformComponents[_entity].scale.y;
+        float scaleZ = transformComponents[_entity].scale.z;
+
         glm::vec3 scale = physicsComponents[_entity].momentOfInertia;
         physicsComponents[_entity].invBodyIT = glm::mat3(
-            (scale.x * invMass * 12) / (dy * dy + dz * dz), 0, 0,
-            0, (scale.y * invMass * 12) / (dx * dx + dz * dz), 0,
-            0, 0, (scale.z * invMass * 12) / (dx * dx + dy * dy)
+            (scale.x * invMass * 12) / ((dy * dy + dz * dz) * scaleX), 0, 0,
+            0, (scale.y * invMass * 12) / ((dx * dx + dz * dz) * scaleY), 0,
+            0, 0, (scale.z * invMass * 12) / ((dx * dx + dy * dy) * scaleZ)
             );
     }
 }
@@ -1156,7 +1160,7 @@ void SceneManager::SetInverseMass(unsigned int _entity, float invMass)
 {
     if (physicsComponents.find(_entity) != physicsComponents.end())
     {
-        physicsComponents[_entity].invMass = invMass;
+        physicsComponents[_entity].invMass = abs(invMass);
     }
 }
 
@@ -1165,7 +1169,7 @@ void SceneManager::SetMass(unsigned int _entity, float mass)
     if (physicsComponents.find(_entity) != physicsComponents.end())
     {
         if (mass != 0)
-            physicsComponents[_entity].invMass = 1 / mass;
+            physicsComponents[_entity].invMass = abs(1 / mass);
     }
 }
 
@@ -1233,7 +1237,7 @@ void SceneManager::SetPhysicsDrag(unsigned int _entity, float drag)
 {
     if (physicsComponents.find(_entity) != physicsComponents.end())
     {
-        physicsComponents[_entity].drag = drag;
+        physicsComponents[_entity].drag = glm::clamp(drag, 0.0f, 10000.0f);
     }
 }
 
@@ -1250,7 +1254,7 @@ void SceneManager::SetPhysicsAngularDrag(unsigned int _entity, float angularDrag
 {
     if (physicsComponents.find(_entity) != physicsComponents.end())
     {
-        physicsComponents[_entity].angularDrag = angularDrag;
+        physicsComponents[_entity].angularDrag = glm::clamp(angularDrag, 0.0f, 100.0f);
     }
 }
 
