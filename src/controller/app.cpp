@@ -10,7 +10,7 @@ App::~App()
     for(unsigned int shader : shaders)
         glDeleteProgram(shader);
 
-    delete motionSystem;
+    delete physicsSystem;
     delete cameraSystem;
     delete renderSystem;
 
@@ -25,7 +25,7 @@ App::~App()
 App::App(App& app)
 {
     shaders = app.shaders;
-    motionSystem = app.motionSystem;
+    physicsSystem = app.physicsSystem;
     cameraSystem = app.cameraSystem;
     renderSystem = app.renderSystem;
 
@@ -42,7 +42,7 @@ App& App::operator=(App const& other)
     for (unsigned int shader : shaders)
         glDeleteProgram(shader);
 
-    delete motionSystem;
+    delete physicsSystem;
     delete cameraSystem;
     delete renderSystem;
 
@@ -52,7 +52,7 @@ App& App::operator=(App const& other)
     delete cameraComponent;
 
     shaders = other.shaders;
-    motionSystem = other.motionSystem;
+    physicsSystem = other.physicsSystem;
     cameraSystem = other.cameraSystem;
     renderSystem = other.renderSystem;
 
@@ -71,32 +71,12 @@ void App::Run()
 {
     bool shouldClose = false;
 
-    unsigned int cameraEntity = scene->MakeCamera({ 0.0f, 1.0f, 0.0f }, { 0.0f, .0f,0.0f });
+    unsigned int cameraEntity = scene->MakeCamera({ 0.0f, 1.0f, 0.0f });
 
     CameraComponent* camera = new CameraComponent();
     cameraComponent = camera;
     cameraID = cameraEntity;
     renderSystem->SetCameraID(cameraID);
-
-    std::string skyboxTextureFiles[6] = {
-    "img/px.png",
-    "img/nx.png",
-    "img/nz.png",
-    "img/pz.png",
-    "img/py.png",
-    "img/ny.png",
-    };
-
-   //std::string skyboxTextureFiles[6] = {
-   //"img/darkness.png",
-   //"img/darkness.png",
-   //"img/darkness.png",
-   //"img/darkness.png",
-   //"img/darkness.png",
-   //"img/darkness.png",
-   //};
-
-    renderSystem->Start(assetFactory->GetSkyBoxMaterial(skyboxTextureFiles));
 
     Start();
 
@@ -105,13 +85,19 @@ void App::Run()
         std::unordered_map<unsigned int, TransformComponent>* transforms = scene->GetTransforms();
         std::unordered_map<unsigned int, RenderComponent>* renders = scene->GetRenders();
         std::unordered_map<unsigned int, LightComponent>* lights = scene->GetLights();
+        std::unordered_map<unsigned int, PhysicsComponent>* bodies = scene->GetPhysics();
+
         scene->HierarchyUpdate();
 
         shouldClose = cameraSystem->Update(*transforms, cameraID, *cameraComponent, scene, viewMatrix, 1.0f / 60.0f, mouseInput);
 
         renderSystem->Update(*transforms, *renders, *lights, projectionMatrix, viewMatrix);
 
+        physicsSystem->CollisionPhase(*bodies, *transforms);
+
         Update();
+
+        physicsSystem->IntegrationStep(*bodies, *transforms, 1.0f/60.0f);
     }
 
     End();
@@ -144,7 +130,28 @@ void App::SetUpGLFW()
 void App::Start()
 {
     //Space to add things for the start
-    unsigned int cubeEntity = scene->MakeEmptyTransform({ 0,0,0 }, { 0, 0, 0 });
+
+    std::string skyboxTextureFiles[6] = {
+    "img/px.png",
+    "img/nx.png",
+    "img/nz.png",
+    "img/pz.png",
+    "img/py.png",
+    "img/ny.png",
+    };
+
+    //std::string skyboxTextureFiles[6] = {
+    //"img/darkness.png",
+    //"img/darkness.png",
+    //"img/darkness.png",
+    //"img/darkness.png",
+    //"img/darkness.png",
+    //"img/darkness.png",
+    //};
+
+    renderSystem->Start(assetFactory->GetSkyBoxMaterial(skyboxTextureFiles));
+
+    unsigned int cubeEntity = scene->MakeEmptyTransform();
     scene->AddRenderComponent(cubeEntity);
     scene->SetMesh(cubeEntity, assetFactory->GetMesh("models/Cerberus_LP.FBX"));
     std::string textureMaps[3] = { "img/Cerberus_A.tga", "img/Cerberus_PBR.tga", "img/Cerberus_N.tga" };
@@ -209,7 +216,7 @@ void App::SetUpOpengl()
 
 void App::MakeSystems() 
 {
-    motionSystem = new MotionSystem();
+    physicsSystem = new PhysicsSystem();
     cameraSystem = new CameraSystem(window);
     renderSystem = new RenderSystem(shaders, cameraID, window);
 }

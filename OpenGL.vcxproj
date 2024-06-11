@@ -152,7 +152,6 @@
     <ClCompile Include="src\factories\AssetFactory.cpp" />
     <ClCompile Include="src\factories\SceneManager.cpp" />
     <ClCompile Include="src\systems\LightSystem.cpp" />
-    <ClCompile Include="src\systems\MotionSystem.cpp" />
     <ClCompile Include="src\systems\RenderSystem.cpp" />
     <ClCompile Include="Dependencies\LinearAlgebra.cpp" />
     <ClCompile Include="src\glad.c" />
@@ -168,7 +167,6 @@
     <ClInclude Include="src\factories\AssetFactory.h" />
     <ClInclude Include="src\factories\SceneManager.h" />
     <ClInclude Include="src\systems\LightSystem.h" />
-    <ClInclude Include="src\systems\MotionSystem.h" />
     <ClInclude Include="src\systems\PhysicsSystem.h" />
     <ClInclude Include="src\systems\RenderSystem.h" />
     <ClInclude Include="src\components\CameraComponent.h" />

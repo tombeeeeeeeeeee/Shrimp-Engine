@@ -49,9 +49,9 @@ std::unordered_map<unsigned int, PhysicsComponent>* SceneManager::GetPhysics()
     return &physicsComponents;
 }
 
-unsigned int SceneManager::MakeCamera(glm::vec3 position, glm::vec3 eulers)
+unsigned int SceneManager::MakeCamera(glm::vec3 position)
 {
-    return MakeEmptyTransform(position, eulers);
+    return MakeEmptyTransform(position);
 }
 
 unsigned int SceneManager::MakeEmptyTransform()
@@ -61,11 +61,11 @@ unsigned int SceneManager::MakeEmptyTransform()
     return entityCount++;
 }
 
-unsigned int SceneManager::MakeEmptyTransform(glm::vec3 position, glm::vec3 eulers)
+unsigned int SceneManager::MakeEmptyTransform(glm::vec3 position, glm::quat quaternion)
 {
     TransformComponent transform = TransformComponent();
     transform.position = position;
-    transform.eulers = eulers;
+    transform.rotation = quaternion;
     transformComponents[entityCount] = transform;
     TransformsToUpdate.push_back(entityCount);
     return entityCount++;
@@ -156,16 +156,17 @@ const glm::vec3 SceneManager::GetLocalEulers(unsigned int entity, bool radians)
 {
     if (transformComponents.find(entity) != transformComponents.end())
     {
-        return radians ? transformComponents[entity].eulers : transformComponents[entity].eulers * (180.0f / glm::pi<float>());
+        glm::vec3 eulerAngles = glm::eulerAngles(transformComponents[entity].rotation);
+        return radians ? eulerAngles : eulerAngles * 180.0f / glm::pi<float>();
     }
     else return { NAN, NAN, NAN };
 }
-//TODO Add flag that it needs to be updated in the heirarchy
+
 void SceneManager::SetLocalEulers(unsigned int entity, glm::vec3 eulers, bool radians)
 {
     if (transformComponents.find(entity) != transformComponents.end())
     {
-        transformComponents[entity].eulers = eulers;
+        transformComponents[entity].rotation = glm::quat(radians ? eulers : eulers * glm::pi<float>() / 180.0f);
         TransformsToUpdate.push_back(entity);
     }
 }
@@ -178,7 +179,7 @@ const glm::vec3 SceneManager::GetScale(unsigned int entity)
     }
     else return { NAN, NAN, NAN };
 }
-//TODO Add flag that it needs to be updated in the heirarchy
+
 void SceneManager::SetScale(unsigned int entity, glm::vec3 scale)
 {
     if (transformComponents.find(entity) != transformComponents.end())
@@ -194,11 +195,9 @@ const glm::mat4 SceneManager::GetLocalTransform(unsigned int entity)
     {
         glm::mat4 translate = glm::translate(glm::identity<glm::mat4>(), transformComponents[entity].position);
         glm::mat4 scale = glm::scale(glm::identity<glm::mat4>(), transformComponents[entity].scale);
-        glm::mat4 rotationX = glm::rotate(glm::identity<glm::mat4>(), transformComponents[entity].eulers.x, {1,0,0});
-        glm::mat4 rotationY = glm::rotate(glm::identity<glm::mat4>(), transformComponents[entity].eulers.y, {0,1,0});
-        glm::mat4 rotationZ = glm::rotate(glm::identity<glm::mat4>(), transformComponents[entity].eulers.z, {0,0,1});
-
-        return translate * rotationX * rotationY * rotationZ * scale;
+        glm::mat4 rotation = glm::mat4(transformComponents[entity].rotation);
+        
+        return translate * rotation * scale;
     }
     else return { 
         NAN, NAN, NAN, NAN,

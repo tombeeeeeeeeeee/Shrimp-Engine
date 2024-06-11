@@ -42,7 +42,7 @@ private:
     std::vector<unsigned int> shaders;
 
     //Systems
-    MotionSystem* motionSystem;
+    PhysicsSystem* physicsSystem;
     CameraSystem* cameraSystem;
     RenderSystem* renderSystem;
 

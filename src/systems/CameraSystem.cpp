@@ -7,10 +7,11 @@ CameraSystem::CameraSystem(GLFWwindow* window)
 }
 
 bool CameraSystem::Update(std::unordered_map<unsigned int, TransformComponent>& transformComponents,
-    unsigned int cameraID, CameraComponent& cameraComponent, SceneManager* scene, glm:: mat4& view, float dt, unsigned int mouseInputMask)
+    unsigned int cameraID, CameraComponent& _cameraComponent, SceneManager* scene, glm:: mat4& view, float dt, unsigned int mouseInputMask)
 {
     //if the camera transform hasn't been set yet, set it. (might just reset each tick)
     if (cameraTransform == nullptr) cameraTransform = &transformComponents[cameraID];
+    if (cameraComponent == nullptr) cameraComponent = &_cameraComponent;
 
     if ((mouseInputMask & 2) == 2) RotateCamera();
     else glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
@@ -20,17 +21,19 @@ bool CameraSystem::Update(std::unordered_map<unsigned int, TransformComponent>& 
         transformComponents[cameraID].globalTransform[3][1],
         transformComponents[cameraID].globalTransform[3][2],
     };
-    glm::vec3 eulers = transformComponents[cameraID].eulers;
+    glm::quat rot = transformComponents[cameraID].rotation;
 
-    glm::vec3& forwards = cameraComponent.forward;
-    glm::vec3& up = cameraComponent.up;
-    glm::vec3& right = cameraComponent.right;
+    glm::vec3& forwards = _cameraComponent.forward;
+    glm::vec3& up = _cameraComponent.up;
+    glm::vec3& right = _cameraComponent.right;
+    
+    forwards = rot * glm::vec3(1,0,0);
 
-    forwards = {
-        -glm::cos(eulers.z) * glm::cos(eulers.y),
-        -glm::sin(eulers.z) * glm::cos(eulers.y),
-        glm::sin(eulers.y)
-    }; 
+    //forwards = {
+    //    2 * (rot.x * rot.z + rot.w * rot.y),
+    //    2 * (rot.y * rot.z - rot.w * rot.x),
+    //    1 - 2 * (rot.y * rot.y + rot.x * rot.x)
+    //}; 
      
     right = glm::normalize(glm::cross(forwards, globalUp));
     up = glm::normalize(cross(right, forwards));
@@ -85,18 +88,25 @@ bool CameraSystem::Update(std::unordered_map<unsigned int, TransformComponent>& 
 void CameraSystem::RotateCamera()
 {
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-
+    
     int w, h;
     glfwGetFramebufferSize(window, &w, &h);
-
+    
     glm::vec3 dEulers = { 0.0f, 0.0f, 0.0f };
     double mouse_x, mouse_y;
     glfwGetCursorPos(window, &mouse_x, &mouse_y);
-    glfwSetCursorPos(window, w / 2, h / 2);
-
+    glfwSetCursorPos(window, w / 2, h / 2); 
+    
     dEulers.z = -0.0005f * static_cast<float>(mouse_x - w / 2);
-    dEulers.y = -0.0005f * static_cast<float>(mouse_y - h / 2);
+    dEulers.y = 0.0005f * static_cast<float>(mouse_y - h / 2);
 
-    cameraTransform->eulers += dEulers;
+    glm::vec3 eulerAngles = glm::eulerAngles(cameraTransform->rotation);
+
+    if (abs(eulerAngles.y + dEulers.y) > 89.0f / 180.0f * glm::pi<float>()) 
+        dEulers.y = 0;
+
+    eulerAngles += dEulers;
+
+    cameraTransform->rotation = glm::quat(eulerAngles);
 }
 

@@ -37,6 +37,11 @@ private:
     TransformComponent* cameraTransform;
 
     /// <summary>
+    /// camera component of camera
+    /// </summary>
+    CameraComponent* cameraComponent;
+
+    /// <summary>
     /// Location of view matrix in shader (Should stay uniform)
     /// </summary>
     unsigned int viewLocation;

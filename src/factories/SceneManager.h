@@ -26,12 +26,11 @@ public:
 	unsigned int MakeEntity() { return entityCount++; }
 
 	/// <summary>
-	/// Creates an entity with a transform and camera component
+	/// Creates an entity with a transform and camera component 
 	/// </summary>
-	/// <param name="position"> transform position</param>
-	/// <param name="eulers"> camera position </param>
+	/// <param name="position"> transform position </param>
 	/// <returns> unsigned int of entity</returns>
-	unsigned int MakeCamera(glm::vec3 position, glm::vec3 eulers);
+	unsigned int MakeCamera(glm::vec3 position);
 
 #pragma region Transform Components
 
@@ -47,7 +46,7 @@ public:
 	/// <param name="position">position of component</param>
 	/// <param name="eulers">euler of component</param>
 	/// <returns>unsigned int transform component entity id</returns>
-	unsigned int MakeEmptyTransform(glm::vec3 position, glm::vec3 eulers = {0,0,0});
+	unsigned int MakeEmptyTransform(glm::vec3 position, glm::quat rotation = glm::identity<glm::quat>());
 
 	const glm::vec3 GetPosition(unsigned int entity);
 	const glm::vec3 GetLocalPosition(unsigned int entity);

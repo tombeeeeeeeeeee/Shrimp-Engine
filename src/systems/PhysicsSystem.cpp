@@ -140,7 +140,7 @@ glm::vec3 PhysicsSystem::SupportFunction(glm::vec3 dir, std::vector<glm::vec3>& 
 glm::vec3 PhysicsSystem::SupportFunction(glm::vec3 dir, std::vector<glm::vec3>& verts, float radius, int& index)
 {
     float max = -FLT_MAX;
-    int index = 0;
+    index = 0;
     for (int i = 0; i < verts.size(); i++)
     {
         float dot = glm::dot(verts[i], dir);
