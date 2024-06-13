@@ -80,6 +80,7 @@ void App::Run()
 
     Start();
 
+
     while (!glfwWindowShouldClose(window) && !shouldClose) 
     {
         std::unordered_map<unsigned int, TransformComponent>* transforms = scene->GetTransforms();
@@ -97,7 +98,7 @@ void App::Run()
 
         Update();
 
-        physicsSystem->IntegrationStep(*bodies, *transforms, 1.0f/60.0f);
+        physicsSystem->IntegrationStep(*bodies, *transforms, scene, 1.0f/60.0f);
     }
 
     End();
@@ -131,23 +132,23 @@ void App::Start()
 {
     //Space to add things for the start
 
-    std::string skyboxTextureFiles[6] = {
-    "img/px.png",
-    "img/nx.png",
-    "img/nz.png",
-    "img/pz.png",
-    "img/py.png",
-    "img/ny.png",
-    };
-
     //std::string skyboxTextureFiles[6] = {
-    //"img/darkness.png",
-    //"img/darkness.png",
-    //"img/darkness.png",
-    //"img/darkness.png",
-    //"img/darkness.png",
-    //"img/darkness.png",
+    //"img/px.png",
+    //"img/nx.png",
+    //"img/nz.png",
+    //"img/pz.png",
+    //"img/py.png",
+    //"img/ny.png",
     //};
+
+    std::string skyboxTextureFiles[6] = {
+    "img/darkness.png",
+    "img/darkness.png",
+    "img/darkness.png",
+    "img/darkness.png",
+    "img/darkness.png",
+    "img/darkness.png",
+    };
 
     renderSystem->Start(assetFactory->GetSkyBoxMaterial(skyboxTextureFiles));
 
@@ -156,6 +157,11 @@ void App::Start()
     scene->SetMesh(cubeEntity, assetFactory->GetMesh("models/Cerberus_LP.FBX"));
     std::string textureMaps[3] = { "img/Cerberus_A.tga", "img/Cerberus_PBR.tga", "img/Cerberus_N.tga" };
     scene->SetScale(2, { 0.25f, 0.25f, 0.25f });
+    scene->AddPhysicsComponent(2, 1);
+    scene->SetIsGravitated(2, false);
+    scene->AddPhysicsShapePill(2, { 0,21,7.5f }, { 0,-109,7.5f }, 2.25f);
+    scene->AddPhysicsShapePill(2, { 4.25f,21,1 }, { 4.25f,-109,1 }, 2.25f);
+    scene->AddPhysicsShapePill(2, { -4.25f,21,1 }, { -4.25f,-109,1 }, 2.25f);
 
     //renderComponents[cubeEntity]->mesh = assetFactory->GetMesh("models/whale.obj");
     //std::string textureMaps[3] = { "img/whale.jpg", "img/Cerberus_PBR.tga", "img/Cerberus_N.tga" };
@@ -163,22 +169,36 @@ void App::Start()
 
     scene->SetMaterial(cubeEntity, assetFactory->GetMaterial(textureMaps, 7));
 
-    scene->MakeAmbientLightEntity({0.8f,0.8f,0.8f}, 0.001f);
-    scene->MakePointLightEntity(scene->GetPosition(2), 20, { 0.5f,0.5f,0.5f }, 2);
-    scene->MakePointLightEntity({3,-5,12}, 20, { 255,192,20 }, 1/(float)255);
+    scene->MakeAmbientLightEntity({ 0.8f,0.8f,0.8f }, 0.001f);
+    scene->MakePointLightEntity({ 0,0,0 }, 20, { 0.5f,0.5f,0.5f }, 2);
+
+    scene->MakePointLightEntity({ 2,-5,12 }, 20, { 255,192,20 }, 1 / (float)255);
+    scene->AddPhysicsComponent(5, 1);
+    scene->AddPhysicsShapeBox(5);
+    scene->SetIsGravitated(5, true);
+    scene->SetMomentOfInertiaScale(5, { 0.1f,0.1f,0.1f });
+    scene->SetLocalEulers(5, { 5, 10, 20 }, false);
+
     scene->MakePointLightEntity({-12,-3,-2}, 20, { 50, 150, 255 }, 1/(float)255);
+    scene->AddPhysicsComponent(6, 1);
+    scene->AddPhysicsShapeBox(6);
+    scene->SetIsGravitated(6,true);
 }
 
 void App::Update()
 {
     //Space to add things to run on update
-    scene->SetLocalPosition(4, { 10 * (float)cos(glfwGetTime() * 2), -30 * (float)sin(glfwGetTime() * 0.05f), 5 * (float)sin(glfwGetTime() * 2) });
+    //scene->SetLocalPosition(4, { 10 * (float)cos(glfwGetTime() * 2), -30 * (float)sin(glfwGetTime() * 0.05f), 5 * (float)sin(glfwGetTime() * 2) });
 
     if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) {
         renderSystem->exposure += 0.02f;
     }
     if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
         renderSystem->exposure -= 0.02f;
+    }
+    if (glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS)
+    {
+        physicsSystem->gravity = { 0,0,-9.8f };
     }
 }
 

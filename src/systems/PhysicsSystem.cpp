@@ -20,14 +20,23 @@ void PhysicsSystem::CollisionPhase(std::unordered_map<unsigned int, PhysicsCompo
 			}
 		}
 	}
+
+    for (int i = 0; i < collisions.size(); i++)
+    {
+        Resolution(collisions[i]);
+    }
+    collisions.clear();
 }
 
-void PhysicsSystem::IntegrationStep(std::unordered_map<unsigned int, PhysicsComponent>& bodies, std::unordered_map<unsigned int, TransformComponent>& transforms, float deltaTime)
+void PhysicsSystem::IntegrationStep(std::unordered_map<unsigned int, PhysicsComponent>& bodies, 
+    std::unordered_map<unsigned int, TransformComponent>& transforms, 
+    SceneManager* scene, float deltaTime)
 {
     std::unordered_map<unsigned int, PhysicsComponent>::iterator iter = bodies.begin();
     for (iter; iter != bodies.end(); iter++)
     {
         Integration(iter->second, transforms[iter->first], deltaTime);
+        scene->GlobalTransformUpdate(iter->first);
     }
 }
 
@@ -50,12 +59,6 @@ void PhysicsSystem::ShapeCollisionCheck(PhysicsComponent& aPhysics, const Transf
             }
 		}
 	}
-
-    for (int i = 0; i < collisions.size(); i++)
-    {
-        Resolution(collisions[i]);
-    }
-    collisions.clear();
 }
 
 CollisionPacket PhysicsSystem::GJK(Shape a, Shape b, glm::mat4 aTransform, glm::mat4 bTransform)
@@ -111,7 +114,7 @@ std::vector<glm::vec3> PhysicsSystem::ToVector(Shape shape)
     verts.reserve(shape.vertices.size());
     for (int i = 0; i < shape.vertices.size(); i++)
     {
-        verts[i] = shape.vertices[i].vert;
+        verts.push_back(shape.vertices[i].vert);
     }
     return verts;
 }
@@ -159,7 +162,7 @@ GJKEvolution PhysicsSystem::AddSupportToSimplex(std::vector<glm::vec3>& simp, gl
     return glm::dot(dir, vert) >= 0 ? GJKEvolution::evolving : GJKEvolution::notIntersecting;
 }
 
-GJKEvolution PhysicsSystem::EvolveSimplex(std::vector<glm::vec3>& simp, glm::vec3 direction)
+GJKEvolution PhysicsSystem::EvolveSimplex(std::vector<glm::vec3>& simp, glm::vec3& direction)
 {
     switch (simp.size())
     {
@@ -266,7 +269,7 @@ void PhysicsSystem::EPA(std::vector<glm::vec3>& simp, CollisionPacket& collision
         if (abs(sDistance - minDistance) > 0.001f)
         {
             minDistance = FLT_MAX;
-            std::map<int, int> uniqueEdges;
+            std::vector<std::pair<int, int>> uniqueEdges;
             for (int i = 0; i < normals.size(); i++)
             {
                 if (glm::dot(glm::vec3(normals[i]), support) > glm::dot(glm::vec3(normals[i]), polytope[faces[i * 3]]))
@@ -289,9 +292,8 @@ void PhysicsSystem::EPA(std::vector<glm::vec3>& simp, CollisionPacket& collision
             std::vector<int> newFaces;
             for(int edge = 0; edge < uniqueEdges.size(); edge++)
             {
-                uniqueEdges;
-                newFaces.push_back(std::next(uniqueEdges.begin(),edge)->first);
-                newFaces.push_back(uniqueEdges[edge]);
+                newFaces.push_back(uniqueEdges[edge].first);
+                newFaces.push_back(uniqueEdges[edge].second);
                 newFaces.push_back(polytope.size());
             }
 
@@ -320,6 +322,7 @@ void PhysicsSystem::EPA(std::vector<glm::vec3>& simp, CollisionPacket& collision
             {
                 faces.push_back(newFaces[edge]);
             }
+
             for(int norm = 0; norm < newNormals.size(); norm++)
             {
                 normals.push_back(newNormals[norm]);
@@ -364,17 +367,17 @@ std::vector<glm::vec4> PhysicsSystem::GetFaceNormals(std::vector<glm::vec3>& pol
     return normals;
 }
 
-void PhysicsSystem::AddIfUniqueEdge(std::map<int, int>& uniqueEdges, std::vector<int> edge, int aVert, int bVert)
+void PhysicsSystem::AddIfUniqueEdge(std::vector<std::pair<int, int>>& uniqueEdges, std::vector<int> edge, int aVert, int bVert)
 {
-    std::map<int, int>::iterator edgePosition = uniqueEdges.find(edge[bVert]);
-    bool contains = edgePosition->second == edge[aVert];
-    if (contains)
+    //std::find(verts.begin(), verts.end(), currIndex)
+    std::vector<std::pair<int, int>>::iterator edgePosition = std::find(uniqueEdges.begin(), uniqueEdges.end(), std::pair<int,int>(edge[bVert], edge[aVert]));
+    if (edgePosition != uniqueEdges.end() && edgePosition->second == edge[aVert])
     {
         uniqueEdges.erase(edgePosition);
     }
     else
     {
-        uniqueEdges[edge[aVert]] = edge[bVert];
+        uniqueEdges.push_back(std::pair<int, int>(edge[aVert], edge[bVert]));
     }
 }
 
@@ -540,6 +543,8 @@ void PhysicsSystem::AddFaceVert(glm::vec3 normal, int originIndex, int currIndex
 void PhysicsSystem::Resolution(CollisionPacket& collision)
 {
     if(collision.depth < 0) return;
+    
+    collision.normal = glm::normalize(collision.normal * glm::dot(collision.aPos - collision.bPos, collision.normal));
 
     //Calculate R for each shape
     glm::vec3 rA = collision.worldContact - collision.aPos;
@@ -660,8 +665,8 @@ void PhysicsSystem::Integration(PhysicsComponent& body, TransformComponent& tran
 
 glm::quat PhysicsSystem::OrthonormalizeOrientation(const glm::mat4 rotation)
 {
-    glm::vec3 X = {rotation[0][0], rotation[1][0], rotation[2][0]};
-    glm::vec3 Y = {rotation[0][1], rotation[1][1], rotation[2][1]};
+    glm::vec3 X = {rotation[0][0], rotation[0][1], rotation[0][2]};
+    glm::vec3 Y = {rotation[1][0], rotation[1][1], rotation[1][2]};
     glm::vec3 Z;
 
     Z = glm::cross(X, Y);

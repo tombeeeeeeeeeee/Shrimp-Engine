@@ -2,6 +2,7 @@
 #include <config.h>
 #include "components/PhysicsComponent.h"
 #include "components/TransformComponent.h"
+#include "factories/SceneManager.h"
 
 const float COLLISION_FACE_THRESHOLD = -0.0025f;
 
@@ -56,7 +57,7 @@ private:
 
     GJKEvolution AddSupportToSimplex(std::vector<glm::vec3>& simp, glm::vec3 vert, glm::vec3 dir);
 
-    GJKEvolution EvolveSimplex(std::vector<glm::vec3>& simp, glm::vec3 direction);
+    GJKEvolution EvolveSimplex(std::vector<glm::vec3>& simp, glm::vec3& direction);
 
     void EPA(std::vector<glm::vec3>& simp, CollisionPacket& collision, 
         std::vector<glm::vec3>& aVerts, float aRadius, glm::mat4 aTransform, 
@@ -64,7 +65,7 @@ private:
 
     std::vector<glm::vec4> GetFaceNormals(std::vector<glm::vec3>& polytope, std::vector<int> faces, int& face);
 
-    void AddIfUniqueEdge(std::map<int, int>& uniqueEdges, std::vector<int> edge, int aVert, int bVert);
+    void AddIfUniqueEdge(std::vector<std::pair<int, int>>& uniqueEdges, std::vector<int> edge, int aVert, int bVert);
 
     void CalculateCollsionPoint(std::vector<glm::vec3>& aVerts, Shape& aShape,
         std::vector<glm::vec3>& bVerts, Shape& bShape, glm::vec3 normal, glm::vec3& contactPoint);
@@ -87,6 +88,6 @@ public:
 
 
     void IntegrationStep(std::unordered_map<unsigned int, PhysicsComponent>& bodies,
-        std::unordered_map<unsigned int, TransformComponent>& transforms, float deltaTime);
+        std::unordered_map<unsigned int, TransformComponent>& transforms, SceneManager* scene, float deltaTime);
 };
 

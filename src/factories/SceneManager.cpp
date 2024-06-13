@@ -171,6 +171,42 @@ void SceneManager::SetLocalEulers(unsigned int entity, glm::vec3 eulers, bool ra
     }
 }
 
+const glm::quat SceneManager::GetLocalQuat(unsigned int entity)
+{
+    if (transformComponents.find(entity) != transformComponents.end())
+    {
+        return transformComponents[entity].rotation;
+    }
+    else return { NAN, NAN, NAN, NAN };
+}
+
+const glm::quat SceneManager::GetWorldQuat(unsigned int entity)
+{
+    if (transformComponents.find(entity) != transformComponents.end())
+    {
+        return glm::quat(transformComponents[entity].globalTransform);
+    }
+    else return { NAN, NAN, NAN, NAN };
+}
+
+void SceneManager::SetLocalQuat(unsigned int entity, glm::quat quat)
+{
+    if (transformComponents.find(entity) != transformComponents.end())
+    {
+        transformComponents[entity].rotation = quat;
+        TransformsToUpdate.push_back(entity);
+    }
+}
+
+void SceneManager::MultiplyLocalQuat(unsigned int entity, glm::quat quat)
+{
+    if (transformComponents.find(entity) != transformComponents.end())
+    {
+        transformComponents[entity].rotation *= quat;
+        TransformsToUpdate.push_back(entity);
+    }
+}
+
 const glm::vec3 SceneManager::GetScale(unsigned int entity)
 {
     if (transformComponents.find(entity) != transformComponents.end())
@@ -725,11 +761,11 @@ PhysicsComponent SceneManager::AddPhysicsComponent(unsigned int _entity, float i
     physics.angularVelocity = glm::zero<glm::vec3>();
     physics.angularMomentum = glm::zero<glm::vec3>();
     physics.isGravitated = false;
-    physics.elasticCoef = 0.65f;
+    physics.elasticCoef = 1;
     physics.drag = 1;
     physics.angularDrag = 5;
     physics.invMass = invMass;
-    physics.momentOfInertia = glm::zero<glm::vec3>();
+    physics.momentOfInertia = {1,1,1};
     physics.invBodyIT = glm::zero<glm::mat3>();
     physics.invWorldIT = glm::zero<glm::mat3>();
 
@@ -901,7 +937,7 @@ void SceneManager::AddMomentum(unsigned int _entity, glm::vec3 momentum)
 const glm::vec3 SceneManager::GetNetDepenetration(unsigned int _entity)
 {
     if (physicsComponents.find(_entity) != physicsComponents.end())
-    {
+    { 
         return physicsComponents[_entity].netDepen;
     }
     else return glm::vec3(NAN, NAN, NAN);
@@ -940,20 +976,21 @@ void SceneManager::UpdateBodyInertiaTensor(unsigned int _entity)
 {
     if (physicsComponents.find(_entity) != physicsComponents.end())
     {
-        float dx = physicsComponents[_entity].dX;
-        float dy = physicsComponents[_entity].dY;
-        float dz = physicsComponents[_entity].dZ;
-        float invMass = physicsComponents[_entity].invMass;
-
         float scaleX = transformComponents[_entity].scale.x;
         float scaleY = transformComponents[_entity].scale.y;
         float scaleZ = transformComponents[_entity].scale.z;
 
+        float dx = physicsComponents[_entity].dX * scaleX;
+        float dy = physicsComponents[_entity].dY * scaleY;
+        float dz = physicsComponents[_entity].dZ * scaleZ;
+        float invMass = physicsComponents[_entity].invMass;
+
+
         glm::vec3 scale = physicsComponents[_entity].momentOfInertia;
         physicsComponents[_entity].invBodyIT = glm::mat3(
-            (scale.x * invMass * 12) / ((dy * dy + dz * dz) * scaleX), 0, 0,
-            0, (scale.y * invMass * 12) / ((dx * dx + dz * dz) * scaleY), 0,
-            0, 0, (scale.z * invMass * 12) / ((dx * dx + dy * dy) * scaleZ)
+            (invMass * 12) / ((dy * dy + dz * dz) * scale.x), 0, 0,
+            0, (invMass * 12) / ((dx * dx + dz * dz) * scale.y), 0,
+            0, 0, (invMass * 12) / ((dx * dx + dy * dy) * scale.z)
             );
     }
 }
@@ -1094,6 +1131,143 @@ void SceneManager::AddPhysicsSphere(unsigned int _entity, float radius, glm::vec
         shape.radius = radius;
         shape.vertices.push_back(vert);
         physicsComponents[_entity].shapes.push_back(shape);
+        if (abs(vert.vert.x + radius) > physicsComponents[_entity].dX) physicsComponents[_entity].dX = abs(vert.vert.x + radius);
+        if (abs(vert.vert.y + radius) > physicsComponents[_entity].dY) physicsComponents[_entity].dY = abs(vert.vert.y + radius);
+        if (abs(vert.vert.z + radius) > physicsComponents[_entity].dZ) physicsComponents[_entity].dZ = abs(vert.vert.z + radius);
+        UpdateBodyInertiaTensor(_entity);
+    }
+}
+
+void SceneManager::AddPhysicsShapeBox(unsigned int _entity, float x, float y, float z, glm::vec3 offset)
+{
+    if (physicsComponents.find(_entity) != physicsComponents.end())
+    {
+        Vertex verts[8];
+
+        verts[0].vert = { x,y,z };
+        verts[1].vert = { x,y,-z };
+        verts[2].vert = { x,-y,z };
+        verts[3].vert = { x,-y,-z };
+        verts[4].vert = { -x,y,z };
+        verts[5].vert = { -x,y,-z };
+        verts[6].vert = { -x,-y,z };
+        verts[7].vert = { -x,-y,-z };
+
+        verts[0].vert += offset;
+        verts[1].vert += offset;
+        verts[2].vert += offset;
+        verts[3].vert += offset;
+        verts[4].vert += offset;
+        verts[5].vert += offset;
+        verts[6].vert += offset;
+        verts[7].vert += offset;
+
+        verts[0].edges.push_back(1);
+        verts[0].edges.push_back(2);
+        verts[0].edges.push_back(4);
+
+        verts[1].edges.push_back(0);
+        verts[1].edges.push_back(3);
+        verts[1].edges.push_back(5);
+
+        verts[2].edges.push_back(0);
+        verts[2].edges.push_back(3);
+        verts[2].edges.push_back(6);
+
+        verts[3].edges.push_back(1);
+        verts[3].edges.push_back(2);
+        verts[3].edges.push_back(7);
+
+        verts[4].edges.push_back(0);
+        verts[4].edges.push_back(5);
+        verts[4].edges.push_back(6);
+
+        verts[5].edges.push_back(1);
+        verts[5].edges.push_back(4);
+        verts[5].edges.push_back(7);
+
+        verts[6].edges.push_back(2);
+        verts[6].edges.push_back(4);
+        verts[6].edges.push_back(7);
+
+        verts[7].edges.push_back(3);
+        verts[7].edges.push_back(5);
+        verts[7].edges.push_back(6);
+
+        Shape shape;
+        shape.radius = 0;
+
+        for (int i = 0; i < 8; i++)
+        {
+            shape.vertices.push_back(verts[i]);
+            if (abs(verts[i].vert.x) > physicsComponents[_entity].dX) physicsComponents[_entity].dX = abs(verts[i].vert.x);
+            if (abs(verts[i].vert.y) > physicsComponents[_entity].dY) physicsComponents[_entity].dY = abs(verts[i].vert.y);
+            if (abs(verts[i].vert.z) > physicsComponents[_entity].dZ) physicsComponents[_entity].dZ = abs(verts[i].vert.z);
+        }
+        UpdateBodyInertiaTensor(_entity);
+        physicsComponents[_entity].shapes.push_back(shape);
+    }
+}
+
+void SceneManager::AddPhysicsShapeBox(unsigned int _entity, glm::vec3 bottomLeft, glm::vec3 topRight)
+{
+    if (physicsComponents.find(_entity) != physicsComponents.end())
+    {
+        Vertex verts[8];
+
+        verts[0].vert = { bottomLeft.x,bottomLeft.y,bottomLeft.z };
+        verts[1].vert = { bottomLeft.x,bottomLeft.y,topRight.z };
+        verts[2].vert = { bottomLeft.x,topRight.y,bottomLeft.z };
+        verts[3].vert = { bottomLeft.x,topRight.y,topRight.z };
+        verts[4].vert = { topRight.x,bottomLeft.y,bottomLeft.z };
+        verts[5].vert = { topRight.x,bottomLeft.y,topRight.z };
+        verts[6].vert = { topRight.x,topRight.y,bottomLeft.z };
+        verts[7].vert = { topRight.x,topRight.y,topRight.z };
+
+        verts[0].edges.push_back(1);
+        verts[0].edges.push_back(2);
+        verts[0].edges.push_back(4);
+
+        verts[1].edges.push_back(0);
+        verts[1].edges.push_back(3);
+        verts[1].edges.push_back(5);
+
+        verts[2].edges.push_back(0);
+        verts[2].edges.push_back(3);
+        verts[2].edges.push_back(6);
+
+        verts[3].edges.push_back(1);
+        verts[3].edges.push_back(2);
+        verts[3].edges.push_back(7);
+
+        verts[4].edges.push_back(0);
+        verts[4].edges.push_back(5);
+        verts[4].edges.push_back(6);
+
+        verts[5].edges.push_back(1);
+        verts[5].edges.push_back(4);
+        verts[5].edges.push_back(7);
+
+        verts[6].edges.push_back(2);
+        verts[6].edges.push_back(4);
+        verts[6].edges.push_back(7);
+
+        verts[7].edges.push_back(3);
+        verts[7].edges.push_back(5);
+        verts[7].edges.push_back(6);
+
+        Shape shape;
+        shape.radius = 0;
+
+        for (int i = 0; i < 8; i++)
+        {
+            shape.vertices.push_back(verts[i]);
+            if (abs(verts[i].vert.x) > physicsComponents[_entity].dX) physicsComponents[_entity].dX = abs(verts[i].vert.x);
+            if (abs(verts[i].vert.y) > physicsComponents[_entity].dY) physicsComponents[_entity].dY = abs(verts[i].vert.y);
+            if (abs(verts[i].vert.z) > physicsComponents[_entity].dZ) physicsComponents[_entity].dZ = abs(verts[i].vert.z);
+        }
+        UpdateBodyInertiaTensor(_entity);
+        physicsComponents[_entity].shapes.push_back(shape);
     }
 }
 
@@ -1112,6 +1286,12 @@ void SceneManager::AddPhysicsShapePill(unsigned int _entity, float radius, glm::
         shape.radius = radius;
         shape.vertices.push_back(vertBot);
         shape.vertices.push_back(vertTop);
+
+        if (abs(offset.x + radius) > physicsComponents[_entity].dX) physicsComponents[_entity].dX = abs(offset.x + radius);
+        if (abs(offset.y + radius) > physicsComponents[_entity].dY) physicsComponents[_entity].dY = abs(offset.y + radius);
+        if (abs(offset.z + radius) > physicsComponents[_entity].dZ) physicsComponents[_entity].dZ = abs(offset.z + radius);
+
+        UpdateBodyInertiaTensor(_entity);
         physicsComponents[_entity].shapes.push_back(shape);
     }
 }
@@ -1131,6 +1311,17 @@ void SceneManager::AddPhysicsShapePill(unsigned int _entity, glm::vec3 bottom, g
         shape.radius = radius;
         shape.vertices.push_back(vertBot);
         shape.vertices.push_back(vertTop);
+
+        if (abs(top.x + radius) > physicsComponents[_entity].dX) physicsComponents[_entity].dX = abs(top.x + radius);
+        if (abs(top.y + radius) > physicsComponents[_entity].dY) physicsComponents[_entity].dY = abs(top.y + radius);
+        if (abs(top.z + radius) > physicsComponents[_entity].dZ) physicsComponents[_entity].dZ = abs(top.z + radius);
+
+        if (abs(bottom.x + radius) > physicsComponents[_entity].dX) physicsComponents[_entity].dX = abs(bottom.x + radius);
+        if (abs(bottom.y + radius) > physicsComponents[_entity].dY) physicsComponents[_entity].dY = abs(bottom.y + radius);
+        if (abs(bottom.z + radius) > physicsComponents[_entity].dZ) physicsComponents[_entity].dZ = abs(bottom.z + radius);
+
+        UpdateBodyInertiaTensor(_entity);
+
         physicsComponents[_entity].shapes.push_back(shape);
     }
 }

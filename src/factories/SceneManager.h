@@ -56,6 +56,11 @@ public:
 	const glm::vec3 GetLocalEulers(unsigned int entity, bool radians = true);
 	void SetLocalEulers(unsigned int entity, glm::vec3 eulers, bool radians = true);
 
+	const glm::quat GetLocalQuat(unsigned int entity);
+	const glm::quat GetWorldQuat(unsigned int entity);
+	void SetLocalQuat(unsigned int entity, glm::quat quat);
+	void MultiplyLocalQuat(unsigned int entity, glm::quat quat);
+
 	const glm::vec3 GetScale(unsigned int entity);
 	void SetScale(unsigned int entity, glm::vec3 scale);
 
@@ -431,7 +436,14 @@ public:
 	/// <param name="radius"> radius of sphere</param>
 	/// <param name="offset"> offset from transform position to sphere</param>
 	void AddPhysicsSphere(unsigned int _entity, float radius = 0.5f, glm::vec3 offset = glm::zero<glm::vec3>());
-	//TODO
+	
+	/// <summary>
+	/// Add box to net shape of body
+	/// </summary>
+	/// <param name="_entity">entity id of body</param>
+	/// <param name="x"> x coord</param>
+	/// <param name="y"> y coord</param>
+	/// <param name="z"> z coord</param>
 	void AddPhysicsShapeBox(unsigned int _entity, float x = 0.5f, float y = 0.5f, float z = 0.5f, glm::vec3 offset = glm::zero<glm::vec3>());
 	//TODO
 	void AddPhysicsShapeBox(unsigned int _entity, glm::vec3 bottomLeft, glm::vec3 topRight);
