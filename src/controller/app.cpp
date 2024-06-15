@@ -156,8 +156,8 @@ void App::Start()
     scene->AddRenderComponent(cubeEntity);
     scene->SetMesh(cubeEntity, assetFactory->GetMesh("models/Cerberus_LP.FBX"));
     std::string textureMaps[3] = { "img/Cerberus_A.tga", "img/Cerberus_PBR.tga", "img/Cerberus_N.tga" };
-    scene->SetScale(2, { 0.25f, 0.25f, 0.25f });
-    scene->AddPhysicsComponent(2, 1);
+    scene->SetScale(2, { 0.15f, 0.15f, 0.15f });
+    scene->AddPhysicsComponent(2, 0);
     scene->SetIsGravitated(2, false);
     scene->AddPhysicsShapePill(2, { 0,21,7.5f }, { 0,-109,7.5f }, 2.25f);
     scene->AddPhysicsShapePill(2, { 4.25f,21,1 }, { 4.25f,-109,1 }, 2.25f);
@@ -169,20 +169,36 @@ void App::Start()
 
     scene->SetMaterial(cubeEntity, assetFactory->GetMaterial(textureMaps, 7));
 
-    scene->MakeAmbientLightEntity({ 0.8f,0.8f,0.8f }, 0.001f);
+    scene->MakeAmbientLightEntity({ 0.8f,0.8f,0.8f }, 0.0f);
     scene->MakePointLightEntity({ 0,0,0 }, 20, { 0.5f,0.5f,0.5f }, 2);
+    int lightCount = 25;
+    srand(2222);
+    for (int i = 5; i < lightCount; i++)
+    {
+        float z = (20.0f * (float)rand() / RAND_MAX - 10.0f);
+        float y = (110.0f * (float)rand() / RAND_MAX - 90.0f);
+        float x = (9.0f * (float)rand() / RAND_MAX + 30.0f);
 
-    scene->MakePointLightEntity({ 2,-5,12 }, 20, { 255,192,20 }, 1 / (float)255);
-    scene->AddPhysicsComponent(5, 1);
-    scene->AddPhysicsShapeBox(5);
-    scene->SetIsGravitated(5, true);
-    scene->SetMomentOfInertiaScale(5, { 0.1f,0.1f,0.1f });
-    scene->SetLocalEulers(5, { 5, 10, 20 }, false);
+        float b = (255 * (float)rand() / RAND_MAX);
+        float g = (255 * (float)rand() / RAND_MAX);
+        float r = (255 * (float)rand() / RAND_MAX);
 
-    scene->MakePointLightEntity({-12,-3,-2}, 20, { 50, 150, 255 }, 1/(float)255);
-    scene->AddPhysicsComponent(6, 1);
-    scene->AddPhysicsShapeBox(6);
-    scene->SetIsGravitated(6,true);
+        scene->MakePointLightEntity({z, y, x }, 20, { r,g,b }, 1 / (float)255);
+        if (i % 5 == 0 || i % 5 == 1)
+        {
+            scene->AddPhysicsComponent(i, 1);
+            scene->AddPhysicsShapeBox(i);
+            scene->SetIsGravitated(i, true);
+            scene->SetMomentOfInertiaScale(i, { 0.1,0.1,0.1 });
+        }
+    }
+
+    scene->MakePhysicsEntity();
+    scene->SetLocalPosition(lightCount, { 0,0,-15 });
+    scene->SetScale(lightCount, { 2000,2000,1 });
+    scene->AddPhysicsShapeBox(lightCount);
+    scene->SetIsGravitated(lightCount, false);
+    scene->SetInverseMass(lightCount, 0);
 }
 
 void App::Update()

@@ -4,6 +4,7 @@ in vec3 fragmentPos;
 in vec3 fragmentNormal;
 in vec3 fragmentTangent;
 in vec3 fragmentBitangent;
+in vec3 vec3 fragmentColour;
 
 out vec4 screenColour;
 
@@ -20,6 +21,6 @@ void main()
 {
 	vec3 diffuseColour = texture(diffuse, fragmentTexCoord).rgb;
 
-	screenColour = vec4(diffuseColour, 1);
+	screenColour = vec4(screenColour * diffuseColour, 1);
 }
 

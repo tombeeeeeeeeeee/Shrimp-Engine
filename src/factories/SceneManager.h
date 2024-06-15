@@ -155,6 +155,9 @@ public:
 	const MeshAsset* GetMesh(unsigned int entity);
 	void SetMesh(unsigned int entity, MeshAsset* mesh);
 
+	const glm::vec3 GetMaterialColour(unsigned int _entity);
+	void SetMaterialColour(unsigned int _entity, glm::vec3 colour);
+
 #pragma endregion
 
 #pragma region Physics Components
@@ -436,7 +439,6 @@ public:
 	/// <param name="radius"> radius of sphere</param>
 	/// <param name="offset"> offset from transform position to sphere</param>
 	void AddPhysicsSphere(unsigned int _entity, float radius = 0.5f, glm::vec3 offset = glm::zero<glm::vec3>());
-	
 	/// <summary>
 	/// Add box to net shape of body
 	/// </summary>
@@ -445,9 +447,13 @@ public:
 	/// <param name="y"> y coord</param>
 	/// <param name="z"> z coord</param>
 	void AddPhysicsShapeBox(unsigned int _entity, float x = 0.5f, float y = 0.5f, float z = 0.5f, glm::vec3 offset = glm::zero<glm::vec3>());
-	//TODO
+	/// <summary>
+	/// Add box to net shape of body
+	/// </summary>
+	/// <param name="_entity"> entity id of body</param>
+	/// <param name="bottomLeft"> bottom left corner of shape</param>
+	/// <param name="topRight"> top right corner of shape</param>
 	void AddPhysicsShapeBox(unsigned int _entity, glm::vec3 bottomLeft, glm::vec3 topRight);
-
 	/// <summary>
 	/// Adds upright pill shape to net shape of a body
 	/// </summary>

@@ -4,6 +4,7 @@ in vec3 fragmentPos;
 in vec3 fragmentNormal;
 in vec3 fragmentTangent;
 in vec3 fragmentBitangent;
+in vec3 fragmentColour;
 
 out vec4 screenColour;
 
@@ -129,7 +130,7 @@ void main()
 	vec3 kS = fresnelSchlickRoughness(max(dot(trueNormal, viewDirection), 0.0), F0, roughness);
 	vec3 kD = vec3(1.0) - kS;
 	kD *= 1.0 - metallic;	  
-    vec3 irradiance = texture(irradianceMap, trueNormal).rgb;
+    vec3 irradiance = fragmentColour * texture(irradianceMap, trueNormal).rgb;
 
     vec3 diffuse = irradiance * albedo;
 	vec3 additionalAmbient = (kD * ambientLightColour) * ao;

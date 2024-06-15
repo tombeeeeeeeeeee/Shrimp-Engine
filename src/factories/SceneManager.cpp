@@ -233,7 +233,7 @@ const glm::mat4 SceneManager::GetLocalTransform(unsigned int entity)
         glm::mat4 scale = glm::scale(glm::identity<glm::mat4>(), transformComponents[entity].scale);
         glm::mat4 rotation = glm::mat4(transformComponents[entity].rotation);
         
-        return translate * rotation * scale;
+        return scale * translate * rotation;
     }
     else return { 
         NAN, NAN, NAN, NAN,
@@ -299,8 +299,9 @@ unsigned int SceneManager::MakePointLightEntity(glm::vec3 pos, float range, glm:
         lightCube.mesh = assFact.GetMesh("models/cube.obj");
         lightCube.material = assFact.GetMaterial("img/light.png", 1);
         lightCube.material->shaderProgram = 1;
+        lightCube.colour = colour * intensity;
         AddRenderComponent(point, lightCube);
-        transformComponents[point].scale = { 0.5,0.5,0.5 };
+        transformComponents[point].scale = { 0.25f,0.25f,0.25f };
     }
 
     return AddPointLightComponent(point, range, colour, intensity);
@@ -331,6 +332,7 @@ unsigned int SceneManager::MakeSpotLightEntity(glm::vec3 pos, glm::vec3 dir, flo
         lightCube.mesh = assFact.GetMesh("models/cube.obj");
         lightCube.material = assFact.GetMaterial("img/light.png", 1);
         lightCube.material->shaderProgram = 1;
+        lightCube.colour = colour * intensity;
         AddRenderComponent(spot, lightCube);
         transformComponents[spot].scale = { 0.1,0.1,0.1 };
     }
@@ -741,6 +743,23 @@ void SceneManager::SetMesh(unsigned int entity, MeshAsset* mesh)
     }
 }
 
+const glm::vec3 SceneManager::GetMaterialColour(unsigned int _entity)
+{
+    if (renderComponents.find(_entity) != renderComponents.end())
+    {
+        return renderComponents[_entity].colour;
+    }
+    else return {NAN, NAN, NAN};
+}
+
+void SceneManager::SetMaterialColour(unsigned int _entity, glm::vec3 colour)
+{
+    if (renderComponents.find(_entity) != renderComponents.end())
+    {
+        renderComponents[_entity].colour = colour;
+    }
+}
+
 unsigned int SceneManager::MakePhysicsEntity()
 {
     unsigned int physics = MakeEmptyTransform();
@@ -761,9 +780,9 @@ PhysicsComponent SceneManager::AddPhysicsComponent(unsigned int _entity, float i
     physics.angularVelocity = glm::zero<glm::vec3>();
     physics.angularMomentum = glm::zero<glm::vec3>();
     physics.isGravitated = false;
-    physics.elasticCoef = 1;
-    physics.drag = 1;
-    physics.angularDrag = 5;
+    physics.elasticCoef = 0.5f;
+    physics.drag = 0.1;
+    physics.angularDrag = 3;
     physics.invMass = invMass;
     physics.momentOfInertia = {1,1,1};
     physics.invBodyIT = glm::zero<glm::mat3>();
@@ -975,22 +994,18 @@ void SceneManager::SetInverseBodyInertiaTensor(unsigned int _entity, glm::mat3 i
 void SceneManager::UpdateBodyInertiaTensor(unsigned int _entity)
 {
     if (physicsComponents.find(_entity) != physicsComponents.end())
-    {
-        float scaleX = transformComponents[_entity].scale.x;
-        float scaleY = transformComponents[_entity].scale.y;
-        float scaleZ = transformComponents[_entity].scale.z;
-
-        float dx = physicsComponents[_entity].dX * scaleX;
-        float dy = physicsComponents[_entity].dY * scaleY;
-        float dz = physicsComponents[_entity].dZ * scaleZ;
+    { 
+        glm::vec3 transformScale = transformComponents[_entity].scale;
+        float dx = physicsComponents[_entity].dX;
+        float dy = physicsComponents[_entity].dY;
+        float dz = physicsComponents[_entity].dZ;
         float invMass = physicsComponents[_entity].invMass;
-
 
         glm::vec3 scale = physicsComponents[_entity].momentOfInertia;
         physicsComponents[_entity].invBodyIT = glm::mat3(
-            (invMass * 12) / ((dy * dy + dz * dz) * scale.x), 0, 0,
-            0, (invMass * 12) / ((dx * dx + dz * dz) * scale.y), 0,
-            0, 0, (invMass * 12) / ((dx * dx + dy * dy) * scale.z)
+            (invMass * scale.x ) / (dy * dy + dz * dz), 0, 0,
+            0, (invMass * scale.y ) / (dx * dx + dz * dz), 0,
+            0, 0, (invMass * scale.z ) / (dx * dx + dy * dy)
             );
     }
 }

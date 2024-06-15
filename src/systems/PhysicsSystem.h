@@ -70,11 +70,11 @@ private:
     void CalculateCollsionPoint(std::vector<glm::vec3>& aVerts, Shape& aShape,
         std::vector<glm::vec3>& bVerts, Shape& bShape, glm::vec3 normal, glm::vec3& contactPoint);
 
-    void AddFaceVert(glm::vec3 normal, int originIndex, int currIndex, std::vector<glm::vec3>& worldSpace, Shape shape, std::vector<int> verts);
+    void AddFaceVert(glm::vec3 normal, int originIndex, int currIndex, std::vector<glm::vec3>& worldSpace, Shape shape, std::vector<int>& verts);
 
     void Resolution(CollisionPacket& collision);
 
-    glm::vec3 AddDepen(glm::vec3 newDepen, glm::vec3 currDepen);
+    glm::vec3 AddDepen(glm::vec3 newDepen, glm::vec3& currDepen);
 
     void Integration(PhysicsComponent& body, TransformComponent& transform, float deltaTime);
 

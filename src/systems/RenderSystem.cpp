@@ -134,6 +134,7 @@ void RenderSystem::Update(
             glActiveTexture(GL_TEXTURE5);
             glBindTexture(GL_TEXTURE_2D, brdfLUTTexture);
 
+            glUniform3fv(glGetUniformLocation((*shaders)[i], "materialColour"), 1,&renderComponents[*iter].colour[0]);
 
             //Bind mesh for drawing
             glBindVertexArray(renderComponents[*iter].mesh->VAO);

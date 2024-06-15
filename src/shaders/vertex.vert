@@ -10,17 +10,19 @@ out vec3 fragmentPos;
 out vec3 fragmentNormal;
 out vec3 fragmentTangent;
 out vec3 fragmentBitangent;
-
+out vec3 fragmentColour;
 
 uniform mat4 model; 
 uniform mat4 view;
 uniform mat4 projection;
+uniform vec3 materialColour;
 
 void main()
 {
 	gl_Position = projection * view * model * vec4(vertexPos, 1.0);
 	fragmentTexCoord = vertexTexCoord;
 	fragmentPos = (model * vec4(vertexPos, 1.0)).xyz;
+	fragmentColour = materialColour;
 
 	//Worse Normals Lower Tax
 	fragmentTangent = (model * vec4(vertexTangent, 0.0)).xyz;

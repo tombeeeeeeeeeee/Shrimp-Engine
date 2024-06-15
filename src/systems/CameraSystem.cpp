@@ -28,12 +28,6 @@ bool CameraSystem::Update(std::unordered_map<unsigned int, TransformComponent>& 
     glm::vec3& right = _cameraComponent.right;
     
     forwards = rot * glm::vec3(1,0,0);
-
-    //forwards = {
-    //    2 * (rot.x * rot.z + rot.w * rot.y),
-    //    2 * (rot.y * rot.z - rot.w * rot.x),
-    //    1 - 2 * (rot.y * rot.y + rot.x * rot.x)
-    //}; 
      
     right = glm::normalize(glm::cross(forwards, globalUp));
     up = glm::normalize(cross(right, forwards));

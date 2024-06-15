@@ -53,8 +53,6 @@ void PhysicsSystem::ShapeCollisionCheck(PhysicsComponent& aPhysics, const Transf
 			collision.objectB = &bPhysics;
             if (collision.depth > 0)
             {
-                collision.aPos = aTransform.globalTransform * glm::vec4(0, 0, 0, 1);
-                collision.bPos = bTransform.globalTransform * glm::vec4(0, 0, 0, 1);
                 collisions.push_back(collision);
             }
 		}
@@ -102,6 +100,14 @@ CollisionPacket PhysicsSystem::GJK(Shape a, Shape b, glm::mat4 aTransform, glm::
     if (gjking == GJKEvolution::intersecting)
     {
         EPA(simp, collision, shapeA, a.radius, aTransform, shapeB, b.radius, bTransform);
+
+        glm::vec3 aPos = {aTransform[3][0],aTransform[3][1],aTransform[3][2]};
+        glm::vec3 bPos = {bTransform[3][0],bTransform[3][1],bTransform[3][2]};
+
+        collision.aPos = aPos;
+        collision.bPos = bPos;
+
+        glm::normalize(collision.normal * glm::dot(aPos - bPos, collision.normal));
         CalculateCollsionPoint(shapeA, a, shapeB, b, collision.normal, collision.worldContact);
     }
 
@@ -425,19 +431,19 @@ void PhysicsSystem::CalculateCollsionPoint(std::vector<glm::vec3>& aVerts, Shape
     std::vector<glm::vec2> b2D; b2D.reserve(bFaceVertices.size());
 
 
-    for (int i = 0; i < a2D.size(); i++)
+    for (int i = 0; i < aFaceVertices.size(); i++)
     {
         float x = glm::dot(aVerts[aFaceVertices[i]], colRight);
         float y = glm::dot(aVerts[aFaceVertices[i]], colUp);
-        a2D[i] = glm::vec2(x, y);
+        a2D.push_back(glm::vec2(x, y));
     }
 
-    for (int i = 0; i < b2D.size(); i++)
+    for (int i = 0; i < bFaceVertices.size(); i++)
     {
         float x = glm::dot(bVerts[bFaceVertices[i]], colRight);
         float y = glm::dot(bVerts[bFaceVertices[i]], colUp);
 
-        b2D[i] = glm::vec2(x, y);
+        b2D.push_back(glm::vec2(x, y));
     }
 
     std::vector<glm::vec2> contactPoints;
@@ -525,7 +531,7 @@ void PhysicsSystem::CalculateCollsionPoint(std::vector<glm::vec3>& aVerts, Shape
     }
 }
 
-void PhysicsSystem::AddFaceVert(glm::vec3 normal, int originIndex, int currIndex, std::vector<glm::vec3>& worldSpace, Shape shape, std::vector<int> verts)
+void PhysicsSystem::AddFaceVert(glm::vec3 normal, int originIndex, int currIndex, std::vector<glm::vec3>& worldSpace, Shape shape, std::vector<int>& verts)
 {
     if (glm::dot(normal, (worldSpace[currIndex] - worldSpace[originIndex])) > COLLISION_FACE_THRESHOLD)
     {
@@ -544,8 +550,6 @@ void PhysicsSystem::Resolution(CollisionPacket& collision)
 {
     if(collision.depth < 0) return;
     
-    collision.normal = glm::normalize(collision.normal * glm::dot(collision.aPos - collision.bPos, collision.normal));
-
     //Calculate R for each shape
     glm::vec3 rA = collision.worldContact - collision.aPos;
     glm::vec3 rB = collision.worldContact - collision.bPos;
@@ -557,10 +561,10 @@ void PhysicsSystem::Resolution(CollisionPacket& collision)
         (collision.objectA->velocity + glm::cross(collision.objectA->angularVelocity, rA))
         - (collision.objectB->velocity + glm::cross(collision.objectB->angularVelocity, rB));
 
+
     //Calculate Average Elasticity
     float elasticCoef = collision.objectA->elasticCoef + collision.objectB->elasticCoef;
     elasticCoef /= 2;
-
 
     glm::vec3 aDenomComponentVector = collision.objectA->invWorldIT * glm::cross(rA, collision.normal);
     glm::vec3 bDenomComponentVector = collision.objectB->invWorldIT * glm::cross(rB, collision.normal);
@@ -573,12 +577,11 @@ void PhysicsSystem::Resolution(CollisionPacket& collision)
     float j = -(1 + elasticCoef) * glm::dot(relativeVelocity, collision.normal) /
         (totalInverseMass + denom);
 
-    if (j <= 0) return;
+    if (j > 0) return;
 
     //Add depenertration to collidable, ensures too much depenertration per frame doesnt occure
     collision.objectA->netDepen = AddDepen(collision.normal * (collision.depth) * collision.objectA->invMass / totalInverseMass, collision.objectA->netDepen);
     collision.objectB->netDepen = AddDepen(-collision.normal * (collision.depth) * collision.objectB->invMass / totalInverseMass, collision.objectB->netDepen);
-
 
     glm::vec3 linearRestitution = j * collision.normal;
 
@@ -592,7 +595,7 @@ void PhysicsSystem::Resolution(CollisionPacket& collision)
     collision.objectB->angularMomentum -= angularRestitutionB;
 }
 
-glm::vec3 PhysicsSystem::AddDepen(glm::vec3 newDepen, glm::vec3 currDepen)
+glm::vec3 PhysicsSystem::AddDepen(glm::vec3 newDepen, glm::vec3& currDepen)
 {
     glm::vec3 nextDepen;
     if (glm::length(newDepen) <= 0.0000001f)
@@ -651,13 +654,13 @@ void PhysicsSystem::Integration(PhysicsComponent& body, TransformComponent& tran
 
     angVel *= deltaTime;
 
-    glm::mat3 rotation = angVel * glm::mat3(transform.rotation);
+    glm::mat3 rotation = glm::mat3(transform.rotation) * angVel;
     rotation += glm::mat3(transform.rotation);
     transform.rotation = OrthonormalizeOrientation(rotation);
 
-    body.invWorldIT = glm::mat3(transform.rotation) * body.invBodyIT;
-    body.invWorldIT = body.invWorldIT * glm::transpose(body.invBodyIT);
+    glm::mat3 invRot = glm::inverse(glm::mat3(transform.rotation));
 
+    body.invWorldIT = glm::transpose(invRot) * body.invBodyIT * invRot;
 
     body.torque = { 0,0,0 };
     body.force = { 0,0,0 };

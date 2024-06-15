@@ -21,4 +21,5 @@ struct RenderComponent
 {
 	MaterialAsset* material;
 	MeshAsset* mesh;
+	glm::vec3 colour = {1,1,1};
 };
