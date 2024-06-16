@@ -169,11 +169,10 @@ void App::Start()
 
     scene->SetMaterial(cubeEntity, assetFactory->GetMaterial(textureMaps, 7));
 
-    scene->MakeAmbientLightEntity({ 0.8f,0.8f,0.8f }, 0.0f);
-    scene->MakePointLightEntity({ 0,0,0 }, 20, { 0.5f,0.5f,0.5f }, 2);
-    int lightCount = 25;
-    srand(2222);
-    for (int i = 5; i < lightCount; i++)
+    int lightCount = 10;
+
+    srand(212);
+    for (int i = 3; i < lightCount; i++)
     {
         float z = (20.0f * (float)rand() / RAND_MAX - 10.0f);
         float y = (110.0f * (float)rand() / RAND_MAX - 90.0f);
@@ -183,28 +182,17 @@ void App::Start()
         float g = (255 * (float)rand() / RAND_MAX);
         float r = (255 * (float)rand() / RAND_MAX);
 
-        scene->MakePointLightEntity({z, y, x }, 20, { r,g,b }, 1 / (float)255);
-        if (i % 5 == 0 || i % 5 == 1)
-        {
-            scene->AddPhysicsComponent(i, 1);
-            scene->AddPhysicsShapeBox(i);
-            scene->SetIsGravitated(i, true);
-            scene->SetMomentOfInertiaScale(i, { 0.1,0.1,0.1 });
-        }
+        scene->MakePointLightEntity({z, y, x }, 100, { r,g,b }, 1 / (float)255);
+        scene->AddPhysicsComponent(i, 1);
+        scene->AddPhysicsShapeBox(i);
+        scene->SetIsGravitated(i, true);
+        scene->SetMomentOfInertiaScale(i, { 0.01f,0.01f,0.01f });
     }
-
-    scene->MakePhysicsEntity();
-    scene->SetLocalPosition(lightCount, { 0,0,-15 });
-    scene->SetScale(lightCount, { 2000,2000,1 });
-    scene->AddPhysicsShapeBox(lightCount);
-    scene->SetIsGravitated(lightCount, false);
-    scene->SetInverseMass(lightCount, 0);
 }
 
 void App::Update()
 {
     //Space to add things to run on update
-    //scene->SetLocalPosition(4, { 10 * (float)cos(glfwGetTime() * 2), -30 * (float)sin(glfwGetTime() * 0.05f), 5 * (float)sin(glfwGetTime() * 2) });
 
     if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) {
         renderSystem->exposure += 0.02f;
@@ -214,7 +202,7 @@ void App::Update()
     }
     if (glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS)
     {
-        physicsSystem->gravity = { 0,0,-9.8f };
+        physicsSystem->gravity = { 0,0,-19.6f };
     }
 }
 

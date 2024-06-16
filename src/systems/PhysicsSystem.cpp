@@ -5,7 +5,7 @@ void PhysicsSystem::CollisionPhase(std::unordered_map<unsigned int, PhysicsCompo
 {
 	for (int CollisionCheckItterations = 0; CollisionCheckItterations < 10; CollisionCheckItterations++)
 	{
-		//BroadPhase
+		//BroadPhase //We will see a new braodphase soon
 		std::unordered_map<unsigned int, PhysicsComponent>::iterator aIter = bodies.begin();
 		if (aIter != bodies.end());
 		{
@@ -21,10 +21,12 @@ void PhysicsSystem::CollisionPhase(std::unordered_map<unsigned int, PhysicsCompo
 		}
 	}
 
+    //Find all collisions and then resolve them.
     for (int i = 0; i < collisions.size(); i++)
     {
         Resolution(collisions[i]);
     }
+    // clear collisions from frame
     collisions.clear();
 }
 
@@ -67,22 +69,25 @@ CollisionPacket PhysicsSystem::GJK(Shape a, Shape b, glm::mat4 aTransform, glm::
     shapeA = ToVector(a);
     shapeB = ToVector(b);
 
+    // Transform verts to world space.
     for (int i = 0; i < shapeA.size(); i++)
     {
         shapeA[i] = aTransform * glm::vec4(shapeA[i], 1);
     }
-
     for (int i = 0; i < shapeB.size(); i++)
     {
         shapeB[i] = bTransform * glm::vec4(shapeB[i], 1);
     }
 
-    //Collision Check
+    //Get support in arbitrery direction
     glm::vec3 direction = {1,0,0};
     glm::vec3 support = CalculateSupport(shapeA, a.radius, shapeB, b.radius, direction);
     GJKEvolution gjking = AddSupportToSimplex(simp, support, direction);
+
+    //Get Support on opposite side of Minkowski difference
     direction = -support;
     int iter = 0;
+    //Evolve simplex
     while (gjking == GJKEvolution::evolving && iter < 100)
     {
         iter++;
@@ -98,8 +103,10 @@ CollisionPacket PhysicsSystem::GJK(Shape a, Shape b, glm::mat4 aTransform, glm::
     }
 
     if (gjking == GJKEvolution::intersecting)
-    {
+    {   
+        //EPA to determine depth and normal
         EPA(simp, collision, shapeA, a.radius, aTransform, shapeB, b.radius, bTransform);
+
 
         glm::vec3 aPos = {aTransform[3][0],aTransform[3][1],aTransform[3][2]};
         glm::vec3 bPos = {bTransform[3][0],bTransform[3][1],bTransform[3][2]};
@@ -107,7 +114,9 @@ CollisionPacket PhysicsSystem::GJK(Shape a, Shape b, glm::mat4 aTransform, glm::
         collision.aPos = aPos;
         collision.bPos = bPos;
 
-        glm::normalize(collision.normal * glm::dot(aPos - bPos, collision.normal));
+        //Point normal from a to b
+        collision.normal = glm::normalize(collision.normal * glm::dot(bPos - aPos, collision.normal));
+        
         CalculateCollsionPoint(shapeA, a, shapeB, b, collision.normal, collision.worldContact);
     }
 
@@ -188,6 +197,7 @@ GJKEvolution PhysicsSystem::EvolveSimplex(std::vector<glm::vec3>& simp, glm::vec
         }
         else
         {
+            // shapes arent colliding
             simp.erase(std::next(simp.begin(), 1));
             direction = dO;
         }
@@ -220,16 +230,19 @@ GJKEvolution PhysicsSystem::EvolveSimplex(std::vector<glm::vec3>& simp, glm::vec
 
         if (glm::dot(bcdNorm, dO) > 0)
         {
+            //remove a, direction is away from a
             simp.erase(simp.begin());
             direction = bcdNorm;
         }
         else if (glm::dot(abdNorm, dO) > 0)
         {
+            //remove c, direction is away from c
             simp.erase(std::next(simp.begin(), 2));
             direction = abdNorm;
         }
         else if (glm::dot(cadNorm, dO) > 0)
         {
+            ////remove b, direction is away from b
             simp.erase(std::next(simp.begin(), 1));
             direction = cadNorm;
         }
@@ -251,6 +264,8 @@ void PhysicsSystem::EPA(std::vector<glm::vec3>& simp, CollisionPacket& collision
     std::vector<glm::vec3>& bVerts, float bRadius, glm::mat4 bTransform)
 {
     std::vector<glm::vec3> polytope = std::vector<glm::vec3>(simp);
+
+    //faces are made up of indexs of verts
     std::vector<int> faces = 
     {
         0, 1, 2,
@@ -262,6 +277,7 @@ void PhysicsSystem::EPA(std::vector<glm::vec3>& simp, CollisionPacket& collision
     int minFace = 0;
     std::vector<glm::vec4> normals = GetFaceNormals(polytope, faces, minFace);
 
+    //arbitrary normal
     glm::vec3 minNormal = { 0,1,0 };
     float minDistance = FLT_MAX;
     while (minDistance == FLT_MAX)
@@ -269,9 +285,11 @@ void PhysicsSystem::EPA(std::vector<glm::vec3>& simp, CollisionPacket& collision
         minNormal = glm::vec3(normals[minFace].x, normals[minFace].y, normals[minFace].z);
         minDistance = normals[minFace].w;
 
+        //find vert furthest vert in direction
         glm::vec3 support = CalculateSupport(aVerts, aRadius, bVerts, bRadius, minNormal);
         float sDistance = glm::dot(minNormal, support);
 
+        //if support is futher than current face. Keep expanding the polytope
         if (abs(sDistance - minDistance) > 0.001f)
         {
             minDistance = FLT_MAX;
@@ -375,7 +393,6 @@ std::vector<glm::vec4> PhysicsSystem::GetFaceNormals(std::vector<glm::vec3>& pol
 
 void PhysicsSystem::AddIfUniqueEdge(std::vector<std::pair<int, int>>& uniqueEdges, std::vector<int> edge, int aVert, int bVert)
 {
-    //std::find(verts.begin(), verts.end(), currIndex)
     std::vector<std::pair<int, int>>::iterator edgePosition = std::find(uniqueEdges.begin(), uniqueEdges.end(), std::pair<int,int>(edge[bVert], edge[aVert]));
     if (edgePosition != uniqueEdges.end() && edgePosition->second == edge[aVert])
     {
@@ -396,6 +413,7 @@ void PhysicsSystem::CalculateCollsionPoint(std::vector<glm::vec3>& aVerts, Shape
     glm::vec3 aMost = SupportFunction(-normal, aVerts, aShape.radius, aMostIndex);
     glm::vec3 bMost = SupportFunction(normal, bVerts, bShape.radius, bMostIndex);
 
+    //if shape has 1 vert its collision point is always on in the direction of the normal
     if (aVerts.size() == 1)
     {
         contactPoint = aMost;
@@ -407,6 +425,7 @@ void PhysicsSystem::CalculateCollsionPoint(std::vector<glm::vec3>& aVerts, Shape
         return;
     }
 
+    //find responsible edges/faces/verts for collision
     std::vector<int> aFaceVertices; aFaceVertices.push_back(aMostIndex);
     std::vector<int> bFaceVertices; bFaceVertices.push_back(bMostIndex);
 
@@ -420,9 +439,11 @@ void PhysicsSystem::CalculateCollsionPoint(std::vector<glm::vec3>& aVerts, Shape
         AddFaceVert(normal, bMostIndex, bShape.vertices[bMostIndex].edges[i], bVerts, bShape, bFaceVertices);
     }
 
+    //if a vert was the source of the collision, than it is the contact point
     if (aFaceVertices.size() == 1) { contactPoint = aMost; return; }
     if (bFaceVertices.size() == 1) { contactPoint = bMost; return; }
 
+    //Transform problem from 3D to 2D to remove the depth from the problem.
     glm::vec3 colUp = glm::normalize(bVerts[bFaceVertices[0]] - bVerts[bFaceVertices[1]]);
     glm::vec3 colRight = glm::normalize(glm::cross(colUp, normal));
     colUp = glm::normalize(glm::cross(normal, colRight));
@@ -450,6 +471,7 @@ void PhysicsSystem::CalculateCollsionPoint(std::vector<glm::vec3>& aVerts, Shape
 
     for (int i = 0; i < a2D.size(); i++)
     {
+        //find all edge edge collision points
         glm::vec2 a = a2D[i];
         glm::vec2 b = a2D[(i + 1) % a2D.size()] - a;
 
@@ -488,6 +510,7 @@ void PhysicsSystem::CalculateCollsionPoint(std::vector<glm::vec3>& aVerts, Shape
 
     if (contactPoints.size() > 0)
     {
+        //average edge collision is the contact point.
         contactPoint = {0,0,0};
         for(int vert = 0; vert < contactPoints.size(); vert++)
         {
@@ -496,7 +519,7 @@ void PhysicsSystem::CalculateCollsionPoint(std::vector<glm::vec3>& aVerts, Shape
         contactPoint /= contactPoints.size();
         contactPoint += normal * (glm::dot(normal, aMost) + glm::dot(normal, bMost)) / 2.0f;
     }
-    else
+    else //if there are no edge collisions then one shape is inside the other.
     {
         glm::vec2 aApproxCentre = a2D[0];
         glm::vec2 bApproxCentre = {0,0};
@@ -511,6 +534,8 @@ void PhysicsSystem::CalculateCollsionPoint(std::vector<glm::vec3>& aVerts, Shape
         planeNormal = glm::vec2(planeNormal.y, -planeNormal.x);
         float planeDisplacement = glm::dot(b2D[1], planeNormal);
         float depthSign = glm::dot(a2D[0], planeNormal) - planeDisplacement;
+
+        //deteremine if A is inside B
 
         for (int i = 1; i < a2D.size(); i++)
         {
@@ -577,7 +602,7 @@ void PhysicsSystem::Resolution(CollisionPacket& collision)
     float j = -(1 + elasticCoef) * glm::dot(relativeVelocity, collision.normal) /
         (totalInverseMass + denom);
 
-    if (j > 0) return;
+    if (j >= 0) return;
 
     //Add depenertration to collidable, ensures too much depenertration per frame doesnt occure
     collision.objectA->netDepen = AddDepen(collision.normal * (collision.depth) * collision.objectA->invMass / totalInverseMass, collision.objectA->netDepen);
@@ -598,11 +623,11 @@ void PhysicsSystem::Resolution(CollisionPacket& collision)
 glm::vec3 PhysicsSystem::AddDepen(glm::vec3 newDepen, glm::vec3& currDepen)
 {
     glm::vec3 nextDepen;
-    if (glm::length(newDepen) <= 0.0000001f)
+    if (glm::length(newDepen) <= 0.000001f)
     {
         return currDepen;
     }
-    if (glm::dot(newDepen, currDepen) <= 0.0000001f)
+    if (glm::dot(newDepen, currDepen) <= 0.000001f)
     {
         nextDepen = newDepen + currDepen;
     }
@@ -633,7 +658,7 @@ void PhysicsSystem::Integration(PhysicsComponent& body, TransformComponent& tran
 
     body.velocity *= 1 - 0.0001f * body.drag;
     body.velocity += deltaTime * body.invMass * body.force;
-    body.angularMomentum *= 1 - 0.01f * body.angularDrag;
+    body.angularMomentum *= 1 - 0.0001f * body.angularDrag;
     body.angularMomentum += deltaTime * body.torque;
 
     body.angularVelocity = glm::transpose(glm::mat3(transform.rotation)) * body.angularMomentum;
