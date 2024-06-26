@@ -780,8 +780,8 @@ PhysicsComponent SceneManager::AddPhysicsComponent(unsigned int _entity, float i
     physics.angularVelocity = glm::zero<glm::vec3>();
     physics.angularMomentum = glm::zero<glm::vec3>();
     physics.isGravitated = false;
-    physics.elasticCoef = 0.5f;
-    physics.drag = 0.1;
+    physics.elasticCoef = 0.65f;
+    physics.drag = 0.01f;
     physics.angularDrag = 3;
     physics.invMass = invMass;
     physics.momentOfInertia = {1,1,1};

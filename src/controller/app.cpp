@@ -159,9 +159,9 @@ void App::Start()
     scene->SetScale(2, { 0.15f, 0.15f, 0.15f });
     scene->AddPhysicsComponent(2, 0);
     scene->SetIsGravitated(2, false);
-    scene->AddPhysicsShapePill(2, { 0,21,7.5f }, { 0,-109,7.5f }, 2.25f);
-    scene->AddPhysicsShapePill(2, { 4.25f,21,1 }, { 4.25f,-109,1 }, 2.25f);
-    scene->AddPhysicsShapePill(2, { -4.25f,21,1 }, { -4.25f,-109,1 }, 2.25f);
+    scene->AddPhysicsShapePill(2, { 0,21,7.5f }, { 0,-109,7.5f }, 1.7f);
+    scene->AddPhysicsShapePill(2, { 4.25f,21,1 }, { 4.25f,-109,1 }, 1.7f);
+    scene->AddPhysicsShapePill(2, { -4.25f,21,1 }, { -4.25f,-109,1 }, 1.7f);
 
     //renderComponents[cubeEntity]->mesh = assetFactory->GetMesh("models/whale.obj");
     //std::string textureMaps[3] = { "img/whale.jpg", "img/Cerberus_PBR.tga", "img/Cerberus_N.tga" };
@@ -171,7 +171,7 @@ void App::Start()
 
     int lightCount = 10;
 
-    srand(212);
+    srand(743);
     for (int i = 3; i < lightCount; i++)
     {
         float z = (20.0f * (float)rand() / RAND_MAX - 10.0f);
