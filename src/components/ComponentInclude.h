@@ -4,3 +4,4 @@
 #include "TransformComponent.h"
 #include "RenderComponent.h"
 #include "LightComponent.h"
+#include "GameObjectComponent.h"

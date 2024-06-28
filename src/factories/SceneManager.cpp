@@ -58,6 +58,7 @@ unsigned int SceneManager::MakeEmptyTransform()
 {
     TransformComponent transform = TransformComponent();
     transformComponents[entityCount] = transform;
+
     return entityCount++;
 }
 
@@ -68,6 +69,7 @@ unsigned int SceneManager::MakeEmptyTransform(glm::vec3 position, glm::quat quat
     transform.rotation = quaternion;
     transformComponents[entityCount] = transform;
     TransformsToUpdate.push_back(entityCount);
+
     return entityCount++;
 }
 

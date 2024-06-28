@@ -147,6 +147,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\input\KeyAxis.cpp" />
+    <ClCompile Include="src\input\KeyBind.cpp" />
+    <ClCompile Include="src\systems\InputSystem.cpp" />
     <ClCompile Include="src\systems\PhysicsSystem.cpp" />
     <ClCompile Include="src\config.cpp" />
     <ClCompile Include="src\factories\AssetFactory.cpp" />
@@ -163,9 +166,11 @@
     <ClCompile Include="src\view\shader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Dependencies\GeneralMacros.h" />
     <ClInclude Include="src\components\LightComponent.h" />
     <ClInclude Include="src\factories\AssetFactory.h" />
     <ClInclude Include="src\factories\SceneManager.h" />
+    <ClInclude Include="src\systems\InputSystem.h" />
     <ClInclude Include="src\systems\LightSystem.h" />
     <ClInclude Include="src\systems\PhysicsSystem.h" />
     <ClInclude Include="src\systems\RenderSystem.h" />

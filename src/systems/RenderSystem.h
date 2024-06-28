@@ -20,7 +20,7 @@ public:
     /// <param name="transformComponents"> All transforms components</param>
     /// <param name="renderComponents"> All Render Components</param>
     void Update(
-        std::unordered_map<unsigned int, TransformComponent>& transformComponents,
+        std::unordered_map<unsigned int, TransformComponent>& transformComponents, 
         std::unordered_map<unsigned int, RenderComponent>& renderComponents,
         std::unordered_map<unsigned int, LightComponent>& lightComponents,
         glm::mat4& _view, glm::mat4& _projection

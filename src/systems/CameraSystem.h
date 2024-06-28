@@ -3,6 +3,7 @@
 #include "../components/CameraComponent.h"
 #include "../components/TransformComponent.h"
 #include "../factories/SceneManager.h"
+#include "InputSystem.h"
 
 class CameraSystem {
 public:
@@ -22,8 +23,7 @@ public:
         std::unordered_map<unsigned int, TransformComponent>& transformComponents,
         unsigned int cameraID, CameraComponent& cameraComponent, 
         SceneManager* scene,
-        glm::mat4& _view, float dt,
-        unsigned int mouseInputMask);
+        glm::mat4& _view, float dt);
 
 private:
     /// <summary>
@@ -47,8 +47,12 @@ private:
     unsigned int viewLocation;
 
     /// <summary>
-    /// Stores up direction (Understood around the system to be z axis is up.)
+    /// Stores up direction (Understood around the system to be y axis is up.)
     /// </summary>
-    glm::vec3 globalUp = { 0.0f, 0.0f, 1.0f };
+    glm::vec3 globalUp = { 0.0f, 1.0f, 0.0f };
     GLFWwindow* window;
+
+    KeyAxis xInput;
+    KeyAxis yInput;
+    KeyAxis zInput;
 };

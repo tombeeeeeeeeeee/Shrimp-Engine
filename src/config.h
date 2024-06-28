@@ -10,4 +10,5 @@
 #include <assimp/scene.h>
 #include <assimp/cimport.h>
 #include "../Utilities.h"
+#include "../GeneralMacros.h"
 

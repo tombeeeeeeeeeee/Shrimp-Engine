@@ -88,16 +88,21 @@ void App::Run()
         std::unordered_map<unsigned int, LightComponent>* lights = scene->GetLights();
         std::unordered_map<unsigned int, PhysicsComponent>* bodies = scene->GetPhysics();
 
+        inputSystem->Update();
+
         scene->HierarchyUpdate();
 
-        shouldClose = cameraSystem->Update(*transforms, cameraID, *cameraComponent, scene, viewMatrix, 1.0f / 60.0f, mouseInput);
+        // TODO: Add Delta Time
+        shouldClose = cameraSystem->Update(*transforms, cameraID, *cameraComponent, scene, viewMatrix, 1.0f / 60.0f);
 
         renderSystem->Update(*transforms, *renders, *lights, projectionMatrix, viewMatrix);
 
+        // TODO: Moved to Fixed Update
         physicsSystem->CollisionPhase(*bodies, *transforms);
 
         Update();
 
+        // TODO: Moved to Fixed Update
         physicsSystem->IntegrationStep(*bodies, *transforms, scene, 1.0f/60.0f);
     }
 
@@ -118,7 +123,6 @@ void App::SetUpGLFW()
     glfwMakeContextCurrent(window);
 
     glfwSetWindowUserPointer(window, reinterpret_cast<void*>(this));
-    glfwSetMouseButtonCallback(window, mouse_button_callback);
     glfwSetInputMode(window, GLFW_STICKY_MOUSE_BUTTONS, GLFW_TRUE);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) 
@@ -132,23 +136,23 @@ void App::Start()
 {
     //Space to add things for the start
 
-    //std::string skyboxTextureFiles[6] = {
-    //"img/px.png",
-    //"img/nx.png",
-    //"img/nz.png",
-    //"img/pz.png",
-    //"img/py.png",
-    //"img/ny.png",
-    //};
-
     std::string skyboxTextureFiles[6] = {
-    "img/darkness.png",
-    "img/darkness.png",
-    "img/darkness.png",
-    "img/darkness.png",
-    "img/darkness.png",
-    "img/darkness.png",
+    "img/px.png",
+    "img/nx.png",
+    "img/nz.png",
+    "img/pz.png",
+    "img/py.png",
+    "img/ny.png",
     };
+
+    //std::string skyboxTextureFiles[6] = {
+    //"img/darkness.png",
+    //"img/darkness.png",
+    //"img/darkness.png",
+    //"img/darkness.png",
+    //"img/darkness.png",
+    //"img/darkness.png",
+    //};
 
     renderSystem->Start(assetFactory->GetSkyBoxMaterial(skyboxTextureFiles));
 
@@ -171,7 +175,8 @@ void App::Start()
 
     int lightCount = 10;
 
-    srand(743);
+    srand(1337);
+    //srand(212);
     for (int i = 3; i < lightCount; i++)
     {
         float z = (20.0f * (float)rand() / RAND_MAX - 10.0f);
@@ -194,15 +199,15 @@ void App::Update()
 {
     //Space to add things to run on update
 
-    if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) {
+    if (inputSystem->GetKeyDown(num2)) {
         renderSystem->exposure += 0.02f;
     }
-    if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
+    if (inputSystem->GetKeyDown(num1)) {
         renderSystem->exposure -= 0.02f;
     }
-    if (glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS)
+    if (inputSystem->GetKeyDown(G))
     {
-        physicsSystem->gravity = { 0,0,-19.6f };
+        physicsSystem->gravity = { 0,0,-5.0f };
     }
 }
 
@@ -243,26 +248,11 @@ void App::MakeSystems()
     physicsSystem = new PhysicsSystem();
     cameraSystem = new CameraSystem(window);
     renderSystem = new RenderSystem(shaders, cameraID, window);
+    inputSystem = new InputSystem(window);
 }
 
 void App::MakeFactories()
 {
     assetFactory = new AssetFactory("Assets/");
     scene = new SceneManager(*assetFactory);
-}
-
-void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
-{
-    int buttonBinary = (int)pow(2, button);
-    App* app = reinterpret_cast<App*>(glfwGetWindowUserPointer(window));
-    unsigned int mouseMask = app->mouseInput;
-
-    if (action == 0 && (mouseMask & buttonBinary) == buttonBinary)
-    {
-        app->mouseInput -= buttonBinary;
-    }
-    else if (action == 1 && (mouseMask & buttonBinary) == 0)
-    {
-        app->mouseInput += buttonBinary;
-    }
 }

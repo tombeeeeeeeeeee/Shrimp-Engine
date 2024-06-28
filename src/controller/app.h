@@ -26,9 +26,6 @@ public:
     CameraComponent* cameraComponent;
     unsigned int cameraID;
 
-    //Inputs
-    unsigned int mouseInput = 0;
-
 private:
     void SetUpGLFW();
 
@@ -54,5 +51,3 @@ private:
     glm::mat4 viewMatrix;
     glm::mat4 projectionMatrix;
 };
-
-static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
