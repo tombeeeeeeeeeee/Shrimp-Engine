@@ -160,7 +160,6 @@ void RenderSystem::Update(
 
     RenderQuad();
 
-    glfwSwapBuffers(window);
     for (int i = 0; i < SHADER_PROGRAM_COUNT; i++) entityShaderOrder[i].clear();
 }
 

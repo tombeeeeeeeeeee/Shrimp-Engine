@@ -26,14 +26,108 @@ EditorGUISystem::~EditorGUISystem() noexcept
 	ImGui::DestroyContext();
 }
 
-void EditorGUISystem::Update(GLFWwindow* window) noexcept
+void EditorGUISystem::DrawTransformLabel(unsigned int entityID, TransformComponent& transform, SceneManager * scene) noexcept
+{
+	const unsigned int& id = entityID;
+	std::string label = "Entity " + std::to_string(entityID);
+
+	bool isSelected = entityID == selectedID;
+	bool isLeaf = transform.children.size() == 0;
+
+	int flags = 0;
+	flags |= ImGuiTreeNodeFlags_DefaultOpen;
+	flags |= ImGuiTreeNodeFlags_OpenOnArrow;
+	flags |= ImGuiTreeNodeFlags_OpenOnDoubleClick;
+	flags |= ImGuiTreeNodeFlags_FramePadding;
+	flags |= ImGuiTreeNodeFlags_SpanAvailWidth;
+	flags |= ImGuiTreeNodeFlags_Selected * isSelected;
+	flags |= ImGuiTreeNodeFlags_Leaf * isLeaf;
+
+	if (ImGui::TreeNodeEx(label.c_str(), flags))
+	{
+		if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenOverlapped))
+		{
+			if (ImGui::IsKeyReleased(ImGuiKey_MouseLeft))
+			{
+				selectedID = entityID;
+			}
+		}
+		ImGui::TreePop();
+	}
+	else
+	{
+		if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenOverlapped))
+		{
+			if(ImGui::IsKeyReleased(ImGuiKey_MouseLeft))
+			{
+				selectedID = entityID;
+			}
+		}
+	}
+
+	for (unsigned int i = 0; i < transform.children.size(); i++)
+	{
+		unsigned int childID = transform.children[i];
+		ImGui::Indent();
+		DrawTransformLabel(childID, (*scene->GetTransforms())[childID], scene);
+		ImGui::Unindent();
+	}
+}
+
+void EditorGUISystem::Update(GLFWwindow* window, SceneManager* scene) noexcept
 {
 	ReadyImGui();
 
 
 	// Specify All The ImGui Data
-	ImGui::Begin("Hello Window!");
-	ImGui::Text("Shrimp Engine's first imgui window");
+	ImGui::Begin("Transform Hierarchy");
+	for (std::pair<const unsigned int, TransformComponent>& transformPair : *scene->GetTransforms())
+	{
+		if (transformPair.second.parent != 0) return;
+
+		unsigned int entityID = transformPair.first;
+		TransformComponent& transform = transformPair.second;
+
+		DrawTransformLabel(entityID, transform, scene);
+	}
+	ImGui::End();
+
+	ImGui::Begin("Inspector");
+	if (selectedID != 0)
+	{
+		ImGui::Text(("EntityID: " + std::to_string(selectedID)).c_str());
+		
+		ImGui::Spacing();
+
+		auto* transforms = scene->GetTransforms();
+		if (transforms->find(selectedID) != transforms->end())
+		{
+			if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen))
+			{
+				TransformComponent& transform = (*transforms)[selectedID];
+
+				ImGui::DragFloat3("Position", (float*)&transform.position, 0.25f);
+				ImGui::BeginDisabled();
+				ImGui::DragFloat4("Rotation", (float*)&transform.rotation);
+				ImGui::EndDisabled();
+				ImGui::DragFloat3("Scale", (float*)&transform.scale, 0.25f);
+			}
+		}
+		
+		auto* lights = scene->GetLights();
+		if (lights->find(selectedID) != lights->end())
+		{
+			if (ImGui::CollapsingHeader("Light", ImGuiTreeNodeFlags_DefaultOpen))
+			{
+				LightComponent& light = (*lights)[selectedID];
+
+				ImGui::ColorEdit3("Colour", (float*)&light.colour);
+				ImGui::Text("Some other editable fields go here");
+			}
+		}
+
+
+	}
 	ImGui::End();
 
 
