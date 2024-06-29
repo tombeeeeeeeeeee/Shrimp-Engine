@@ -118,7 +118,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Dependencies;$(SolutionDir)Dependencies\GLFW;$(SolutionDir)Dependencies\glm;$(SolutionDir)src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Dependencies;$(SolutionDir)Dependencies\GLFW;$(SolutionDir)Dependencies\glm;$(SolutionDir)src;$(SolutionDir)Dependencies\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -135,7 +135,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Dependencies;$(SolutionDir)Dependencies\GLFW;$(SolutionDir)Dependencies\glm;$(SolutionDir)src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Dependencies;$(SolutionDir)Dependencies\GLFW;$(SolutionDir)Dependencies\glm;$(SolutionDir)src;$(SolutionDir)Dependencies\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -147,8 +147,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Dependencies\imgui\imgui.cpp" />
+    <ClCompile Include="Dependencies\imgui\imgui_demo.cpp" />
+    <ClCompile Include="Dependencies\imgui\imgui_draw.cpp" />
+    <ClCompile Include="Dependencies\imgui\imgui_impl_glfw.cpp" />
+    <ClCompile Include="Dependencies\imgui\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="Dependencies\imgui\imgui_stdlib.cpp" />
+    <ClCompile Include="Dependencies\imgui\imgui_tables.cpp" />
+    <ClCompile Include="Dependencies\imgui\imgui_widgets.cpp" />
     <ClCompile Include="src\input\KeyAxis.cpp" />
     <ClCompile Include="src\input\KeyBind.cpp" />
+    <ClCompile Include="src\systems\EditorGUISystem.cpp" />
     <ClCompile Include="src\systems\InputSystem.cpp" />
     <ClCompile Include="src\systems\PhysicsSystem.cpp" />
     <ClCompile Include="src\config.cpp" />
@@ -168,9 +177,20 @@
   <ItemGroup>
     <ClInclude Include="Dependencies\GeneralMacros.h" />
     <ClInclude Include="src\components\GameObjectComponent.h" />
+    <ClInclude Include="Dependencies\imgui\imconfig.h" />
+    <ClInclude Include="Dependencies\imgui\imgui.h" />
+    <ClInclude Include="Dependencies\imgui\imgui_impl_glfw.h" />
+    <ClInclude Include="Dependencies\imgui\imgui_impl_opengl3.h" />
+    <ClInclude Include="Dependencies\imgui\imgui_impl_opengl3_loader.h" />
+    <ClInclude Include="Dependencies\imgui\imgui_internal.h" />
+    <ClInclude Include="Dependencies\imgui\imgui_stdlib.h" />
+    <ClInclude Include="Dependencies\imgui\imstb_rectpack.h" />
+    <ClInclude Include="Dependencies\imgui\imstb_textedit.h" />
+    <ClInclude Include="Dependencies\imgui\imstb_truetype.h" />
     <ClInclude Include="src\components\LightComponent.h" />
     <ClInclude Include="src\factories\AssetFactory.h" />
     <ClInclude Include="src\factories\SceneManager.h" />
+    <ClInclude Include="src\systems\EditorGUISystem.h" />
     <ClInclude Include="src\systems\InputSystem.h" />
     <ClInclude Include="src\systems\LightSystem.h" />
     <ClInclude Include="src\systems\PhysicsSystem.h" />
@@ -483,6 +503,7 @@
   <ItemGroup>
     <Text Include="CMakeLists.txt" />
     <Text Include="Dependencies\glm\CMakeLists.txt" />
+    <Text Include="Dependencies\imgui\LICENSE.txt" />
     <Text Include="src\shaders\fragment.frag" />
     <Text Include="src\shaders\vertex.vert" />
   </ItemGroup>
@@ -629,6 +650,7 @@
     <None Include="Dependencies\glm\gtx\vector_angle.inl" />
     <None Include="Dependencies\glm\gtx\vector_query.inl" />
     <None Include="Dependencies\glm\gtx\wrap.inl" />
+    <None Include="Dependencies\imgui\imgui.natstepfilter" />
     <None Include="src\shaders\geo.geom" />
     <None Include="src\shaders\lightShader.frag" />
     <None Include="src\shaders\skybox.frag" />
@@ -636,6 +658,9 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\..\..\Downloads\norm.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="Dependencies\imgui\imgui.natvis" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

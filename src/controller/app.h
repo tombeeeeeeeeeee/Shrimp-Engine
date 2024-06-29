@@ -43,6 +43,7 @@ private:
     PhysicsSystem* physicsSystem;
     CameraSystem* cameraSystem;
     RenderSystem* renderSystem;
+    EditorGUISystem* editorGUISystem;
 
     //Factories
     AssetFactory* assetFactory;

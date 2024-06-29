@@ -21,6 +21,7 @@ App::~App()
     delete physicsSystem;
     delete cameraSystem;
     delete renderSystem;
+    delete editorGUISystem;
 
     delete assetFactory;
     delete scene;
@@ -36,6 +37,7 @@ App::App(App& app)
     physicsSystem = app.physicsSystem;
     cameraSystem = app.cameraSystem;
     renderSystem = app.renderSystem;
+    editorGUISystem = app.editorGUISystem;
 
     assetFactory = app.assetFactory;
     scene = app.scene;
@@ -53,6 +55,7 @@ App& App::operator=(App const& other)
     delete physicsSystem;
     delete cameraSystem;
     delete renderSystem;
+    delete editorGUISystem;
 
     delete assetFactory;
     delete scene;
@@ -63,6 +66,7 @@ App& App::operator=(App const& other)
     physicsSystem = other.physicsSystem;
     cameraSystem = other.cameraSystem;
     renderSystem = other.renderSystem;
+    editorGUISystem = other.editorGUISystem;
 
     assetFactory = other.assetFactory;
     scene = other.scene;
@@ -103,6 +107,12 @@ void App::Run()
         shouldClose = cameraSystem->Update(*transforms, cameraID, *cameraComponent, scene, viewMatrix, 1.0f / 60.0f);
 
         renderSystem->Update(*transforms, *renders, *lights, projectionMatrix, viewMatrix);
+
+        // TODO:
+        //     Probably want a toggle for whether to draw editor gui or not.
+        //     When drawing editor gui, will need to draw the scene to a colour buffer,
+        //     and display it on an editor window using the editor gui system.
+        //editorGUISystem->Update(window);
 
         // TODO: Moved to Fixed Update
         physicsSystem->CollisionPhase(*bodies, *transforms);
@@ -253,6 +263,7 @@ void App::MakeSystems()
     cameraSystem = new CameraSystem(window);
     renderSystem = new RenderSystem(shaders, cameraID, window);
     inputSystem = new InputSystem(window);
+    editorGUISystem = new EditorGUISystem(window);
 }
 
 void App::MakeFactories()
