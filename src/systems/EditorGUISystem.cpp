@@ -6,6 +6,8 @@
 #include "imgui/imgui_internal.h"
 #include "imgui/imgui_stdlib.h"
 
+#include <sstream>
+
 EditorGUISystem::EditorGUISystem(GLFWwindow* window) noexcept
 {
 	IMGUI_CHECKVERSION();
@@ -26,7 +28,57 @@ EditorGUISystem::~EditorGUISystem() noexcept
 	ImGui::DestroyContext();
 }
 
-void EditorGUISystem::DrawTransformLabel(unsigned int entityID, TransformComponent& transform, SceneManager * scene) noexcept
+void EditorGUISystem::Update(GLFWwindow* window, SceneManager* scene) noexcept
+{
+	ReadyImGui();
+
+
+	// Specify All The ImGui Data
+	DrawTransformHierarchy(scene);
+	DrawInspector(scene);
+
+
+	Render(window);
+}
+
+void EditorGUISystem::ReadyImGui() const noexcept
+{
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplGlfw_NewFrame();
+	ImGui::NewFrame();
+	ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
+}
+
+void EditorGUISystem::Render(GLFWwindow* window) const noexcept
+{
+	ImGui::Render();
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+	if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+	{
+		ImGui::UpdatePlatformWindows();
+		ImGui::RenderPlatformWindowsDefault();
+		glfwMakeContextCurrent(window);
+	}
+
+	glfwSwapBuffers(window);
+}
+
+void EditorGUISystem::DrawTransformHierarchy(SceneManager* scene)
+{
+	ImGui::Begin("Transform Hierarchy");
+	for (std::pair<const unsigned int, TransformComponent>& transformPair : *scene->GetTransforms())
+	{
+		if (transformPair.second.parent != 0) return;
+
+		unsigned int entityID = transformPair.first;
+		TransformComponent& transform = transformPair.second;
+
+		DrawTransformHierarchyElement(entityID, transform, scene);
+	}
+	ImGui::End();
+}
+void EditorGUISystem::DrawTransformHierarchyElement(unsigned int entityID, TransformComponent& transform, SceneManager* scene) noexcept
 {
 	const unsigned int& id = entityID;
 	std::string label = "Entity " + std::to_string(entityID);
@@ -58,7 +110,7 @@ void EditorGUISystem::DrawTransformLabel(unsigned int entityID, TransformCompone
 	{
 		if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenOverlapped))
 		{
-			if(ImGui::IsKeyReleased(ImGuiKey_MouseLeft))
+			if (ImGui::IsKeyReleased(ImGuiKey_MouseLeft))
 			{
 				selectedID = entityID;
 			}
@@ -69,90 +121,229 @@ void EditorGUISystem::DrawTransformLabel(unsigned int entityID, TransformCompone
 	{
 		unsigned int childID = transform.children[i];
 		ImGui::Indent();
-		DrawTransformLabel(childID, (*scene->GetTransforms())[childID], scene);
+		DrawTransformHierarchyElement(childID, (*scene->GetTransforms())[childID], scene);
 		ImGui::Unindent();
 	}
 }
 
-void EditorGUISystem::Update(GLFWwindow* window, SceneManager* scene) noexcept
+void EditorGUISystem::DrawInspector(SceneManager* scene)
 {
-	ReadyImGui();
-
-
-	// Specify All The ImGui Data
-	ImGui::Begin("Transform Hierarchy");
-	for (std::pair<const unsigned int, TransformComponent>& transformPair : *scene->GetTransforms())
-	{
-		if (transformPair.second.parent != 0) return;
-
-		unsigned int entityID = transformPair.first;
-		TransformComponent& transform = transformPair.second;
-
-		DrawTransformLabel(entityID, transform, scene);
-	}
-	ImGui::End();
-
 	ImGui::Begin("Inspector");
 	if (selectedID != 0)
 	{
 		ImGui::Text(("EntityID: " + std::to_string(selectedID)).c_str());
-		
+
+		auto* transformComponents = scene->GetTransforms();
+		bool hasTransform = transformComponents->find(selectedID) != transformComponents->end();
+		auto* renderComponents = scene->GetRenders();
+		bool hasRender = renderComponents->find(selectedID) != renderComponents->end();
+		auto* physicsComponents = scene->GetPhysics();
+		bool hasPhysics = physicsComponents->find(selectedID) != physicsComponents->end();
+		auto* lightComponents = scene->GetLights();
+		bool hasLight = lightComponents->find(selectedID) != lightComponents->end();
+		//auto* cameraComponents = scene->GetCameras();
+		//const bool hasCamera = cameraComponents->find(selectedID) != cameraComponents->end();
+
+		ImGui::SameLine();
+		ImGui::Spacing();
+		ImGui::SameLine();
+
+		if (ImGui::BeginCombo("Modify Components", "", ImGuiComboFlags_NoPreview))
+		{
+			if (ImGui::Selectable("Render Component", hasRender))
+			{
+				if (!hasRender) scene->AddRenderComponent(selectedID);
+				else scene->GetRenders()->erase(selectedID);
+				hasRender = !hasRender;
+			}
+			ImGui::Spacing();
+			if (ImGui::Selectable("Physics Component", hasPhysics))
+			{
+				if (!hasPhysics) scene->AddPhysicsComponent(selectedID);
+				else scene->GetPhysics()->erase(selectedID);
+				hasPhysics = !hasPhysics;
+			}
+			ImGui::Spacing();
+			if (ImGui::Selectable("Light Component", hasLight))
+			{
+				if (!hasLight) scene->AddLightComponent(selectedID);
+				else scene->GetLights()->erase(selectedID);
+				hasLight = !hasLight;
+			}
+			ImGui::Spacing();
+
+			ImGui::EndCombo();
+		}
+
 		ImGui::Spacing();
 
-		auto* transforms = scene->GetTransforms();
-		if (transforms->find(selectedID) != transforms->end())
+		if (hasTransform && ImGui::CollapsingHeader("Transform Component", ImGuiTreeNodeFlags_DefaultOpen))
 		{
-			if (ImGui::CollapsingHeader("Transform", ImGuiTreeNodeFlags_DefaultOpen))
-			{
-				TransformComponent& transform = (*transforms)[selectedID];
+			TransformComponent& transform = (*transformComponents)[selectedID];
 
-				ImGui::DragFloat3("Position", (float*)&transform.position, 0.25f);
-				ImGui::BeginDisabled();
-				ImGui::DragFloat4("Rotation", (float*)&transform.rotation);
-				ImGui::EndDisabled();
-				ImGui::DragFloat3("Scale", (float*)&transform.scale, 0.25f);
-			}
+			ImGui::DragFloat3("Position", (float*)&transform.position, 0.25f);
+			ImGui::BeginDisabled();
+			ImGui::DragFloat4("Rotation", (float*)&transform.rotation);
+			ImGui::EndDisabled();
+			ImGui::DragFloat3("Scale", (float*)&transform.scale, 0.25f);
+
+			ImGui::Spacing();
 		}
-		
-		auto* lights = scene->GetLights();
-		if (lights->find(selectedID) != lights->end())
+		if (hasRender && ImGui::CollapsingHeader("Render Component", ImGuiTreeNodeFlags_DefaultOpen))
 		{
-			if (ImGui::CollapsingHeader("Light", ImGuiTreeNodeFlags_DefaultOpen))
-			{
-				LightComponent& light = (*lights)[selectedID];
+			RenderComponent& render = (*renderComponents)[selectedID];
 
-				ImGui::ColorEdit3("Colour", (float*)&light.colour);
-				ImGui::Text("Some other editable fields go here");
+			std::stringstream material;
+			material << "Material: " << std::hex << std::showbase << std::uppercase << (long long)render.material;
+			std::stringstream mesh;
+			mesh << "Mesh: " << std::hex << std::showbase << std::uppercase << (long long)render.mesh;
+
+			ImGui::Text(material.str().c_str());
+			ImGui::Text(mesh.str().c_str());
+
+			ImGui::Spacing();
+		}
+		if (hasPhysics && ImGui::CollapsingHeader("Physics Component", ImGuiTreeNodeFlags_DefaultOpen))
+		{
+			PhysicsComponent& physics = (*physicsComponents)[selectedID];
+			
+			ImGui::Checkbox("Gravity", &physics.isGravitated);
+			ImGui::Spacing();
+			bool isKinematic = physics.invMass == 0;
+			if (ImGui::Checkbox("Kinematic", &isKinematic))
+			{
+				if (isKinematic) physics.invMass = 0;
+				else physics.invMass = 1;
 			}
+			ImGui::PushItemWidth(ImGui::CalcItemWidth() / 3);
+			if (!isKinematic)
+			{
+				ImGui::SameLine();
+				float mass = 1 / physics.invMass;
+				if (ImGui::DragFloat("Mass", &mass))
+				{
+					physics.invMass = 1 / mass;
+				}
+			}
+			ImGui::Spacing();
+			ImGui::DragFloat("Elasticity", &physics.angularDrag);
+			ImGui::Spacing();
+			ImGui::DragFloat("Drag", &physics.drag);
+			ImGui::DragFloat("Angular Drag", &physics.angularDrag);
+			ImGui::PopItemWidth();
+			
+			ImGui::Spacing();
+		}
+		if (hasLight && ImGui::CollapsingHeader("Light Component", ImGuiTreeNodeFlags_DefaultOpen))
+		{
+			LightComponent& light = (*lightComponents)[selectedID];
+
+			std::string lightTypeName;
+			bool hasDirection = false;
+			bool hasRange = false;
+			bool hasCutoff = false;
+			switch (light.lightType)
+			{
+			case LightType::ambient:
+			{
+				lightTypeName = "Ambient";
+				break;
+			}
+			case LightType::directional:
+			{
+				lightTypeName = "Directional";
+				hasDirection = true;
+				break;
+			}
+			case LightType::point:
+			{
+				lightTypeName = "Point";
+				hasRange = true;
+				break;
+			}
+			case LightType::spot:
+			{
+				lightTypeName = "Spotlight";
+				hasDirection = true;
+				hasRange = true;
+				hasCutoff = true;
+				break;
+			}
+			default:
+			{
+				lightTypeName = "Invalid";
+				break;
+			}
+			}
+
+			if (ImGui::BeginCombo("Light Type", lightTypeName.c_str()))
+			{
+				if (ImGui::Selectable("Directional", light.lightType == LightType::directional))
+				{
+					light.lightType = LightType::directional;
+				}
+				if (ImGui::Selectable("Point", light.lightType == LightType::point))
+				{
+					light.lightType = LightType::point;
+				}
+				if (ImGui::Selectable("Spotlight", light.lightType == LightType::spot))
+				{
+					if (!hasCutoff)
+					{
+						light.cutOff = glm::radians(0.0f);
+						light.outerCutOff = glm::radians(25.0f);
+					}
+					light.lightType = LightType::spot;
+				}
+				ImGui::EndCombo();
+			}
+			
+			ImGui::Spacing();
+			
+			ImGui::ColorEdit3("Colour", (float*)&light.colour);
+
+			ImGui::Spacing();
+
+			if (hasDirection)
+			{
+				ImGui::DragFloat3("Direction", (float*)&light.direction);
+			}
+			if (hasRange)
+			{
+				ImGui::PushItemWidth(ImGui::CalcItemWidth() / 3);
+				if (ImGui::DragFloat("Range", (float*)&light.range))
+				{
+					scene->CalculateLinearQuadConstants(selectedID);
+				}
+				ImGui::PopItemWidth();
+			}
+			if (hasCutoff)
+			{
+				float cutOffDegrees[2] = { glm::degrees(light.cutOff), glm::degrees(light.outerCutOff) };
+
+				ImGui::PushItemWidth(ImGui::CalcItemWidth() / 3);
+				if (ImGui::DragFloat("##InnerCutOff", &cutOffDegrees[0], 0.1f, 0.0f, 89.9f, NULL, ImGuiSliderFlags_AlwaysClamp))
+				{
+					if (cutOffDegrees[0] > cutOffDegrees[1]) cutOffDegrees[1] = cutOffDegrees[0];
+					light.cutOff = cutOffDegrees[0];
+					light.outerCutOff = cutOffDegrees[1];
+				}
+				ImGui::SameLine();
+				if (ImGui::DragFloat("##OuterCutOff", &cutOffDegrees[1], 0.1f, 0.1f, 89.9f, NULL, ImGuiSliderFlags_AlwaysClamp))
+				{
+					if (cutOffDegrees[1] < cutOffDegrees[0]) cutOffDegrees[0] = cutOffDegrees[1];
+					light.cutOff = cutOffDegrees[0];
+					light.outerCutOff = cutOffDegrees[1];
+				}
+				ImGui::PopItemWidth();
+				ImGui::SameLine();
+				ImGui::Text("Inner/Outer CutOff");
+			}
+
+			ImGui::Spacing();
 		}
 
 
 	}
 	ImGui::End();
-
-
-	Draw(window);
-}
-
-void EditorGUISystem::ReadyImGui() const noexcept
-{
-	ImGui_ImplOpenGL3_NewFrame();
-	ImGui_ImplGlfw_NewFrame();
-	ImGui::NewFrame();
-	ImGui::DockSpaceOverViewport(ImGui::GetMainViewport());
-}
-
-void EditorGUISystem::Draw(GLFWwindow* window) const noexcept
-{
-	ImGui::Render();
-	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-	if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-	{
-		ImGui::UpdatePlatformWindows();
-		ImGui::RenderPlatformWindowsDefault();
-		glfwMakeContextCurrent(window);
-	}
-
-	glfwSwapBuffers(window);
 }

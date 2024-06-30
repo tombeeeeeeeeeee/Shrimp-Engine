@@ -22,8 +22,11 @@ private:
 
 	// Clear ImGui Data for New Frame
 	void ReadyImGui() const noexcept;
-	// Actually Draws the ImGui Data
-	void Draw(GLFWwindow* window) const noexcept;
+	// Actually Render the ImGui Data
+	void Render(GLFWwindow* window) const noexcept;
 
-	void DrawTransformLabel(unsigned int entityID, TransformComponent& transform, SceneManager* scene) noexcept;
+	void DrawTransformHierarchy(SceneManager* scene);
+	void DrawTransformHierarchyElement(unsigned int entityID, TransformComponent& transform, SceneManager* scene) noexcept;
+
+	void DrawInspector(SceneManager* scene);
 };
