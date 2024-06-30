@@ -11,6 +11,13 @@ public:
     CameraSystem(GLFWwindow* window);
 
     /// <summary>
+    /// Initialise the amera System
+    /// </summary>
+    /// <param name="cameraTransform"> Transform component for camera</param>
+    /// <param name="cameraComponent"> Camera component for camera</param>
+    void Initialise(TransformComponent& cameraTransform, CameraComponent& cameraComponent);
+
+    /// <summary>
     /// Camera Update
     /// </summary>
     /// <param name="transformComponents"> All transform components</param>
@@ -26,6 +33,8 @@ public:
         glm::mat4& _view, float dt);
 
 private:
+    void UpdateFrustum(TransformComponent& cameraTransform, CameraComponent& cameraComponent);
+
     /// <summary>
     /// Rotates camera
     /// </summary>

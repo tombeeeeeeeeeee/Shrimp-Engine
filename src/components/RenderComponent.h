@@ -6,6 +6,9 @@ struct MeshAsset
 	unsigned int VAO;
 	unsigned int IBO;
 	unsigned int triCount;
+
+	glm::vec3 bottomCorner;
+	glm::vec3 topCorner;
 };
 
 const int MATERIAL_MAPCOUNT = 3;

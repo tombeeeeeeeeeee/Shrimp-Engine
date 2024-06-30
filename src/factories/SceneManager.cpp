@@ -49,9 +49,17 @@ std::unordered_map<unsigned int, PhysicsComponent>* SceneManager::GetPhysics()
     return &physicsComponents;
 }
 
-unsigned int SceneManager::MakeCamera(glm::vec3 position)
+CameraComponent SceneManager::MakeCamera(glm::vec3 position, float fov, float aspect, float nearClip, float farClip, unsigned int& entityID)
 {
-    return MakeEmptyTransform(position);
+    CameraComponent camera = CameraComponent();
+
+    camera.fov = fov;
+    camera.aspectRatio = aspect;
+    camera.nearClip = nearClip;
+    camera.farClip = farClip;
+    entityID = MakeEmptyTransform(position);
+
+    return camera;
 }
 
 unsigned int SceneManager::MakeEmptyTransform()

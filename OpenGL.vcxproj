@@ -167,6 +167,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dependencies\GeneralMacros.h" />
+    <ClInclude Include="src\components\GameObjectComponent.h" />
     <ClInclude Include="src\components\LightComponent.h" />
     <ClInclude Include="src\factories\AssetFactory.h" />
     <ClInclude Include="src\factories\SceneManager.h" />

@@ -27,6 +27,7 @@ public:
     unsigned int cameraID;
 
 private:
+
     void SetUpGLFW();
 
     //WorkSpaces

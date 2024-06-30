@@ -1,5 +1,13 @@
 #include "app.h"
 
+#pragma region Default Camera Values
+int SCREEN_WIDTH = 1920;
+int SCREEN_HEIGHT = 1080;
+float NEARCLIP = 0.1f;
+float FARCLIP = 1000.0f;
+float FOV = 45.0f;
+#pragma endregion
+
 App::App() 
 { 
     SetUpGLFW();
@@ -71,10 +79,10 @@ void App::Run()
 {
     bool shouldClose = false;
 
-    unsigned int cameraEntity = scene->MakeCamera({ 0.0f, 1.0f, 0.0f });
+    unsigned int cameraEntity;
+    CameraComponent camera = scene->MakeCamera({ 0.0f, 1.0f, 0.0f }, FOV, (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, NEARCLIP, FARCLIP, cameraEntity);
 
-    CameraComponent* camera = new CameraComponent();
-    cameraComponent = camera;
+    cameraComponent = &camera;
     cameraID = cameraEntity;
     renderSystem->SetCameraID(cameraID);
 
@@ -119,7 +127,7 @@ void App::SetUpGLFW()
     glfwWindowHint(GLFW_SAMPLES, 16); //MSAA
 
 
-    window = glfwCreateWindow(1920, 1080, "Shrimp Engine", NULL, NULL);
+    window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Shrimp Engine", NULL, NULL);
     glfwMakeContextCurrent(window);
 
     glfwSetWindowUserPointer(window, reinterpret_cast<void*>(this));
@@ -220,10 +228,7 @@ void App::SetUpOpengl()
 {
     //glClearColor(0.25f, 0.5f, 0.75f, 1.0f);
     //Set the rendering region to the actual screen size
-    int w, h;
-    glfwGetFramebufferSize(window, &w, &h);
-    //(left, top, width, height)
-    glViewport(0, 0, w, h);
+
 
     //Material Shaders
     shaders.push_back(MakeShader());
@@ -239,7 +244,7 @@ void App::SetUpOpengl()
     glUseProgram(shaders[0]);
 
 
-    projectionMatrix = glm::perspective( 45.0f, (float)w/(float)h , 0.1f, 1000.0f);
+    projectionMatrix = glm::perspective(FOV, (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, NEARCLIP, FARCLIP);
     
 }
 

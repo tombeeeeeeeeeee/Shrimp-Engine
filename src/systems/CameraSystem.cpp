@@ -10,6 +10,12 @@ CameraSystem::CameraSystem(GLFWwindow* window)
     zInput.BindPair(S, W);
 }
 
+void CameraSystem::Initialise(TransformComponent& _cameraTransform, CameraComponent& _cameraComponent)
+{
+    cameraTransform = &_cameraTransform;
+    cameraComponent = &_cameraComponent;
+}
+
 bool CameraSystem::Update(std::unordered_map<unsigned int, TransformComponent>& transformComponents,
     unsigned int cameraID, CameraComponent& _cameraComponent, SceneManager* scene, glm:: mat4& view, float dt)
 {
@@ -51,11 +57,53 @@ bool CameraSystem::Update(std::unordered_map<unsigned int, TransformComponent>& 
         glm::vec3 dForward = 0.1f * dPos.z * glm::vec3(forwards.x, 0, forwards.z);
         glm::vec3 dRight = 0.1f * dPos.x * glm::vec3(right.x, 0, right.z);
         scene->SetLocalPosition(cameraID, transformComponents[cameraID].position + dForward + dRight);
+
+    }
+    if (yInput)
+    {
+
+        scene->SetLocalPosition(cameraID, transformComponents[cameraID].position + 0.1f * globalUp * (float)yInput);    
     }
 
-    scene->SetLocalPosition(cameraID, transformComponents[cameraID].position + 0.1f * globalUp * (float)yInput);    
+    UpdateFrustum(transformComponents[cameraID], _cameraComponent);
 
     return false;
+}
+
+ void CameraSystem::UpdateFrustum(TransformComponent& cameraTransform, CameraComponent& cameraComponent)
+{
+
+     Frustum frustum;
+
+     glm::vec3 pos = {
+        cameraTransform.globalTransform[3][0],
+        cameraTransform.globalTransform[3][1],
+        cameraTransform.globalTransform[3][2],
+     };
+
+     float fov = cameraComponent.fov;
+     float aspect = cameraComponent.aspectRatio;
+     float nearClip = cameraComponent.nearClip;
+     float farClip = cameraComponent.farClip;
+
+     const float halfVSide = nearClip * tanf(fov * .5f);
+     const float halfHSide = halfVSide * aspect;
+     const glm::vec3 frontMultFar = farClip * cameraComponent.forward;
+
+
+     frustum.nearFace = { pos + nearClip * cameraComponent.forward, 
+         glm::dot(pos + nearClip * cameraComponent.forward,cameraComponent.forward) };
+     frustum.farFace = { pos + frontMultFar, glm::dot(pos + frontMultFar, -cameraComponent.forward) };
+     frustum.rightFace = { pos,
+                glm::dot(pos, glm::cross(frontMultFar - cameraComponent.right * halfHSide, cameraComponent.up)) };
+     frustum.leftFace = { pos,
+                glm::dot(pos, glm::cross(cameraComponent.up,frontMultFar + cameraComponent.right * halfHSide)) };
+     frustum.topFace = { pos,
+                glm::dot(pos, glm::cross(cameraComponent.right, frontMultFar - cameraComponent.up * halfVSide)) };
+     frustum.bottomFace = { pos,
+                glm::dot(pos, glm::cross(frontMultFar + cameraComponent.up * halfVSide, cameraComponent.right)) };
+
+     cameraComponent.frustum = frustum;
 }
 
 void CameraSystem::RotateCamera()
