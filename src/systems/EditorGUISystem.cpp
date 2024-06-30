@@ -193,13 +193,8 @@ void EditorGUISystem::DrawInspector(SceneManager* scene)
 		{
 			RenderComponent& render = (*renderComponents)[selectedID];
 
-			std::stringstream material;
-			material << "Material: " << std::hex << std::showbase << std::uppercase << (long long)render.material;
-			std::stringstream mesh;
-			mesh << "Mesh: " << std::hex << std::showbase << std::uppercase << (long long)render.mesh;
-
-			ImGui::Text(material.str().c_str());
-			ImGui::Text(mesh.str().c_str());
+			ImGui::Text(StringBuilder("Material:", render.material).CStr());
+			ImGui::Text(StringBuilder("Mesh:", render.mesh).CStr());
 
 			ImGui::Spacing();
 		}

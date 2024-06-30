@@ -10,6 +10,7 @@
 #include <cmath>
 #include <unordered_map>
 #include <map>
+#include <StringBuilder.h>
 
 typedef std::string string;
 
