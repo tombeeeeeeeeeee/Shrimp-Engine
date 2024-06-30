@@ -182,9 +182,22 @@ void EditorGUISystem::DrawInspector(SceneManager* scene)
 			TransformComponent& transform = (*transformComponents)[selectedID];
 
 			ImGui::DragFloat3("Position", (float*)&transform.position, 0.25f);
-			ImGui::BeginDisabled();
-			ImGui::DragFloat4("Rotation", (float*)&transform.rotation);
-			ImGui::EndDisabled();
+
+			glm::vec3 rotationEuler = glm::eulerAngles(transform.rotation);
+			glm::vec3 rotationDegrees = glm::vec3(glm::degrees(rotationEuler.x), glm::degrees(rotationEuler.y), glm::degrees(rotationEuler.z));
+			glm::vec3 originalDegrees = rotationDegrees;
+			if (ImGui::DragFloat3("Rotation", (float*)&rotationDegrees))
+			{
+				rotationDegrees -= originalDegrees;
+				rotationEuler = glm::vec3(glm::radians(rotationDegrees.x), glm::radians(rotationDegrees.y), glm::radians(rotationDegrees.z));
+
+				glm::quat quatZ = glm::angleAxis(rotationEuler.z, glm::vec3(0, 0, 1));
+				glm::quat quatY = glm::angleAxis(rotationEuler.y, glm::vec3(0, 1, 0));
+				glm::quat quatX = glm::angleAxis(rotationEuler.x, glm::vec3(1, 0, 0));
+
+				transform.rotation = glm::normalize(quatZ * quatY * quatX) * transform.rotation;
+			}
+
 			ImGui::DragFloat3("Scale", (float*)&transform.scale, 0.25f);
 
 			ImGui::Spacing();
@@ -231,7 +244,7 @@ void EditorGUISystem::DrawInspector(SceneManager* scene)
 		}
 		if (hasLight && ImGui::CollapsingHeader("Light Component", ImGuiTreeNodeFlags_DefaultOpen))
 		{
-			LightComponent& light = (*lightComponents)[selectedID];
+			LightComponent& light = lightComponents->operator[](selectedID);
 
 			std::string lightTypeName;
 			bool hasDirection = false;
