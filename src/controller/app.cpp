@@ -1,11 +1,11 @@
 #include "app.h"
 
 #pragma region Default Camera Values
-int SCREEN_WIDTH = 1920;
+int SCREEN_WIDTH = 1080;
 int SCREEN_HEIGHT = 1080;
 float NEARCLIP = 0.1f;
 float FARCLIP = 1000.0f;
-float FOV = 45.0f;
+float FOV = 70.0f;
 #pragma endregion
 
 App::App() 
@@ -81,20 +81,21 @@ void App::Run()
 
     unsigned int cameraEntity;
     cameraComponent = new CameraComponent();
-    *cameraComponent = scene->MakeCamera({ 0.0f, 1.0f, 0.0f }, FOV, (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, NEARCLIP, FARCLIP, cameraEntity);
+    *cameraComponent = scene->MakeCamera({ 0.0f, 0.0f, 0.0f }, FOV, (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, NEARCLIP, FARCLIP, cameraEntity);
     cameraID = cameraEntity;
     renderSystem->SetCameraID(cameraID);
-
     Start();
 
+    std::unordered_map<unsigned int, TransformComponent>* transforms = scene->GetTransforms();
+    std::unordered_map<unsigned int, RenderComponent>* renders = scene->GetRenders();
+    std::unordered_map<unsigned int, LightComponent>* lights = scene->GetLights();
+    std::unordered_map<unsigned int, PhysicsComponent>* bodies = scene->GetPhysics();
+
+    cameraSystem->UpdateFrustum((*transforms)[cameraID], *cameraComponent);
+    falseFrustum = cameraComponent->frustum; 
 
     while (!glfwWindowShouldClose(window) && !shouldClose) 
     {
-        std::unordered_map<unsigned int, TransformComponent>* transforms = scene->GetTransforms();
-        std::unordered_map<unsigned int, RenderComponent>* renders = scene->GetRenders();
-        std::unordered_map<unsigned int, LightComponent>* lights = scene->GetLights();
-        std::unordered_map<unsigned int, PhysicsComponent>* bodies = scene->GetPhysics();
-
         inputSystem->Update();
 
         scene->HierarchyUpdate();
@@ -102,7 +103,10 @@ void App::Run()
         // TODO: Add Delta Time
         shouldClose = cameraSystem->Update(*transforms, cameraID, *cameraComponent, scene, viewMatrix, 1.0f / 60.0f);
 
-        renderSystem->Update(*transforms, *renders, *lights, projectionMatrix, viewMatrix);
+        //std::unordered_map<unsigned int, RenderComponent> culledRenders = cameraSystem->CheckOnFrustum(cameraComponent->frustum, *renders, *transforms);
+        std::unordered_map<unsigned int, RenderComponent> culledRenders = cameraSystem->CheckOnFrustum(falseFrustum, *renders, *transforms);
+
+        renderSystem->Update(*transforms, culledRenders, *lights, projectionMatrix, viewMatrix);
 
         // TODO: Moved to Fixed Update
         physicsSystem->CollisionPhase(*bodies, *transforms);
@@ -146,10 +150,10 @@ void App::Start()
     std::string skyboxTextureFiles[6] = {
     "img/px.png",
     "img/nx.png",
-    "img/nz.png",
-    "img/pz.png",
     "img/py.png",
     "img/ny.png",
+    "img/pz.png",
+    "img/nz.png",
     };
 
     //std::string skyboxTextureFiles[6] = {
@@ -165,43 +169,48 @@ void App::Start()
 
     unsigned int cubeEntity = scene->MakeEmptyTransform();
     scene->AddRenderComponent(cubeEntity);
+
+    //Gun
     scene->SetMesh(cubeEntity, assetFactory->GetMesh("models/Cerberus_LP.FBX"));
     std::string textureMaps[3] = { "img/Cerberus_A.tga", "img/Cerberus_PBR.tga", "img/Cerberus_N.tga" };
     scene->SetScale(2, { 0.15f, 0.15f, 0.15f });
+
+    //Whale
+    //scene->SetMesh(cubeEntity, assetFactory->GetMesh("models/whale.obj"));
+    //std::string textureMaps[3] = { "img/whale.jpg", "img/Cerberus_PBR.tga", "img/Cerberus_N.tga" };
+    scene->SetLocalEulers(2, {-90,0,0}, false);
+    //scene->SetScale(2, { 0.05, 0.05, 0.05 });
+
     scene->AddPhysicsComponent(2, 0);
     scene->SetIsGravitated(2, false);
     scene->AddPhysicsShapePill(2, { 0,21,7.5f }, { 0,-109,7.5f }, 1.7f);
     scene->AddPhysicsShapePill(2, { 4.25f,21,1 }, { 4.25f,-109,1 }, 1.7f);
     scene->AddPhysicsShapePill(2, { -4.25f,21,1 }, { -4.25f,-109,1 }, 1.7f);
 
-    //renderComponents[cubeEntity]->mesh = assetFactory->GetMesh("models/whale.obj");
-    //std::string textureMaps[3] = { "img/whale.jpg", "img/Cerberus_PBR.tga", "img/Cerberus_N.tga" };
-    //transformComponents[2]->scale = { 0.05, 0.05, 0.05 };
-
     scene->SetMaterial(cubeEntity, assetFactory->GetMaterial(textureMaps, 7));
 
-    int lightCount = 10;
+    int lightCount = 150;
 
-    srand(1337);
+    srand(69420);
     //srand(212);
-    for (int i = 3; i < lightCount; i++)
+    for (int i = 3; i < lightCount + 3; i++)
     {
-        float z = (20.0f * (float)rand() / RAND_MAX - 10.0f);
-        float y = (110.0f * (float)rand() / RAND_MAX - 90.0f);
-        float x = (9.0f * (float)rand() / RAND_MAX + 30.0f);
+        float z = (30.0f * (float)rand() / RAND_MAX - 15.0F);
+        float y = (30.0f * (float)rand() / RAND_MAX - 15.0F);
+        float x = (30.0F * (float)rand() / RAND_MAX - 15.0F);
 
         float b = (255 * (float)rand() / RAND_MAX);
         float g = (255 * (float)rand() / RAND_MAX);
         float r = (255 * (float)rand() / RAND_MAX);
 
         scene->MakePointLightEntity({z, y, x }, 100, { r,g,b }, 1 / (float)255);
-        scene->AddPhysicsComponent(i, 1);
-        scene->AddPhysicsShapeBox(i);
-        scene->SetIsGravitated(i, true);
-        scene->SetMomentOfInertiaScale(i, { 0.01f,0.01f,0.01f });
+        //scene->AddPhysicsComponent(i, 1);
+        //scene->AddPhysicsShapeBox(i);
+        //scene->SetIsGravitated(i, true);
+        //scene->SetMomentOfInertiaScale(i, { 0.01f,0.01f,0.01f });
     }
 }
-
+ 
 void App::Update()
 {
     //Space to add things to run on update
@@ -215,6 +224,10 @@ void App::Update()
     if (inputSystem->GetKeyDown(G))
     {
         physicsSystem->gravity = { 0,0,-5.0f };
+    }
+    if (inputSystem->GetKeyDown(V))
+    {
+        falseFrustum = cameraComponent->frustum;
     }
 }
 

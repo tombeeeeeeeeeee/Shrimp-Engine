@@ -70,6 +70,34 @@ bool CameraSystem::Update(std::unordered_map<unsigned int, TransformComponent>& 
     return false;
 }
 
+std::unordered_map<unsigned int, RenderComponent> CameraSystem::CheckOnFrustum(Frustum frustum, std::unordered_map<unsigned int, RenderComponent>& renderComponents, std::unordered_map<unsigned int, TransformComponent>& transformComponents)
+{
+    std::unordered_map<unsigned int, RenderComponent> culledComponents = std::unordered_map<unsigned int, RenderComponent>();
+
+    for (std::pair<unsigned int, RenderComponent> entity : renderComponents)
+    {
+        glm::mat4 model = transformComponents[entity.first].globalTransform;
+        glm::vec3 min = entity.second.mesh->bottomCorner;
+        glm::vec3 max = entity.second.mesh->topCorner;
+
+        glm::vec3 OOBB[8] =
+        {
+            model * glm::vec4(min, 1),
+            model * glm::vec4(min.x, min.y, max.z, 1),
+            model * glm::vec4(min.x, max.y, min.z, 1),
+            model * glm::vec4(min.x, max.y, max.z, 1),
+            model * glm::vec4(max.x, min.y, min.z, 1),
+            model * glm::vec4(max.x, min.y, max.z, 1),
+            model * glm::vec4(max.x, max.y, min.z, 1),
+            model * glm::vec4(max, 1),
+        };
+
+        if (IsOnFrustum(frustum, OOBB)) culledComponents[entity.first] = entity.second;
+    }
+
+    return culledComponents;
+}
+
  void CameraSystem::UpdateFrustum(TransformComponent& cameraTransform, CameraComponent& cameraComponent)
 {
 
@@ -86,25 +114,52 @@ bool CameraSystem::Update(std::unordered_map<unsigned int, TransformComponent>& 
      float nearClip = cameraComponent.nearClip;
      float farClip = cameraComponent.farClip;
 
-     const float halfVSide = nearClip * tanf(fov * .5f);
+     const float halfVSide = farClip * tanf(fov/2.0f);
      const float halfHSide = halfVSide * aspect;
      const glm::vec3 frontMultFar = farClip * cameraComponent.forward;
 
+     glm::vec3 rightNormal = glm::normalize(glm::cross(frontMultFar - cameraComponent.right * halfHSide, cameraComponent.up));
+     glm::vec3 leftNormal = glm::normalize(glm::cross(cameraComponent.up, frontMultFar + cameraComponent.right * halfHSide));
+     glm::vec3 topNormal = glm::normalize(glm::cross(cameraComponent.right, frontMultFar - cameraComponent.up * halfVSide));
+     glm::vec3 bottomNormal = glm::normalize(glm::cross(frontMultFar + cameraComponent.up * halfVSide, cameraComponent.right));
 
-     frustum.nearFace = { pos + nearClip * cameraComponent.forward, 
-         glm::dot(pos + nearClip * cameraComponent.forward,cameraComponent.forward) };
-     frustum.farFace = { pos + frontMultFar, glm::dot(pos + frontMultFar, -cameraComponent.forward) };
-     frustum.rightFace = { pos,
-                glm::dot(pos, glm::cross(frontMultFar - cameraComponent.right * halfHSide, cameraComponent.up)) };
-     frustum.leftFace = { pos,
-                glm::dot(pos, glm::cross(cameraComponent.up,frontMultFar + cameraComponent.right * halfHSide)) };
-     frustum.topFace = { pos,
-                glm::dot(pos, glm::cross(cameraComponent.right, frontMultFar - cameraComponent.up * halfVSide)) };
-     frustum.bottomFace = { pos,
-                glm::dot(pos, glm::cross(frontMultFar + cameraComponent.up * halfVSide, cameraComponent.right)) };
+     frustum.nearFace = { cameraComponent.forward, glm::dot(pos + nearClip * cameraComponent.forward ,cameraComponent.forward)};
+     frustum.farFace = { -cameraComponent.forward, glm::dot(pos + frontMultFar, -cameraComponent.forward) };
+     frustum.rightFace = { rightNormal, glm::dot(pos, rightNormal) };
+     frustum.leftFace = { leftNormal, glm::dot(pos, leftNormal) };
+     frustum.topFace = { topNormal, glm::dot(pos, topNormal) };
+     frustum.bottomFace = { bottomNormal, glm::dot(pos, bottomNormal) };
 
      cameraComponent.frustum = frustum;
 }
+
+ bool CameraSystem::IsOnFrustum(Frustum frustum, glm::vec3 OOBB[8])
+ {
+     if (!IsInfrontOfPlane(frustum.leftFace, OOBB)) return false;
+     if (!IsInfrontOfPlane(frustum.rightFace, OOBB)) return false;
+     if (!IsInfrontOfPlane(frustum.topFace, OOBB)) return false;
+     if (!IsInfrontOfPlane(frustum.bottomFace, OOBB)) return false;
+     if (!IsInfrontOfPlane(frustum.farFace, OOBB)) return false;
+     if (!IsInfrontOfPlane(frustum.nearFace, OOBB)) return false;
+     return true;
+ }
+
+ bool CameraSystem::IsInfrontOfPlane(Plane plane, glm::vec3 OOBB[8])
+ {
+    /*
+    *  for all verts
+    *    compare with  face
+    *        if closer than face return true;
+    *  return false
+    */
+
+     for (int i = 0; i < 8; i++)
+     {
+         float distance = glm::dot(plane.normal, OOBB[i]);
+         if (distance - plane.distance >= 0) return true;
+     }
+     return false;
+ }
 
 void CameraSystem::RotateCamera()
 {

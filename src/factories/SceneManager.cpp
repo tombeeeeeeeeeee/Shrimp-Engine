@@ -243,7 +243,13 @@ const glm::mat4 SceneManager::GetLocalTransform(unsigned int entity)
         glm::mat4 scale = glm::scale(glm::identity<glm::mat4>(), transformComponents[entity].scale);
         glm::mat4 rotation = glm::mat4(transformComponents[entity].rotation);
         
-        return scale * translate * rotation;
+        return 
+            translate 
+            * 
+            rotation
+            * 
+            scale 
+            ;
     }
     else return { 
         NAN, NAN, NAN, NAN,

@@ -25,12 +25,16 @@ public:
 	/// <returns> unsigned int of entity</returns>
 	unsigned int MakeEntity() { return entityCount++; }
 
-	//TODO: REMAKE SUMMARY
-	/// <summary> 
-	/// Creates an entity with a transform and camera component 
+	/// <summary>
+	/// Makes a camera component
 	/// </summary>
-	/// <param name="position"> transform position </param>
-	/// <returns> unsigned int of entity</returns>
+	/// <param name="position"> position of camera</param>
+	/// <param name="_fov"> feild of view</param>
+	/// <param name="aspect"> aspect ratio</param>
+	/// <param name="_nearClip"> near clip plane</param>
+	/// <param name="_farClip"> far clip plane</param>
+	/// <param name="entityID"> entity id</param>
+	/// <returns> Camera Component</returns>
 	CameraComponent MakeCamera(glm::vec3 position, float _fov, float aspect, float _nearClip, float _farClip, unsigned int& entityID);
 
 #pragma region Transform Components

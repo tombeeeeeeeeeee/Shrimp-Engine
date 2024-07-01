@@ -16,7 +16,7 @@ uniform samplerCube prefilterMap;	//4
 uniform sampler2D brdfLUT;			//5
 
 uniform int lightPacketCount;
-uniform vec4 lightPackets[64];
+uniform vec4 lightPackets[512];
 
 uniform	vec3 cameraPos;
 

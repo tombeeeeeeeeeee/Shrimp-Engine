@@ -32,8 +32,27 @@ public:
         SceneManager* scene,
         glm::mat4& _view, float dt);
 
-private:
+    /// <summary>
+    /// Update Camera Frustum
+    /// </summary>
+    /// <param name="cameraTransform"> transform component for camera</param>
+    /// <param name="cameraComponent"> camera component for camera</param>
     void UpdateFrustum(TransformComponent& cameraTransform, CameraComponent& cameraComponent);
+
+    /// <summary>
+    /// Culls render components before sending to gpu.
+    /// </summary>
+    /// <param name="frustum"> frustum of camera</param>
+    /// <param name="renderComponents"> all render components to be culled</param>
+    /// <returns> render components in camera frustum</returns>
+    std::unordered_map<unsigned int, RenderComponent> CheckOnFrustum(Frustum frustum, 
+        std::unordered_map<unsigned int, RenderComponent>& renderComponents, std::unordered_map<unsigned int, TransformComponent>& transformComponents);
+
+private:
+
+    bool IsOnFrustum(Frustum frustum, glm::vec3 OOBB[8]);
+
+    bool IsInfrontOfPlane(Plane plane, glm::vec3 OOBB[8]);
 
     /// <summary>
     /// Rotates camera
