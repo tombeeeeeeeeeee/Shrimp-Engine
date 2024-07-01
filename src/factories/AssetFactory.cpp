@@ -181,11 +181,16 @@ MeshAsset* AssetFactory::GetMesh(std::string fileName)
 {
     if (meshAssets.find(fileName) != meshAssets.end()) return meshAssets[fileName];
 
-    const aiScene* scene = aiImportFile((assetFolder + fileName).c_str(), aiProcess_CalcTangentSpace | aiProcess_GenNormals | aiProcess_Triangulate | aiProcess_JoinIdenticalVertices);
+    const aiScene* scene = aiImportFile((assetFolder + fileName).c_str(), aiProcess_CalcTangentSpace | aiProcess_GenNormals | aiProcess_GenBoundingBoxes | aiProcess_Triangulate | aiProcess_JoinIdenticalVertices);
     if (scene == nullptr) return nullptr;
     
     aiMesh* mesh = scene->mMeshes[0];
     
+    auto min = scene->mMeshes[0]->mAABB.mMin;
+    auto max = scene->mMeshes[0]->mAABB.mMax;
+    glm::vec3 botCorner = {min.x, min.y, min.z};
+    glm::vec3 topCorner = {max.x, max.y, max.z};
+
 
     int faceCount = mesh->mNumFaces;
     std::vector<unsigned int> indices;
@@ -226,7 +231,10 @@ MeshAsset* AssetFactory::GetMesh(std::string fileName)
         vertices.push_back(mesh->mTangents[i].z);
     }
 
-    return  sendMeshToVRAM( vertices, vertexCount, indices.size(), indices.data());
+    MeshAsset* meshAsset = sendMeshToVRAM( vertices, vertexCount, indices.size(), indices.data());
+    meshAsset->bottomCorner = botCorner;
+    meshAsset->topCorner = topCorner;
+    return  meshAsset;
 }
 
 unsigned int AssetFactory::GetSkyBoxMaterial(std::string fileName[6], std::string name)

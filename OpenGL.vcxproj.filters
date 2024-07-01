@@ -1004,6 +1004,9 @@
     <ClInclude Include="Dependencies\GeneralMacros.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\components\GameObjectComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="CMakeLists.txt" />
