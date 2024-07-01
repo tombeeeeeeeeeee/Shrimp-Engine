@@ -19,6 +19,96 @@ EditorGUISystem::EditorGUISystem(GLFWwindow* window) noexcept
 	ImGui_ImplOpenGL3_Init();
 
 	//ImGui::GetIO().IniFilename = ;	// Set the filepath for imgui's config file
+
+	// Setting Up Styling
+	{
+		ImGuiStyle* style = &ImGui::GetStyle();
+
+		ImGui::GetIO().Fonts->AddFontFromFileTTF("Assets\\fonts\\ComicMono.ttf", 16);
+
+		style->ItemInnerSpacing = { 3.0f, 3.0f };
+		style->ItemSpacing = { 3.0f, 3.0f };
+
+		style->TabRounding = 4.0f;
+		style->TabBarBorderSize = 2.0f;
+
+		style->FrameRounding = 4.0f;
+		style->FramePadding = { 4.0f, 3.5f };
+
+		style->PopupRounding = 4.0f;
+
+		style->WindowRounding = 4.0f;
+		style->WindowPadding = { 10.0f, 10.0f };
+
+		style->SelectableRounding = 5.0f;
+
+		style->ScrollbarRounding = 4.0f;
+		style->ScrollbarSize = 16.0f;
+
+		// Text
+		style->Colors[ImGuiCol_Text]						= ImVec4(0.000, 0.000, 0.000, 1.0);
+		style->Colors[ImGuiCol_TextDisabled]			= ImVec4(0.500, 0.500, 0.500, 1.0);
+		style->Colors[ImGuiCol_TextSelectedBg]			= ImVec4(0.960, 0.670, 0.725, 1.0);
+
+		// Backgrounds
+		style->Colors[ImGuiCol_WindowBg]					= ImVec4(1.000, 1.000, 1.000, 1.0);
+		style->Colors[ImGuiCol_ChildBg]					= ImVec4(1.000, 1.000, 1.000, 1.0);
+		style->Colors[ImGuiCol_PopupBg]					= ImVec4(1.000, 1.000, 1.000, 1.0);
+		style->Colors[ImGuiCol_TitleBg]					= ImVec4(1.000, 1.000, 1.000, 1.0);
+		style->Colors[ImGuiCol_TitleBgCollapsed]		= ImVec4(1.000, 1.000, 1.000, 1.0);
+		style->Colors[ImGuiCol_ResizeGrip]				= ImVec4(1.000, 1.000, 1.000, 1.0);
+		style->Colors[ImGuiCol_TitleBgActive]			= ImVec4(0.960, 0.670, 0.725, 1.0);
+		style->Colors[ImGuiCol_MenuBarBg]				= ImVec4(0.960, 0.670, 0.725, 1.0);
+		style->Colors[ImGuiCol_ScrollbarBg]				= ImVec4(0.960, 0.670, 0.725, 1.0);
+
+		// Input Fields
+		style->Colors[ImGuiCol_FrameBg]					= ImVec4(0.626, 0.897, 1.000, 1.0);
+		style->Colors[ImGuiCol_FrameBgHovered]			= ImVec4(0.586, 0.848, 0.947, 1.0);
+		style->Colors[ImGuiCol_FrameBgActive]			= ImVec4(0.558, 0.808, 0.903, 1.0);
+		style->Colors[ImGuiCol_CheckMark]				= ImVec4(0.356, 0.811, 0.984, 1.0);
+		style->Colors[ImGuiCol_DragDropTarget]			= ImVec4(0.356, 0.811, 0.984, 1.0);
+
+		// Buttons & Resize
+		style->Colors[ImGuiCol_Button]					= ImVec4(0.960, 0.670, 0.725, 1.0);
+		style->Colors[ImGuiCol_ButtonHovered]			= ImVec4(0.911, 0.644, 0.694, 1.0);
+		style->Colors[ImGuiCol_ResizeGripHovered]		= ImVec4(0.911, 0.644, 0.694, 1.0);
+		style->Colors[ImGuiCol_SeparatorHovered]		= ImVec4(0.911, 0.644, 0.694, 1.0);
+		style->Colors[ImGuiCol_ButtonActive]			= ImVec4(0.871, 0.612, 0.661, 1.0);
+		style->Colors[ImGuiCol_ResizeGripActive]		= ImVec4(0.871, 0.612, 0.661, 1.0);
+
+		// Foldable Headers
+		style->Colors[ImGuiCol_Header]					= ImVec4(0.960, 0.670, 0.725, 1.0);
+		style->Colors[ImGuiCol_TableHeaderBg]			= ImVec4(0.960, 0.670, 0.725, 1.0);
+		style->Colors[ImGuiCol_HeaderHovered]			= ImVec4(0.911, 0.644, 0.694, 1.0);
+		style->Colors[ImGuiCol_HeaderActive]			= ImVec4(0.871, 0.612, 0.661, 1.0);
+
+		// Tabs
+		style->Colors[ImGuiCol_Tab]						= ImVec4(0.356, 0.811, 0.984, 1.0);
+		style->Colors[ImGuiCol_TabHovered]				= ImVec4(0.347, 0.785, 0.951, 1.0);
+		style->Colors[ImGuiCol_TabActive]				= ImVec4(0.239, 0.741, 0.931, 1.0);
+		style->Colors[ImGuiCol_TabUnfocused]			= ImVec4(0.404, 0.807, 0.959, 1.0);
+		style->Colors[ImGuiCol_TabUnfocusedActive]	= ImVec4(0.336, 0.759, 0.919, 1.0);
+
+		// Scrollbar Handles
+		style->Colors[ImGuiCol_ScrollbarGrab]			= ImVec4(0.356, 0.811, 0.984, 1.0);
+		style->Colors[ImGuiCol_ScrollbarGrabHovered]	= ImVec4(0.347, 0.785, 0.951, 1.0);
+		style->Colors[ImGuiCol_ScrollbarGrabActive]	= ImVec4(0.239, 0.741, 0.931, 1.0);
+
+
+		// Borders & Bars
+		style->Colors[ImGuiCol_Separator]				= ImVec4(0.960, 0.670, 0.725, 1.0);
+		style->Colors[ImGuiCol_Border]					= ImVec4(0.356, 0.811, 0.984, 1.0);
+
+		// Tables
+		style->Colors[ImGuiCol_TableBorderStrong]		= ImVec4(0.356, 0.811, 0.984, 1.0);
+		style->Colors[ImGuiCol_TableBorderLight]		= ImVec4(0.356, 0.811, 0.984, 0.25);
+		style->Colors[ImGuiCol_TableRowBg]				= ImVec4(1.000, 1.000, 1.000, 0.25);
+		style->Colors[ImGuiCol_TableRowBgAlt]			= ImVec4(0.960, 0.670, 0.725, 0.1);
+
+		// Docking
+		style->Colors[ImGuiCol_DockingPreview]			= ImVec4(0.960, 0.670, 0.725, 1.0);
+		style->Colors[ImGuiCol_DockingEmptyBg]			= ImVec4(0.309, 0.612, 0.726, 1.0);
+	}
 }
 
 EditorGUISystem::~EditorGUISystem() noexcept
@@ -206,8 +296,8 @@ void EditorGUISystem::DrawInspector(SceneManager* scene)
 		{
 			RenderComponent& render = (*renderComponents)[selectedID];
 
-			ImGui::Text(StringBuilder("Material:", render.material).CStr());
-			ImGui::Text(StringBuilder("Mesh:", render.mesh).CStr());
+			ImGui::Text(StringBuilder("Material: ", render.material).CStr());
+			ImGui::Text(StringBuilder("Mesh: ", render.mesh).CStr());
 
 			ImGui::Spacing();
 		}
