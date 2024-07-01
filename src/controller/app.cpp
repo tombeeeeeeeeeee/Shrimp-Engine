@@ -80,9 +80,8 @@ void App::Run()
     bool shouldClose = false;
 
     unsigned int cameraEntity;
-    CameraComponent camera = scene->MakeCamera({ 0.0f, 1.0f, 0.0f }, FOV, (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, NEARCLIP, FARCLIP, cameraEntity);
-
-    cameraComponent = &camera;
+    cameraComponent = new CameraComponent();
+    *cameraComponent = scene->MakeCamera({ 0.0f, 1.0f, 0.0f }, FOV, (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, NEARCLIP, FARCLIP, cameraEntity);
     cameraID = cameraEntity;
     renderSystem->SetCameraID(cameraID);
 
