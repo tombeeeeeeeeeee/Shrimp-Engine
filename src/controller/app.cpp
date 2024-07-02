@@ -103,10 +103,20 @@ void App::Run()
         // TODO: Add Delta Time
         shouldClose = cameraSystem->Update(*transforms, cameraID, *cameraComponent, scene, viewMatrix, 1.0f / 60.0f);
 
-        //std::unordered_map<unsigned int, RenderComponent> culledRenders = cameraSystem->CheckOnFrustum(cameraComponent->frustum, *renders, *transforms);
+        ColouredOutput("Number of render components: ", white, false);
+        ColouredOutput(renders->size(), red);
+
         std::unordered_map<unsigned int, RenderComponent> culledRenders = cameraSystem->CheckOnFrustum(falseFrustum, *renders, *transforms);
 
-        renderSystem->Update(*transforms, culledRenders, *lights, projectionMatrix, viewMatrix);
+        ColouredOutput("Number of psuedo culled components: ", white, false);
+        ColouredOutput(culledRenders.size(), red);
+
+        std::unordered_map<unsigned int, RenderComponent> doubleCulled = cameraSystem->CheckOnFrustum(cameraComponent->frustum, culledRenders, *transforms);
+
+        ColouredOutput("Number of camera culled components: ", white, false);
+        ColouredOutput(doubleCulled.size(), red);
+
+        renderSystem->Update(*transforms, doubleCulled, *lights, projectionMatrix, viewMatrix);
 
         // TODO: Moved to Fixed Update
         physicsSystem->CollisionPhase(*bodies, *transforms);
