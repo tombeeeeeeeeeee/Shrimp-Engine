@@ -1,5 +1,7 @@
 #include "app.h"
 
+#include "Debug.h"
+
 #pragma region Default Camera Values
 int SCREEN_WIDTH = 1080;
 int SCREEN_HEIGHT = 1080;
@@ -117,7 +119,6 @@ void App::Run()
         ColouredOutput(doubleCulled.size(), red);
 
         renderSystem->Update(*transforms, doubleCulled, *lights, projectionMatrix, viewMatrix);
-
         // TODO: Moved to Fixed Update
         physicsSystem->CollisionPhase(*bodies, *transforms);
 
@@ -231,6 +232,7 @@ void App::Update()
     falseFrustum = cameraSystem->CreateFrustum(
         { 0,0,0 }, 70.0f, 16.0f/9.0f,
         0.01f, 10000.0f, { 0,1,0 }, { s, 0 ,c }, { -c, 0 ,s });
+    debug->lines.AddConicalFrustum({ 0, 0, 0 }, glm::vec3( -s, 0, c ), 0.01f, 100.0f, glm::cos(glm::radians(140.0f)), 32, { 1, 1, 1, 1 });
 
     if (inputSystem->GetKeyDown(num2)) {
         renderSystem->exposure += 0.02f;

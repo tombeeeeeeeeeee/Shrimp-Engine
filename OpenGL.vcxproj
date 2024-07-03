@@ -119,6 +119,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)Dependencies;$(SolutionDir)Dependencies\GLFW;$(SolutionDir)Dependencies\glm;$(SolutionDir)src;$(SolutionDir)Dependencies\include</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -136,6 +137,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)Dependencies;$(SolutionDir)Dependencies\GLFW;$(SolutionDir)Dependencies\glm;$(SolutionDir)src</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -147,6 +149,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Dependencies\Debug.cpp" />
+    <ClCompile Include="Dependencies\LineDrawer.cpp" />
+    <ClCompile Include="Dependencies\StackTimer.cpp" />
+    <ClCompile Include="Dependencies\StringBuilder.cpp" />
     <ClCompile Include="src\input\KeyAxis.cpp" />
     <ClCompile Include="src\input\KeyBind.cpp" />
     <ClCompile Include="src\systems\InputSystem.cpp" />
@@ -166,7 +172,11 @@
     <ClCompile Include="src\view\shader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Dependencies\Debug.h" />
     <ClInclude Include="Dependencies\GeneralMacros.h" />
+    <ClInclude Include="Dependencies\LineDrawer.h" />
+    <ClInclude Include="Dependencies\StackTimer.h" />
+    <ClInclude Include="Dependencies\StringBuilder.h" />
     <ClInclude Include="src\components\GameObjectComponent.h" />
     <ClInclude Include="src\components\LightComponent.h" />
     <ClInclude Include="src\factories\AssetFactory.h" />
