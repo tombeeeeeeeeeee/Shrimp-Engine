@@ -99,8 +99,7 @@ std::unordered_map<unsigned int, RenderComponent> CameraSystem::CheckOnFrustum(F
 }
 
  void CameraSystem::UpdateFrustum(TransformComponent& cameraTransform, CameraComponent& cameraComponent)
-{
-
+ {
      Frustum frustum;
 
      glm::vec3 pos = {
@@ -114,24 +113,36 @@ std::unordered_map<unsigned int, RenderComponent> CameraSystem::CheckOnFrustum(F
      float nearClip = cameraComponent.nearClip;
      float farClip = cameraComponent.farClip;
 
-     const float halfVSide = farClip * tanf(fov/2.0f);
+     frustum = CreateFrustum(pos, fov, aspect, nearClip, farClip,
+         cameraComponent.up, cameraComponent.forward, cameraComponent.right);
+
+     cameraComponent.frustum = frustum;
+}
+
+ Frustum CameraSystem::CreateFrustum(glm::vec3 pos, float fov, float aspect, float nearClip, float farClip,
+     glm::vec3 up, glm::vec3 forward, glm::vec3 right)
+ {
+     Frustum frustum;
+
+     const float halfVSide = farClip * tanf(fov / 2.0f);
      const float halfHSide = halfVSide * aspect;
-     const glm::vec3 frontMultFar = farClip * cameraComponent.forward;
+     const glm::vec3 frontMultFar = farClip * forward;
 
-     glm::vec3 rightNormal = glm::normalize(glm::cross(frontMultFar - cameraComponent.right * halfHSide, cameraComponent.up));
-     glm::vec3 leftNormal = glm::normalize(glm::cross(cameraComponent.up, frontMultFar + cameraComponent.right * halfHSide));
-     glm::vec3 topNormal = glm::normalize(glm::cross(cameraComponent.right, frontMultFar - cameraComponent.up * halfVSide));
-     glm::vec3 bottomNormal = glm::normalize(glm::cross(frontMultFar + cameraComponent.up * halfVSide, cameraComponent.right));
+     glm::vec3 rightNormal = glm::normalize(glm::cross(frontMultFar - right * halfHSide, up));
+     glm::vec3 leftNormal = glm::normalize(glm::cross(up, frontMultFar + right * halfHSide));
+     glm::vec3 topNormal = glm::normalize(glm::cross(right, frontMultFar - up * halfVSide));
+     glm::vec3 bottomNormal = glm::normalize(glm::cross(frontMultFar + up * halfVSide, right));
 
-     frustum.nearFace = { cameraComponent.forward, glm::dot(pos + nearClip * cameraComponent.forward ,cameraComponent.forward)};
-     frustum.farFace = { -cameraComponent.forward, glm::dot(pos + frontMultFar, -cameraComponent.forward) };
+     frustum.nearFace = { forward, glm::dot(pos + nearClip * forward ,forward) };
+     frustum.farFace = { -forward, glm::dot(pos + frontMultFar, -forward) };
      frustum.rightFace = { rightNormal, glm::dot(pos, rightNormal) };
      frustum.leftFace = { leftNormal, glm::dot(pos, leftNormal) };
      frustum.topFace = { topNormal, glm::dot(pos, topNormal) };
      frustum.bottomFace = { bottomNormal, glm::dot(pos, bottomNormal) };
 
-     cameraComponent.frustum = frustum;
-}
+
+     return frustum;
+ }
 
  bool CameraSystem::IsOnFrustum(Frustum frustum, glm::vec3 OOBB[8])
  {

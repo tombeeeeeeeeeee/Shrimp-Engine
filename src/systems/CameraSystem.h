@@ -39,6 +39,22 @@ public:
     /// <param name="cameraComponent"> camera component for camera</param>
     void UpdateFrustum(TransformComponent& cameraTransform, CameraComponent& cameraComponent);
 
+
+    /// <summary>
+    /// Create frustum from camera information
+    /// </summary>
+    /// <param name="pos"> position of frustum tip</param>
+    /// <param name="fov"> vertical field of view (degrees)</param>
+    /// <param name="aspect"> aspect ratio</param>
+    /// <param name="nearClip"> near clip plane distance</param>
+    /// <param name="farClip"> far clip plane distance</param>
+    /// <param name="up"> frustum up</param>
+    /// <param name="forward"> frustum forward</param>
+    /// <param name="right"> frustum right</param>
+    /// <returns> new frustum</returns>
+    Frustum CreateFrustum(glm::vec3 pos, float fov, float aspect, float nearClip, float farClip,
+        glm::vec3 up, glm::vec3 forward, glm::vec3 right);
+
     /// <summary>
     /// Culls render components before sending to gpu.
     /// </summary>

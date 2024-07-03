@@ -54,4 +54,5 @@ private:
 
     //Messing Around
     Frustum falseFrustum;
+    float currTime = 0;
 };

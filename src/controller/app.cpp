@@ -199,15 +199,15 @@ void App::Start()
 
     scene->SetMaterial(cubeEntity, assetFactory->GetMaterial(textureMaps, 7));
 
-    int lightCount = 150;
+    int lightCount = 200;
 
-    srand(69420);
+    srand(42069420);
     //srand(212);
     for (int i = 3; i < lightCount + 3; i++)
     {
-        float z = (30.0f * (float)rand() / RAND_MAX - 15.0F);
-        float y = (30.0f * (float)rand() / RAND_MAX - 15.0F);
-        float x = (30.0F * (float)rand() / RAND_MAX - 15.0F);
+        float z = (60.0f * (float)rand() / RAND_MAX - 30.0F);
+        float y = (60.0f * (float)rand() / RAND_MAX - 30.0F);
+        float x = (60.0F * (float)rand() / RAND_MAX - 30.0F);
 
         float b = (255 * (float)rand() / RAND_MAX);
         float g = (255 * (float)rand() / RAND_MAX);
@@ -223,7 +223,14 @@ void App::Start()
  
 void App::Update()
 {
+    currTime += 1 / 60.0f;
     //Space to add things to run on update
+    float s = sin(currTime);
+    float c = cos(currTime);
+
+    falseFrustum = cameraSystem->CreateFrustum(
+        { 0,0,0 }, 70.0f, 16.0f/9.0f,
+        0.01f, 10000.0f, { 0,1,0 }, { s, 0 ,c }, { -c, 0 ,s });
 
     if (inputSystem->GetKeyDown(num2)) {
         renderSystem->exposure += 0.02f;
@@ -234,10 +241,6 @@ void App::Update()
     if (inputSystem->GetKeyDown(G))
     {
         physicsSystem->gravity = { 0,0,-5.0f };
-    }
-    if (inputSystem->GetKeyDown(V))
-    {
-        falseFrustum = cameraComponent->frustum;
     }
 }
 
