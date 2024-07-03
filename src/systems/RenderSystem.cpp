@@ -1,5 +1,7 @@
 #include "RenderSystem.h"
 
+#include "Debug.h"
+
 RenderSystem::RenderSystem(std::vector<unsigned int>& _shaders, unsigned int _cameraID, GLFWwindow* window)
 {
     shaders = &_shaders;
@@ -147,6 +149,8 @@ void RenderSystem::Update(
         }
     }
 
+    debug->lines.Draw(projectionMatrix* viewMatrix);
+
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     
     //FrameBuffer Rendering
@@ -161,7 +165,7 @@ void RenderSystem::Update(
     RenderQuad();
 
     glfwSwapBuffers(window);
-    for (int i = 0; i < SHADER_PROGRAM_COUNT; i++) entityShaderOrder[i].clear();
+   for (int i = 0; i < SHADER_PROGRAM_COUNT; i++) entityShaderOrder[i].clear();
 }
 
 void RenderSystem::SetSkyboxTexture(unsigned int texture)
