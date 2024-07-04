@@ -37,6 +37,8 @@ public:
 
     float exposure = 1.0f;
 
+    void HDRBufferUpdate();
+
 private:
     /// <summary>
     /// Missing Texture VRAM location
@@ -75,6 +77,7 @@ private:
         std::unordered_map<unsigned int, TransformComponent>& transComponents);
 
     void HDRBufferSetUp();
+    
     unsigned int hdrFBO;
     unsigned int colorBuffer;
     unsigned int rboDepth;
