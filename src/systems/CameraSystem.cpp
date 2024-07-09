@@ -23,15 +23,20 @@ bool CameraSystem::Update(std::unordered_map<unsigned int, TransformComponent>& 
     if (cameraTransform == nullptr) cameraTransform = &transformComponents[cameraID];
     if (cameraComponent == nullptr) cameraComponent = &_cameraComponent;
 
-    if (inputSystem->GetKeyDown(MouseRight)) RotateCamera();
-
-    else glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    if (inputSystem->GetKeyDown(MouseRight)) 
+        RotateCamera();
+    else
+    {
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        rotatingCamera = false;
+    }
 
     glm::vec3 pos = { 
         transformComponents[cameraID].globalTransform[3][0],
         transformComponents[cameraID].globalTransform[3][1],
         transformComponents[cameraID].globalTransform[3][2],
     };
+
     glm::quat rot = transformComponents[cameraID].rotation;
 
     glm::vec3& forwards = _cameraComponent.forward;
@@ -76,6 +81,8 @@ std::unordered_map<unsigned int, RenderComponent> CameraSystem::CheckOnFrustum(F
 
     for (std::pair<unsigned int, RenderComponent> entity : renderComponents)
     {
+        if (entity.second.mesh == nullptr) break;
+
         glm::mat4 model = transformComponents[entity.first].globalTransform;
         glm::vec3 min = entity.second.mesh->bottomCorner;
         glm::vec3 max = entity.second.mesh->topCorner;
@@ -140,7 +147,6 @@ std::unordered_map<unsigned int, RenderComponent> CameraSystem::CheckOnFrustum(F
      frustum.topFace = { topNormal, glm::dot(pos, topNormal) };
      frustum.bottomFace = { bottomNormal, glm::dot(pos, bottomNormal) };
 
-
      return frustum;
  }
 
@@ -152,6 +158,7 @@ std::unordered_map<unsigned int, RenderComponent> CameraSystem::CheckOnFrustum(F
      if (!IsInfrontOfPlane(frustum.bottomFace, OOBB)) return false;
      if (!IsInfrontOfPlane(frustum.farFace, OOBB)) return false;
      if (!IsInfrontOfPlane(frustum.nearFace, OOBB)) return false;
+
      return true;
  }
 
@@ -163,7 +170,6 @@ std::unordered_map<unsigned int, RenderComponent> CameraSystem::CheckOnFrustum(F
     *        if closer than face return true;
     *  return false
     */
-
      for (int i = 0; i < 8; i++)
      {
          float distance = glm::dot(plane.normal, OOBB[i]);
@@ -175,17 +181,19 @@ std::unordered_map<unsigned int, RenderComponent> CameraSystem::CheckOnFrustum(F
 void CameraSystem::RotateCamera()
 {
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-    
     int w, h;
     glfwGetFramebufferSize(window, &w, &h);
     
     glm::vec3 dEulers = { 0.0f, 0.0f, 0.0f };
     double mouse_x, mouse_y; 
     glfwGetCursorPos(window, &mouse_x, &mouse_y);
-    glfwSetCursorPos(window, w / 2, h / 2); 
+
+    if (rotatingCamera == false) cursorLockPos = {mouse_x, mouse_y};
+
+    glfwSetCursorPos(window, cursorLockPos.x, cursorLockPos.y);
     
-    dEulers.y = -0.0005f * static_cast<float>(mouse_x - w / 2); 
-    dEulers.z = -0.0005f * static_cast<float>(mouse_y - h / 2);
+    dEulers.y = -0.0005f * static_cast<float>(mouse_x - cursorLockPos.x); 
+    dEulers.z = -0.0005f * static_cast<float>(mouse_y - cursorLockPos.y);
 
     glm::quat zRot = glm::quat(glm::vec3(0, 0, dEulers.z));
     if(abs(glm::dot(zRot * cameraComponent->forward, globalUp)) < 0.95f)
@@ -193,5 +201,7 @@ void CameraSystem::RotateCamera()
 
     glm::quat yRot = glm::rotate(glm::identity<glm::quat>(), dEulers.y, globalUp);
     cameraTransform->rotation = yRot * cameraTransform->rotation;
+
+    rotatingCamera = true;
 }
 

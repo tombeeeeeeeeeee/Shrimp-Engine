@@ -6,7 +6,7 @@
 #include <assimp/postprocess.h>
 
 AssetFactory::AssetFactory(std::string _assetFolder) : assetFolder(_assetFolder)
-{ 
+{
 }
 
 
@@ -66,7 +66,6 @@ unsigned int AssetFactory::MakeTexture(const char* filename, bool SRBG)
 
     int width, height, channels;
     stbi_set_flip_vertically_on_load(true);
-
     
     unsigned char* data = stbi_load( filename, &width, &height, &channels, STBI_rgb_alpha);
 
@@ -234,6 +233,9 @@ MeshAsset* AssetFactory::GetMesh(std::string fileName)
     MeshAsset* meshAsset = sendMeshToVRAM( vertices, vertexCount, indices.size(), indices.data());
     meshAsset->bottomCorner = botCorner;
     meshAsset->topCorner = topCorner;
+
+    meshAssets[fileName] = meshAsset;
+
     return  meshAsset;
 }
 

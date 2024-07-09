@@ -437,6 +437,7 @@ void RenderSystem::SetPrefilteredMap(unsigned int skybox)
             RenderCube();
         }
     }
+
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     int scrWidth, scrHeight;
     glfwGetFramebufferSize(window, &scrWidth, &scrHeight);

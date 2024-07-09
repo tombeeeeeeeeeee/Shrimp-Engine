@@ -99,4 +99,7 @@ private:
     KeyAxis xInput;
     KeyAxis yInput;
     KeyAxis zInput;
+
+    glm::vec2 cursorLockPos;
+    bool rotatingCamera = false;
 };
