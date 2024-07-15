@@ -1463,6 +1463,8 @@
     <None Include="src\shaders\skybox.frag" />
     <None Include="src\shaders\skybox.vert" />
     <None Include="src\shaders\lightShader.frag" />
+    <None Include="src\shaders\downSample.frag" />
+    <None Include="src\shaders\upSample.frag" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\..\..\Downloads\norm.png">

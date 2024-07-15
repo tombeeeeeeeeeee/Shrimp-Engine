@@ -6,7 +6,8 @@ in vec3 fragmentTangent;
 in vec3 fragmentBitangent;
 in vec3 fragmentColour;
 
-out vec4 screenColour;
+layout (location = 0) out vec4 screenColour;
+layout (location = 1) out vec4 bloomColour;
 
 uniform sampler2D diffuse;			//0
 uniform sampler2D specular;			//1
@@ -139,8 +140,16 @@ void main()
     vec3 specular = prefilteredColor * (kS * brdf.x + brdf.y);
 
     vec3 ambient = (kD * diffuse + specular) * ao;
+	vec3 final = Lo + ambient + additionalAmbient;
 
-	screenColour = vec4(Lo + ambient + additionalAmbient, 1.0);
+	float brightness = dot(final, vec3(0.2126, 0.7152, 0.0722));
+	if(brightness > 1)
+	{
+		bloomColour = vec4(final, min(brightness - 1, 1));
+	}
+	else bloomColour = vec4(0.0);
+
+	screenColour = vec4(final, 1.0);
 }
 
 vec3 fresnelSchlick(float cosTheta, vec3 F0)

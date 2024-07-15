@@ -4,8 +4,29 @@
 #include "../components/TransformComponent.h"
 #include "../components/RenderComponent.h"
 
-const int SHADER_PROGRAM_COUNT = 7;
-const int SHADER_MATERIAL_COUNT = 2;
+
+enum Shader
+{
+    defaultPBR = 0,
+    light,
+    hdrBloom,
+    irradiance,
+    prefilter,
+    brdf,
+    skybox,
+    downSample,
+    upSample,
+    count,
+};
+
+struct bloomMip
+{
+    glm::vec2 size;
+    glm::ivec2 intSize;
+    unsigned int texture;
+};
+
+const int bloomMipMapCount = 6;
 
 class RenderSystem {
 public:
@@ -65,7 +86,7 @@ private:
     /// <summary>
     /// List of entities in order of the shader they use.
     /// </summary>
-    std::array<std::vector<unsigned int>, SHADER_PROGRAM_COUNT> entityShaderOrder;
+    std::array<std::vector<unsigned int>, Shader::count> entityShaderOrder;
 
     /// <summary>
     /// shader programs
@@ -79,6 +100,7 @@ private:
     void HDRBufferSetUp();
     
     unsigned int hdrFBO;
+    unsigned int bloomBuffer;
     unsigned int colorBuffer;
     unsigned int rboDepth;
 
@@ -91,7 +113,14 @@ private:
     unsigned int prefilterMap;
     void IBLBufferSetup(unsigned int skybox);
 
+    void BloomSetup();
+    unsigned int mFBO;
+    std::vector<bloomMip> bloomMips;
 
+    void RenderBloom(unsigned int srcTexture);
+
+    void RenderDownSamples(unsigned int srcTexture);
+    void RenderUpSamples(float aspectRatio);
 
     void RenderQuad();
     unsigned int quadVAO = 0;

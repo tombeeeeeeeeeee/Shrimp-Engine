@@ -93,9 +93,6 @@ void App::Run()
     std::unordered_map<unsigned int, LightComponent>* lights = scene->GetLights();
     std::unordered_map<unsigned int, PhysicsComponent>* bodies = scene->GetPhysics();
 
-    cameraSystem->UpdateFrustum((*transforms)[cameraID], *cameraComponent);
-    falseFrustum = cameraComponent->frustum; 
-
     while (!glfwWindowShouldClose(window) && !shouldClose) 
     {
         inputSystem->Update();
@@ -105,20 +102,10 @@ void App::Run()
         // TODO: Add Delta Time
         shouldClose = cameraSystem->Update(*transforms, cameraID, *cameraComponent, scene, viewMatrix, 1.0f / 60.0f);
 
-        ColouredOutput("Number of render components: ", white, false);
-        ColouredOutput(renders->size(), red);
+        std::unordered_map<unsigned int, RenderComponent> culledRenders = cameraSystem->CheckOnFrustum(cameraComponent->frustum, *renders, *transforms);
 
-        std::unordered_map<unsigned int, RenderComponent> culledRenders = cameraSystem->CheckOnFrustum(falseFrustum, *renders, *transforms);
+        renderSystem->Update(*transforms, culledRenders, *lights, projectionMatrix, viewMatrix);
 
-        ColouredOutput("Number of psuedo culled components: ", white, false);
-        ColouredOutput(culledRenders.size(), red);
-
-        std::unordered_map<unsigned int, RenderComponent> doubleCulled = cameraSystem->CheckOnFrustum(cameraComponent->frustum, culledRenders, *transforms);
-
-        ColouredOutput("Number of camera culled components: ", white, false);
-        ColouredOutput(doubleCulled.size(), red);
-
-        renderSystem->Update(*transforms, doubleCulled, *lights, projectionMatrix, viewMatrix);
         // TODO: Moved to Fixed Update
         physicsSystem->CollisionPhase(*bodies, *transforms);
 
@@ -158,23 +145,23 @@ void App::Start()
 {
     //Space to add things for the start
 
-    std::string skyboxTextureFiles[6] = {
-    "img/px.png",
-    "img/nx.png",
-    "img/py.png",
-    "img/ny.png",
-    "img/pz.png",
-    "img/nz.png",
-    };
-
     //std::string skyboxTextureFiles[6] = {
-    //"img/darkness.png",
-    //"img/darkness.png",
-    //"img/darkness.png",
-    //"img/darkness.png",
-    //"img/darkness.png",
-    //"img/darkness.png",
+    //"img/px.png",
+    //"img/nx.png",
+    //"img/py.png",
+    //"img/ny.png",
+    //"img/pz.png",
+    //"img/nz.png",
     //};
+
+    std::string skyboxTextureFiles[6] = {
+    "img/darkness.png",
+    "img/darkness.png",
+    "img/darkness.png",
+    "img/darkness.png",
+    "img/darkness.png",
+    "img/darkness.png",
+    };
 
     renderSystem->Start(assetFactory->GetSkyBoxMaterial(skyboxTextureFiles));
 
@@ -185,36 +172,36 @@ void App::Start()
     scene->SetMesh(cubeEntity, assetFactory->GetMesh("models/Cerberus_LP.FBX"));
     std::string textureMaps[3] = { "img/Cerberus_A.tga", "img/Cerberus_PBR.tga", "img/Cerberus_N.tga" };
     scene->SetScale(2, { 0.15f, 0.15f, 0.15f });
-
+    
     //Whale
     //scene->SetMesh(cubeEntity, assetFactory->GetMesh("models/whale.obj"));
     //std::string textureMaps[3] = { "img/whale.jpg", "img/Cerberus_PBR.tga", "img/Cerberus_N.tga" };
     scene->SetLocalEulers(2, {-90,0,0}, false);
     //scene->SetScale(2, { 0.05, 0.05, 0.05 });
-
+    
     scene->AddPhysicsComponent(2, 0);
     scene->SetIsGravitated(2, false);
     scene->AddPhysicsShapePill(2, { 0,21,7.5f }, { 0,-109,7.5f }, 1.7f);
     scene->AddPhysicsShapePill(2, { 4.25f,21,1 }, { 4.25f,-109,1 }, 1.7f);
     scene->AddPhysicsShapePill(2, { -4.25f,21,1 }, { -4.25f,-109,1 }, 1.7f);
-
+    
     scene->SetMaterial(cubeEntity, assetFactory->GetMaterial(textureMaps, 7));
-
+    
     int lightCount = 200;
-
-    srand(42069420);
-    //srand(212);
+    
+    srand(212);
+    
     for (int i = 3; i < lightCount + 3; i++)
     {
         float z = (60.0f * (float)rand() / RAND_MAX - 30.0F);
         float y = (60.0f * (float)rand() / RAND_MAX - 30.0F);
         float x = (60.0F * (float)rand() / RAND_MAX - 30.0F);
-
+    
         float b = (255 * (float)rand() / RAND_MAX);
         float g = (255 * (float)rand() / RAND_MAX);
         float r = (255 * (float)rand() / RAND_MAX);
-
-        scene->MakePointLightEntity({z, y, x }, 100, { r,g,b }, 1 / (float)255);
+    
+        scene->MakePointLightEntity({z, y, x }, 100, { r,g,b }, 1 / (float)12);
         //scene->AddPhysicsComponent(i, 1);
         //scene->AddPhysicsShapeBox(i);
         //scene->SetIsGravitated(i, true);
@@ -224,16 +211,6 @@ void App::Start()
  
 void App::Update()
 {
-    currTime += 1 / 60.0f;
-    //Space to add things to run on update
-    float s = sin(currTime);
-    float c = cos(currTime);
-
-    falseFrustum = cameraSystem->CreateFrustum(
-        { 0,0,0 }, 70.0f, 16.0f/9.0f,
-        0.01f, 10000.0f, { 0,1,0 }, { s, 0 ,c }, { -c, 0 ,s });
-    debug->lines.AddConicalFrustum({ 0, 0, 0 }, glm::vec3( -s, 0, c ), 0.01f, 100.0f, glm::cos(glm::radians(140.0f)), 32, { 1, 1, 1, 1 });
-
     if (inputSystem->GetKeyDown(num2)) {
         renderSystem->exposure += 0.02f;
     }
@@ -256,17 +233,20 @@ void App::SetUpOpengl()
     //glClearColor(0.25f, 0.5f, 0.75f, 1.0f);
     //Set the rendering region to the actual screen size
 
+    //WHEN ADDING SHADERS ALSO ADD TO THE ENUM in RenderSystem.h
 
     //Material Shaders
     shaders.push_back(MakeShader());
     shaders.push_back(MakeShader("src/shaders/vertex.vert", "src/shaders/lightShader.frag"));
 
     //Post Process Shaders
-    shaders.push_back(MakeShaderMatchingName("hdr"));
+    shaders.push_back(MakeShaderMatchingName("hdrBloom"));
     shaders.push_back(MakeShaderMatchingName("irradiance"));
     shaders.push_back(MakeShaderMatchingName("prefilter"));
     shaders.push_back(MakeShaderMatchingName("brdf"));
     shaders.push_back(MakeShaderMatchingName("skybox"));
+    shaders.push_back(MakeShaderMatchingName("downSample"));
+    shaders.push_back(MakeShaderMatchingName("upSample"));
 
     glUseProgram(shaders[0]);
 

@@ -51,8 +51,4 @@ private:
     //CameraMatricies
     glm::mat4 viewMatrix;
     glm::mat4 projectionMatrix;
-
-    //Messing Around
-    Frustum falseFrustum;
-    float currTime = 0;
 };

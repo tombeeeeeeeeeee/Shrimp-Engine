@@ -2,12 +2,15 @@
 
 #include "Debug.h"
 
+
+
+
 RenderSystem::RenderSystem(std::vector<unsigned int>& _shaders, unsigned int _cameraID, GLFWwindow* window)
 {
     shaders = &_shaders;
     cameraID = _cameraID;
 
-	modelLocation = glGetUniformLocation((*shaders)[0], "model");
+	modelLocation = glGetUniformLocation((*shaders)[Shader::defaultPBR], "model");
 	this->window = window;
 
     //enable alpha blending
@@ -23,6 +26,7 @@ void RenderSystem::Start(unsigned int _skyboxTexture)
     IBLBufferSetup(skyboxTexture);
     HDRBufferSetUp();
     CreateMissingTexture();
+    BloomSetup();
 
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
@@ -32,7 +36,7 @@ void RenderSystem::Start(unsigned int _skyboxTexture)
     glEnable(GL_MULTISAMPLE);
     glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 
-    glUseProgram((*shaders)[0]);
+    glUseProgram((*shaders)[defaultPBR]);
 }
 
 void RenderSystem::Update(
@@ -56,6 +60,9 @@ void RenderSystem::Update(
     
     glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
 
+    unsigned int attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+    glDrawBuffers(2, attachments);
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     if (skyboxTexture != 0) DrawSkyBox();
@@ -68,13 +75,13 @@ void RenderSystem::Update(
     }
 
     //Render all components in Shader Order
-    for (int i = 0; i < SHADER_MATERIAL_COUNT; i++)
+    for (int i = 0; i < Shader::count; i++)
     {
         glUseProgram((*shaders)[i]);
 
         modelLocation = glGetUniformLocation((*shaders)[i], "model");
 
-        //Set material layers //This needs to be refactored to allow for different Shaders
+        //Set material layers
         glUniform1i(glGetUniformLocation((*shaders)[i], "diffuse"), 0);
         glUniform1i(glGetUniformLocation((*shaders)[i], "specular"), 1);
         glUniform1i(glGetUniformLocation((*shaders)[i], "normalMap"), 2);
@@ -128,13 +135,13 @@ void RenderSystem::Update(
             }
 
             //IBL
-            glActiveTexture(GL_TEXTURE3);
+            glActiveTexture(GL_TEXTURE0 + MATERIAL_MAPCOUNT + 0);
             glBindTexture(GL_TEXTURE_CUBE_MAP, irradianceMap);
 
-            glActiveTexture(GL_TEXTURE4);
+            glActiveTexture(GL_TEXTURE0 + MATERIAL_MAPCOUNT + 1);
             glBindTexture(GL_TEXTURE_CUBE_MAP, prefilterMap);
 
-            glActiveTexture(GL_TEXTURE5);
+            glActiveTexture(GL_TEXTURE0 + MATERIAL_MAPCOUNT + 2);
             glBindTexture(GL_TEXTURE_2D, brdfLUTTexture);
 
             glUniform3fv(glGetUniformLocation((*shaders)[i], "materialColour"), 1,&renderComponents[*iter].colour[0]);
@@ -154,18 +161,29 @@ void RenderSystem::Update(
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     
     //FrameBuffer Rendering
-    glClear(GL_DEPTH_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
+    RenderBloom(bloomBuffer);
+
     //HDR
-    glUseProgram((*shaders)[SHADER_MATERIAL_COUNT]);;
-    glActiveTexture(GL_TEXTURE0); 
+    glUseProgram((*shaders)[Shader::hdrBloom]);
+
+    glUniform1i(glGetUniformLocation((*shaders)[Shader::hdrBloom], "scene"), 0);
+    glUniform1i(glGetUniformLocation((*shaders)[Shader::hdrBloom], "bloomBlur"), 1);
+
+    glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, colorBuffer);
-    glUniform1f(glGetUniformLocation((*shaders)[SHADER_MATERIAL_COUNT], "exposure"), exposure);
+
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, bloomMips[0].texture);
+
+    glUniform1f(glGetUniformLocation((*shaders)[Shader::hdrBloom], "exposure"), exposure);
 
     RenderQuad();
 
     glfwSwapBuffers(window);
-   for (int i = 0; i < SHADER_PROGRAM_COUNT; i++) entityShaderOrder[i].clear();
+   
+    for (int i = 0; i < Shader::count; i++) entityShaderOrder[i].clear();
 }
 
 void RenderSystem::SetSkyboxTexture(unsigned int texture)
@@ -257,8 +275,6 @@ void RenderSystem::HDRBufferSetUp()
     glGenFramebuffers(1, &hdrFBO);
     
     HDRBufferUpdate();
-
-    glUniform1i(glGetUniformLocation((*shaders)[SHADER_MATERIAL_COUNT], "hdrBuffer"), 0);
 }
 
 void RenderSystem::CreateMissingTexture()
@@ -288,8 +304,7 @@ void RenderSystem::IBLBufferSetup(unsigned int skybox)
     SetIrradianceMap(skybox);
 
     SetPrefilteredMap(skybox);
-    
-
+   
     glGenTextures(1, &brdfLUTTexture);
     // pre-allocate enough memory for the LUT texture.
     glBindTexture(GL_TEXTURE_2D, brdfLUTTexture);
@@ -308,7 +323,7 @@ void RenderSystem::IBLBufferSetup(unsigned int skybox)
 
     glViewport(0, 0, 512, 512);
 
-    unsigned int currShader = (*shaders)[SHADER_MATERIAL_COUNT + 3];
+    unsigned int currShader = (*shaders)[Shader::brdf];
     glUseProgram(currShader);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -316,12 +331,53 @@ void RenderSystem::IBLBufferSetup(unsigned int skybox)
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
-    glUseProgram((*shaders)[0]);
+    glUseProgram((*shaders)[Shader::defaultPBR]);
 
 
     int scrWidth, scrHeight;
     glfwGetFramebufferSize(window, &scrWidth, &scrHeight);
     glViewport(0, 0, scrWidth, scrHeight);
+}
+
+void RenderSystem::BloomSetup()
+{
+    glGenFramebuffers(1, &mFBO);
+    glBindFramebuffer(GL_FRAMEBUFFER, mFBO);
+
+    glm::vec2 mipSize((float)SCREEN_WIDTH, (float)SCREEN_HEIGHT);
+    glm::ivec2 mipIntSize((int)SCREEN_WIDTH, (int)SCREEN_HEIGHT);
+
+    for (GLuint i = 0; i < bloomMipMapCount; i++)
+    {
+        bloomMip mip;
+
+        mipSize *= 0.5f;
+        mipIntSize /= 2;
+        mip.size = mipSize;
+        mip.intSize = mipIntSize;
+
+        glGenTextures(1, &mip.texture);
+        glBindTexture(GL_TEXTURE_2D, mip.texture);
+
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_R11F_G11F_B10F,
+            (int)mipSize.x, (int)mipSize.y,
+            0, GL_RGB, GL_FLOAT, nullptr);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+        bloomMips.push_back(mip);
+    }
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+        GL_TEXTURE_2D, bloomMips[0].texture, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    glUseProgram((*shaders)[Shader::downSample]);
+    glUniform1i(glGetUniformLocation((*shaders)[Shader::downSample], "srcTexture"), 0);
+    glUseProgram((*shaders)[Shader::upSample]);
+    glUniform1i(glGetUniformLocation((*shaders)[Shader::upSample], "srcTexture"), 0);
+    glUseProgram(0);
 }
 
 void RenderSystem::SetIrradianceMap(unsigned int skybox)
@@ -363,7 +419,7 @@ void RenderSystem::SetIrradianceMap(unsigned int skybox)
     glBindRenderbuffer(GL_RENDERBUFFER, captureRBO);
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 32, 32);
 
-    unsigned int currShader = (*shaders)[SHADER_MATERIAL_COUNT + 1];
+    unsigned int currShader = (*shaders)[Shader::irradiance];
     glUseProgram(currShader);
     glUniform1i(glGetUniformLocation(currShader, "environmentMap"), 0);
     glUniformMatrix4fv(glGetUniformLocation(currShader, "projection"), 1, GL_FALSE, &captureProjection[0][0]);
@@ -404,7 +460,7 @@ void RenderSystem::SetPrefilteredMap(unsigned int skybox)
     // generate mipmaps for the cubemap so OpenGL automatically allocates the required memory.
     glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
 
-    unsigned int currShader = (*shaders)[SHADER_MATERIAL_COUNT + 2];
+    unsigned int currShader = (*shaders)[Shader::prefilter];
     glUseProgram(currShader);
 
     glUniform1i(glGetUniformLocation(currShader, "environmentMap"), 0);
@@ -442,6 +498,7 @@ void RenderSystem::SetPrefilteredMap(unsigned int skybox)
     int scrWidth, scrHeight;
     glfwGetFramebufferSize(window, &scrWidth, &scrHeight);
     glViewport(0, 0, scrWidth, scrHeight);
+
 }
 
 void RenderSystem::HDRBufferUpdate()
@@ -452,17 +509,110 @@ void RenderSystem::HDRBufferUpdate()
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, SCREEN_WIDTH, SCREEN_HEIGHT, 0, GL_RGBA, GL_FLOAT, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    // create bloiom buffer
+    glGenTextures(1, &bloomBuffer);
+    glBindTexture(GL_TEXTURE_2D, bloomBuffer);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, SCREEN_WIDTH, SCREEN_HEIGHT, 0, GL_RGBA, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
     // create depth buffer (renderbuffer)
     glGenRenderbuffers(1, &rboDepth);
     glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, SCREEN_WIDTH, SCREEN_HEIGHT);
+
     // attach buffers
     glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorBuffer, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, bloomBuffer, 0);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
         std::cout << "Framebuffer not complete!" << std::endl;
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void RenderSystem::RenderBloom(unsigned int srcTexture)
+{
+    glBindFramebuffer(GL_FRAMEBUFFER, mFBO);
+    
+    RenderDownSamples(srcTexture);
+    
+    RenderUpSamples(SCREEN_WIDTH / SCREEN_HEIGHT);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    glViewport(0, 0, SCREEN_HEIGHT, SCREEN_WIDTH);
+}
+
+void RenderSystem::RenderDownSamples(unsigned int srcTexture)
+{
+    glUseProgram((*shaders)[Shader::downSample]);
+
+
+    // Bind srcTexture (HDR color buffer) as initial texture input
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, srcTexture);
+
+    glUniform1i(glGetUniformLocation((*shaders)[Shader::downSample], "mipLevel"), 0);
+
+    glUniform2f(glGetUniformLocation((*shaders)[Shader::downSample], "srcResolution"), (float)SCREEN_WIDTH, (float)SCREEN_HEIGHT);
+    
+    glDisable(GL_BLEND);
+    // Progressively downsample through the mip chain
+    for (int i = 0; i < (int)bloomMips.size(); i++)
+    {
+        const bloomMip& mip = bloomMips[i];
+        glViewport(0, 0, mip.size.x, mip.size.y);
+        glm::vec2 inverseRes = 1.0f / mip.size;
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+            GL_TEXTURE_2D, mip.texture, 0);
+
+        // Render screen-filled quad of resolution of current mip
+        RenderQuad();
+
+        // Set current mip resolution as srcResolution for next iteration
+        glUniform2fv(glGetUniformLocation((*shaders)[Shader::downSample], "srcResolution"), 1,  &inverseRes[0]);
+
+        // Set current mip as texture input for next iteration
+        glBindTexture(GL_TEXTURE_2D, mip.texture);
+
+        // Disable Karis average for consequent downsamples
+        if (i == 0) glUniform1i(glGetUniformLocation((*shaders)[Shader::downSample], "mipLevel"), 1); 
+    }
+
+    glUseProgram(0);
+}
+
+void RenderSystem::RenderUpSamples(float aspectRatio)
+{
+    glUseProgram((*shaders)[Shader::upSample]);
+    glUniform1f(glGetUniformLocation((*shaders)[Shader::upSample],"aspectRatio"), aspectRatio);
+
+    // Enable additive blending
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_ONE, GL_ONE);
+    glBlendEquation(GL_FUNC_ADD);
+
+    for (int i = (int)bloomMips.size() - 1; i > 0; i--)
+    {
+        const bloomMip& mip = bloomMips[i];
+        const bloomMip& nextMip = bloomMips[i - 1];
+
+        // Bind viewport and texture from where to read
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, mip.texture);
+
+        // Set framebuffer render target (we write to this texture)
+        glViewport(0, 0, nextMip.size.x, nextMip.size.y);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+            GL_TEXTURE_2D, nextMip.texture, 0);
+
+        // Render screen-filled quad of resolution of current mip
+        RenderQuad();
+    }
+    glDisable(GL_BLEND);
+    glUseProgram(0);
 }
 
 void RenderSystem::RenderQuad()
@@ -573,12 +723,12 @@ void RenderSystem::DrawSkyBox()
     glDisable(GL_DEPTH_TEST);
 
     unsigned int emptyVAO;
-    glUseProgram((*shaders)[SHADER_PROGRAM_COUNT - 1]);
+    glUseProgram((*shaders)[Shader::skybox]);
 
     glm::mat4 PV = projectionMatrix * viewMatrix;
     glm::mat4 iPV = glm::inverse(PV);
 
-    glUniformMatrix4fv(glGetUniformLocation((*shaders)[SHADER_PROGRAM_COUNT - 1], "PV"), 1, GL_FALSE, &iPV[0][0]);
+    glUniformMatrix4fv(glGetUniformLocation((*shaders)[Shader::skybox], "PV"), 1, GL_FALSE, &iPV[0][0]);
     glBindTexture(GL_TEXTURE_CUBE_MAP, skyboxTexture);
 
     glGenVertexArrays(1, &emptyVAO);
