@@ -3,3 +3,4 @@
 #include "PhysicsSystem.h"
 #include "RenderSystem.h"
 #include "InputSystem.h"
+#include "EditorGUISystem.h"

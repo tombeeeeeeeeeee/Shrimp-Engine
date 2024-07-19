@@ -30,7 +30,7 @@ public:
         std::unordered_map<unsigned int, TransformComponent>& transformComponents,
         unsigned int cameraID, CameraComponent& cameraComponent, 
         SceneManager* scene,
-        glm::mat4& _view, float dt);
+        glm::mat4& _view, glm::mat4& projection, float dt);
 
     /// <summary>
     /// Update Camera Frustum
