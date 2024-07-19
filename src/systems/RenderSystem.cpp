@@ -362,6 +362,7 @@ void RenderSystem::BloomSetup()
         glTexImage2D(GL_TEXTURE_2D, 0, GL_R11F_G11F_B10F,
             (int)mipSize.x, (int)mipSize.y,
             0, GL_RGB, GL_FLOAT, nullptr);
+
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -372,6 +373,7 @@ void RenderSystem::BloomSetup()
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
         GL_TEXTURE_2D, bloomMips[0].texture, 0);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    
 
     glUseProgram((*shaders)[Shader::downSample]);
     glUniform1i(glGetUniformLocation((*shaders)[Shader::downSample], "srcTexture"), 0);
@@ -509,13 +511,17 @@ void RenderSystem::HDRBufferUpdate()
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, SCREEN_WIDTH, SCREEN_HEIGHT, 0, GL_RGBA, GL_FLOAT, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-    // create bloiom buffer
+    // create bloom buffer
     glGenTextures(1, &bloomBuffer);
     glBindTexture(GL_TEXTURE_2D, bloomBuffer);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, SCREEN_WIDTH, SCREEN_HEIGHT, 0, GL_RGBA, GL_FLOAT, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
     // create depth buffer (renderbuffer)
     glGenRenderbuffers(1, &rboDepth);
@@ -527,6 +533,7 @@ void RenderSystem::HDRBufferUpdate()
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorBuffer, 0);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, bloomBuffer, 0);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
+
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
         std::cout << "Framebuffer not complete!" << std::endl;
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -542,29 +549,32 @@ void RenderSystem::RenderBloom(unsigned int srcTexture)
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    glViewport(0, 0, SCREEN_HEIGHT, SCREEN_WIDTH);
+    glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 }
 
 void RenderSystem::RenderDownSamples(unsigned int srcTexture)
 {
-    glUseProgram((*shaders)[Shader::downSample]);
 
+    glUseProgram((*shaders)[Shader::downSample]);
 
     // Bind srcTexture (HDR color buffer) as initial texture input
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, srcTexture);
 
+    glm::vec2 inverseRes = { 1.0f / (float)SCREEN_WIDTH, 1.0f / (float)SCREEN_HEIGHT };
+
     glUniform1i(glGetUniformLocation((*shaders)[Shader::downSample], "mipLevel"), 0);
 
-    glUniform2f(glGetUniformLocation((*shaders)[Shader::downSample], "srcResolution"), (float)SCREEN_WIDTH, (float)SCREEN_HEIGHT);
+    glUniform2fv(glGetUniformLocation((*shaders)[Shader::downSample], "srcResolution"), 1, &inverseRes[0]);
     
     glDisable(GL_BLEND);
+
     // Progressively downsample through the mip chain
     for (int i = 0; i < (int)bloomMips.size(); i++)
     {
         const bloomMip& mip = bloomMips[i];
         glViewport(0, 0, mip.size.x, mip.size.y);
-        glm::vec2 inverseRes = 1.0f / mip.size;
+        inverseRes = 1.0f / mip.size;
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
             GL_TEXTURE_2D, mip.texture, 0);
 
@@ -611,7 +621,7 @@ void RenderSystem::RenderUpSamples(float aspectRatio)
         // Render screen-filled quad of resolution of current mip
         RenderQuad();
     }
-    glDisable(GL_BLEND);
+    glDisable(GL_BLEND); 
     glUseProgram(0);
 }
 
