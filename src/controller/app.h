@@ -26,9 +26,12 @@ public:
     CameraComponent* cameraComponent;
     unsigned int cameraID;
 
+    static App* main;
+
 private:
 
     void SetUpGLFW();
+    static void SetScreenSize(GLFWwindow* window, int width, int height);
 
     //WorkSpaces
     void Start();
@@ -43,6 +46,7 @@ private:
     PhysicsSystem* physicsSystem;
     CameraSystem* cameraSystem;
     RenderSystem* renderSystem;
+    EditorGUISystem* editorGUISystem;
 
     //Factories
     AssetFactory* assetFactory;

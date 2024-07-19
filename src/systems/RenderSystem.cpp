@@ -43,8 +43,10 @@ void RenderSystem::Update(
     std::unordered_map<unsigned int, TransformComponent>& transformComponents,
     std::unordered_map<unsigned int, RenderComponent>& renderComponents,
     std::unordered_map<unsigned int, LightComponent>& lightComponents,
-    glm::mat4& projection, glm::mat4& view)
+    glm::mat4& projection, glm::mat4& view, unsigned int* renderTexture)
 {
+   glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+
     projectionMatrix = projection;
     viewMatrix = view;
 
@@ -158,12 +160,22 @@ void RenderSystem::Update(
 
     debug->lines.Draw(projectionMatrix* viewMatrix);
 
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    
+    RenderBloom(bloomBuffer);
+	 
+    if (renderTexture == nullptr)
+    {
+       glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    }
+    else
+    {
+       if (outputFBO == 0) OutputBufferSetUp();
+
+       *renderTexture = outputTexture;
+       glBindFramebuffer(GL_FRAMEBUFFER, outputFBO);
+    }
+
     //FrameBuffer Rendering
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    
-    RenderBloom(bloomBuffer);
 
     //HDR
     glUseProgram((*shaders)[Shader::hdrBloom]);
@@ -180,9 +192,7 @@ void RenderSystem::Update(
     glUniform1f(glGetUniformLocation((*shaders)[Shader::hdrBloom], "exposure"), exposure);
 
     RenderQuad();
-
-    glfwSwapBuffers(window);
-   
+	
     for (int i = 0; i < Shader::count; i++) entityShaderOrder[i].clear();
 }
 
@@ -273,8 +283,18 @@ void RenderSystem::BindLightUniform(unsigned int shaderProgram,
 void RenderSystem::HDRBufferSetUp()
 {
     glGenFramebuffers(1, &hdrFBO);
+    glGenTextures(1, &colorBuffer);
+    glGenRenderbuffers(1, &rboDepth);
     
     HDRBufferUpdate();
+}
+
+void RenderSystem::OutputBufferSetUp()
+{
+   glGenFramebuffers(1, &outputFBO);
+   glGenTextures(1, &outputTexture);
+
+   OutputBufferUpdate();
 }
 
 void RenderSystem::CreateMissingTexture()
@@ -506,7 +526,6 @@ void RenderSystem::SetPrefilteredMap(unsigned int skybox)
 void RenderSystem::HDRBufferUpdate()
 {
     // create floating point color buffer
-    glGenTextures(1, &colorBuffer);
     glBindTexture(GL_TEXTURE_2D, colorBuffer);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, SCREEN_WIDTH, SCREEN_HEIGHT, 0, GL_RGBA, GL_FLOAT, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -524,7 +543,6 @@ void RenderSystem::HDRBufferUpdate()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
     // create depth buffer (renderbuffer)
-    glGenRenderbuffers(1, &rboDepth);
     glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, SCREEN_WIDTH, SCREEN_HEIGHT);
 
@@ -537,6 +555,25 @@ void RenderSystem::HDRBufferUpdate()
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
         std::cout << "Framebuffer not complete!" << std::endl;
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    OutputBufferUpdate();
+}
+
+void RenderSystem::OutputBufferUpdate()
+{
+   if (outputFBO == 0) return;
+
+   // create unsigned int color buffer
+   glBindTexture(GL_TEXTURE_2D, outputTexture);
+   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, SCREEN_WIDTH, SCREEN_HEIGHT, 0, GL_RGBA, GL_UNSIGNED_INT, NULL);
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+   // attach buffer
+   glBindFramebuffer(GL_FRAMEBUFFER, outputFBO);
+   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, outputTexture, 0);
+   if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+      std::cout << "Framebuffer not complete!" << std::endl;
+   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 void RenderSystem::RenderBloom(unsigned int srcTexture)

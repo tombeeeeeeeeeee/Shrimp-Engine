@@ -44,7 +44,7 @@ public:
         std::unordered_map<unsigned int, TransformComponent>& transformComponents, 
         std::unordered_map<unsigned int, RenderComponent>& renderComponents,
         std::unordered_map<unsigned int, LightComponent>& lightComponents,
-        glm::mat4& _view, glm::mat4& _projection
+        glm::mat4& _view, glm::mat4& _projection, unsigned int* renderTexture = nullptr
     );
 
     void SetSkyboxTexture(unsigned int texture);
@@ -59,6 +59,7 @@ public:
     float exposure = 1.0f;
 
     void HDRBufferUpdate();
+    void OutputBufferUpdate();
 
 private:
     /// <summary>
@@ -98,12 +99,15 @@ private:
         std::unordered_map<unsigned int, TransformComponent>& transComponents);
 
     void HDRBufferSetUp();
+    void OutputBufferSetUp();
     
     unsigned int hdrFBO;
     unsigned int bloomBuffer;
     unsigned int colorBuffer;
     unsigned int rboDepth;
 
+    unsigned int outputFBO = 0;
+    unsigned int outputTexture = 0;
 
     unsigned int captureFBO;
     unsigned int captureRBO;

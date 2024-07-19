@@ -17,7 +17,7 @@ void CameraSystem::Initialise(TransformComponent& _cameraTransform, CameraCompon
 }
 
 bool CameraSystem::Update(std::unordered_map<unsigned int, TransformComponent>& transformComponents,
-    unsigned int cameraID, CameraComponent& _cameraComponent, SceneManager* scene, glm:: mat4& view, float dt)
+    unsigned int cameraID, CameraComponent& _cameraComponent, SceneManager* scene, glm:: mat4& view, glm::mat4& projection, float dt)
 {
     //if the camera transform hasn't been set yet, set it. (might just reset each tick)
     if (cameraTransform == nullptr) cameraTransform = &transformComponents[cameraID];
@@ -49,6 +49,7 @@ bool CameraSystem::Update(std::unordered_map<unsigned int, TransformComponent>& 
     up = glm::normalize(cross(right, forwards));
 
     view = glm::lookAt(pos, pos + forwards, up);
+    projection = glm::perspective(FOV, (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, NEARCLIP, FARCLIP);
 
     glUniformMatrix4fv(viewLocation, 1, GL_FALSE, &view[0][0]);
 

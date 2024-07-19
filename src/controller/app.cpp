@@ -10,9 +10,15 @@ float FARCLIP = 1000.0f;
 float FOV = 70.0f;
 #pragma endregion
 
+App* App::main = nullptr;
+
 App::App() 
 { 
+    main = this;
     SetUpGLFW();
+
+    if (EditorGUISystem::enabled) editorGUISystem->SetResizeFunctionCallback(SetScreenSize);
+    else glfwSetWindowSizeCallback(window, SetScreenSize);
 }
 
 App::~App() 
@@ -23,6 +29,7 @@ App::~App()
     delete physicsSystem;
     delete cameraSystem;
     delete renderSystem;
+    if constexpr (EditorGUISystem::enabled) delete editorGUISystem;
 
     delete assetFactory;
     delete scene;
@@ -38,6 +45,7 @@ App::App(App& app)
     physicsSystem = app.physicsSystem;
     cameraSystem = app.cameraSystem;
     renderSystem = app.renderSystem;
+    editorGUISystem = app.editorGUISystem;
 
     assetFactory = app.assetFactory;
     scene = app.scene;
@@ -55,6 +63,7 @@ App& App::operator=(App const& other)
     delete physicsSystem;
     delete cameraSystem;
     delete renderSystem;
+    if constexpr (EditorGUISystem::enabled) delete editorGUISystem;
 
     delete assetFactory;
     delete scene;
@@ -65,6 +74,7 @@ App& App::operator=(App const& other)
     physicsSystem = other.physicsSystem;
     cameraSystem = other.cameraSystem;
     renderSystem = other.renderSystem;
+    if constexpr (EditorGUISystem::enabled) editorGUISystem = other.editorGUISystem;
 
     assetFactory = other.assetFactory;
     scene = other.scene;
@@ -100,11 +110,26 @@ void App::Run()
         scene->HierarchyUpdate();
 
         // TODO: Add Delta Time
-        shouldClose = cameraSystem->Update(*transforms, cameraID, *cameraComponent, scene, viewMatrix, 1.0f / 60.0f);
+        shouldClose = cameraSystem->Update(*transforms, cameraID, *cameraComponent, scene, viewMatrix, projectionMatrix, 1.0f / 60.0f);
 
         std::unordered_map<unsigned int, RenderComponent> culledRenders = cameraSystem->CheckOnFrustum(cameraComponent->frustum, *renders, *transforms);
 
-        renderSystem->Update(*transforms, culledRenders, *lights, projectionMatrix, viewMatrix);
+        if constexpr (EditorGUISystem::enabled)
+        {
+           // TODO:
+           //     When drawing editor gui, will need to draw the scene to a colour buffer,
+           //     and display it on an editor window using the editor gui system.
+           //     Also kind of need a dynamic projection matrix to allow coherent
+           //     resizing of the scene view.
+           unsigned int renderTexture;
+           renderSystem->Update(*transforms, culledRenders, *lights, projectionMatrix, viewMatrix, &renderTexture);
+           editorGUISystem->Update(window, scene, renderTexture);
+        }
+        else
+        {
+           renderSystem->Update(*transforms, culledRenders, *lights, projectionMatrix, viewMatrix);
+        }
+        glfwSwapBuffers(window);
 
         // TODO: Moved to Fixed Update
         physicsSystem->CollisionPhase(*bodies, *transforms);
@@ -121,6 +146,7 @@ void App::Run()
 void App::SetUpGLFW() 
 {
     glfwInit();
+    glfwWindowHint(GLFW_MAXIMIZED, GL_TRUE);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -139,6 +165,16 @@ void App::SetUpGLFW()
         std::cout << "Couldn't load opengl" << std::endl;
         glfwTerminate();
     }
+}
+
+void App::SetScreenSize(GLFWwindow* window, int width, int height)
+{
+   // Window parameter is just here to make this function compatible with the GLFW callback.
+   // Since there is only ever one window managed by this class we don't care about it.
+   SCREEN_WIDTH = width;
+   SCREEN_HEIGHT = height;
+   main->renderSystem->HDRBufferUpdate();
+   main->renderSystem->OutputBufferUpdate();
 }
  
 void App::Start()
@@ -249,9 +285,6 @@ void App::SetUpOpengl()
     shaders.push_back(MakeShaderMatchingName("upSample"));
 
     glUseProgram(shaders[0]);
-
-
-    projectionMatrix = glm::perspective(FOV, (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, NEARCLIP, FARCLIP);
     
 }
 
@@ -261,6 +294,7 @@ void App::MakeSystems()
     cameraSystem = new CameraSystem(window);
     renderSystem = new RenderSystem(shaders, cameraID, window);
     inputSystem = new InputSystem(window);
+    if constexpr (EditorGUISystem::enabled) editorGUISystem = new EditorGUISystem(window);
 }
 
 void App::MakeFactories()
