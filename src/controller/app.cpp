@@ -173,6 +173,7 @@ void App::SetScreenSize(GLFWwindow* window, int width, int height)
    // Since there is only ever one window managed by this class we don't care about it.
    SCREEN_WIDTH = width;
    SCREEN_HEIGHT = height;
+   main->cameraComponent->aspectRatio = width / height;
    main->renderSystem->HDRBufferUpdate();
    main->renderSystem->OutputBufferUpdate();
 }
