@@ -398,9 +398,8 @@ void RenderSystem::BloomSetup()
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     
 
-    glUseProgram((*shaders)[Shader::downSample]);
     glUniform1i(glGetUniformLocation((*shaders)[Shader::downSample], "srcTexture"), 0);
-    glUseProgram((*shaders)[Shader::upSample]);
+
     glUniform1i(glGetUniformLocation((*shaders)[Shader::upSample], "srcTexture"), 0);
     glUseProgram(0);
 }
