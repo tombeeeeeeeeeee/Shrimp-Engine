@@ -118,14 +118,15 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Dependencies;$(SolutionDir)Dependencies\GLFW;$(SolutionDir)Dependencies\glm;$(SolutionDir)src;$(SolutionDir)Dependencies\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Dependencies;$(SolutionDir)Dependencies\GLFW;$(SolutionDir)Dependencies\glm;$(SolutionDir)src;$(SolutionDir)Dependencies\include;$(SolutionDir)Dependencies\LGP</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)Dependencies/GLFW;$(SolutionDir)Dependencies</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;assimp-vc143-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)Dependencies\GLFW;$(SolutionDir)Dependencies;$(SolutionDir)Dependencies\LGP</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;assimp-vc143-mtd.lib;LGP3Debug.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <PerUserRedirection>true</PerUserRedirection>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -136,7 +137,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Dependencies;$(SolutionDir)Dependencies\GLFW;$(SolutionDir)Dependencies\glm;$(SolutionDir)src;$(SolutionDir)Dependencies\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Dependencies;$(SolutionDir)Dependencies\GLFW;$(SolutionDir)Dependencies\glm;$(SolutionDir)src;$(SolutionDir)Dependencies\include;$(SolutionDir)Dependencies\LGP</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -144,8 +145,9 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)Dependencies/GLFW;</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;assimp-vc143-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)Dependencies\GLFW;$(SolutionDir)Dependencies\LGP</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;assimp-vc143-mt.lib;LGP3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <PerUserRedirection>true</PerUserRedirection>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
