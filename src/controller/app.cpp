@@ -187,23 +187,23 @@ void App::Start()
 {
     //Space to add things for the start
 
-    //std::string skyboxTextureFiles[6] = {
-    //"img/px.png",
-    //"img/nx.png",
-    //"img/py.png",
-    //"img/ny.png",
-    //"img/pz.png",
-    //"img/nz.png",
-    //};
-
     std::string skyboxTextureFiles[6] = {
-    "img/darkness.png",
-    "img/darkness.png",
-    "img/darkness.png",
-    "img/darkness.png",
-    "img/darkness.png",
-    "img/darkness.png",
+    "img/px.png",
+    "img/nx.png",
+    "img/py.png",
+    "img/ny.png",
+    "img/pz.png",
+    "img/nz.png",
     };
+
+    //std::string skyboxTextureFiles[6] = {
+    //"img/darkness.png",
+    //"img/darkness.png",
+    //"img/darkness.png",
+    //"img/darkness.png",
+    //"img/darkness.png",
+    //"img/darkness.png",
+    //};
 
     renderSystem->Start(assetFactory->GetSkyBoxMaterial(skyboxTextureFiles));
 
@@ -229,7 +229,7 @@ void App::Start()
     
     scene->SetMaterial(cubeEntity, assetFactory->GetMaterial(textureMaps, 7));
     
-    int lightCount = 200;
+    int lightCount = 20;
     
     //srand(212);
     srand(313);
@@ -243,7 +243,7 @@ void App::Start()
         float g = (255 * (float)rand() / RAND_MAX);
         float r = (255 * (float)rand() / RAND_MAX);
     
-        scene->MakePointLightEntity({z, y, x }, 100, { r,g,b }, 1 / (float)12);
+        scene->MakePointLightEntity({z, y, x }, 100, { r,g,b }, 1 / (float)32);
         //scene->AddPhysicsComponent(i, 1);
         //scene->AddPhysicsShapeBox(i);
         //scene->SetIsGravitated(i, true);
