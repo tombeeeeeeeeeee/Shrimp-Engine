@@ -5,20 +5,6 @@
 #include "../components/RenderComponent.h"
 
 
-enum Shader
-{
-    defaultPBR = 0,
-    light,
-    hdrBloom,
-    irradiance,
-    prefilter,
-    brdf,
-    skybox,
-    downSample,
-    upSample,
-    count,
-};
-
 struct bloomMip
 {
     glm::vec2 size;

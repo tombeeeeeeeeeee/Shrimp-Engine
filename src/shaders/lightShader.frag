@@ -28,5 +28,5 @@ void main()
 	{
 		bloomColour = vec4(fragmentColour, min(1 - brightness, 1));
 	}
-	else bloomColour = vec4(0.0);
+	else bloomColour = vec4(0.0, 0.0, 0.0, 1.0);
 }

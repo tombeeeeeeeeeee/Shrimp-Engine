@@ -112,7 +112,12 @@ void App::Run()
         // TODO: Add Delta Time
         shouldClose = cameraSystem->Update(*transforms, cameraID, *cameraComponent, scene, viewMatrix, projectionMatrix, 1.0f / 60.0f);
 
+        ColouredOutput("Render Component count: ", white, false);
+        ColouredOutput(renders->size(), red, true);
         std::unordered_map<unsigned int, RenderComponent> culledRenders = cameraSystem->CheckOnFrustum(cameraComponent->frustum, *renders, *transforms);
+
+        ColouredOutput("Rendered Component count: ", white, false);
+        ColouredOutput(culledRenders.size(), green, true);
 
         if constexpr (EditorGUISystem::enabled)
         {
@@ -173,7 +178,7 @@ void App::SetScreenSize(GLFWwindow* window, int width, int height)
    // Since there is only ever one window managed by this class we don't care about it.
    SCREEN_WIDTH = width;
    SCREEN_HEIGHT = height;
-   main->cameraComponent->aspectRatio = width / height;
+   main->cameraComponent->aspectRatio = (float)width / (float)height;
    main->renderSystem->HDRBufferUpdate();
    main->renderSystem->OutputBufferUpdate();
 }
@@ -226,13 +231,13 @@ void App::Start()
     
     int lightCount = 200;
     
-    srand(212);
-    
+    //srand(212);
+    srand(313);
     for (int i = 3; i < lightCount + 3; i++)
     {
-        float z = (60.0f * (float)rand() / RAND_MAX - 30.0F);
-        float y = (60.0f * (float)rand() / RAND_MAX - 30.0F);
-        float x = (60.0F * (float)rand() / RAND_MAX - 30.0F);
+        float z = (10.0f * (float)rand() / RAND_MAX - 5.0f);
+        float x = (30.0f * (float)rand() / RAND_MAX - 5.0f);
+        float y = (4.0f * (float)rand() / RAND_MAX + 10.0f);
     
         float b = (255 * (float)rand() / RAND_MAX);
         float g = (255 * (float)rand() / RAND_MAX);
@@ -256,7 +261,7 @@ void App::Update()
     }
     if (inputSystem->GetKeyDown(G))
     {
-        physicsSystem->gravity = { 0,0,-5.0f };
+        physicsSystem->gravity = { 0,-9.81f,0 };
     }
 }
 

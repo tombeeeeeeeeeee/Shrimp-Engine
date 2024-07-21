@@ -347,7 +347,7 @@ unsigned int SceneManager::MakeSpotLightEntity(glm::vec3 pos, glm::vec3 dir, flo
         RenderComponent lightCube = RenderComponent();
         lightCube.mesh = assFact.GetMesh("models/cube.obj");
         lightCube.material = assFact.GetMaterial("img/light.png", 1);
-        lightCube.material->shaderProgram = 1;
+        lightCube.material->shaderProgram = Shader::light;
         lightCube.colour = colour * intensity;
         AddRenderComponent(spot, lightCube);
         transformComponents[spot].scale = { 0.1,0.1,0.1 };

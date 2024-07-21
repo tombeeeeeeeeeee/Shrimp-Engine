@@ -18,3 +18,17 @@ extern int SCREEN_HEIGHT;
 extern float NEARCLIP;
 extern float FARCLIP;
 extern float FOV;
+
+enum Shader
+{
+    defaultPBR = 0,
+    light,
+    hdrBloom,
+    irradiance,
+    prefilter,
+    brdf,
+    skybox,
+    downSample,
+    upSample,
+    count,
+};

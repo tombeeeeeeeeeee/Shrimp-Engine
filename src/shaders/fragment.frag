@@ -144,10 +144,10 @@ void main()
 
 	float brightness = dot(final, vec3(0.2126, 0.7152, 0.0722));
 	if(brightness > 1)
-	{
-		bloomColour = vec4(final, min(brightness - 1, 1));
+	{ 
+		bloomColour = vec4(final, min(brightness - 1.0, 1.0));
 	}
-	else bloomColour = vec4(0.0);
+	else bloomColour = vec4(0.0, 0.0, 0.0, 1.0);
 
 	screenColour = vec4(final, 1.0);
 }

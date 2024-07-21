@@ -9,7 +9,7 @@ uniform vec2 srcResolution;
 // which mip we are writing to, used for Karis average
 uniform int mipLevel = 1;
 
-in vec2 texCoord;
+in vec2 TexCoords;
 layout (location = 0) out vec3 downsample;
 
 vec3 PowVec3(vec3 v, float p)
@@ -34,9 +34,8 @@ float KarisAverage(vec3 col)
 
 void main()
 {
-	vec2 srcTexelSize = srcResolution;
-	float x = srcTexelSize.x;
-	float y = srcTexelSize.y;
+	float x = srcResolution.x;
+	float y = srcResolution.y;
 
 	// Take 13 samples around current texel:
 	// a - b - c
@@ -45,17 +44,17 @@ void main()
 	// - l - m -
 	// g - h - i
 	// === ('e' is the current texel) ===
-	vec3 a = texture(srcTexture, vec2(texCoord.x - 2*x, texCoord.y + 2*y)).rgb;
-	vec3 b = texture(srcTexture, vec2(texCoord.x,       texCoord.y + 2*y)).rgb;
-	vec3 c = texture(srcTexture, vec2(texCoord.x + 2*x, texCoord.y + 2*y)).rgb;
+	vec3 a = texture(srcTexture, vec2(texCoord.x - 2.0 *x, texCoord.y + 2.0 *y)).rgb;
+	vec3 b = texture(srcTexture, vec2(texCoord.x,       texCoord.y + 2.0 *y)).rgb;
+	vec3 c = texture(srcTexture, vec2(texCoord.x + 2.0 *x, texCoord.y + 2.0 *y)).rgb;
 
-	vec3 d = texture(srcTexture, vec2(texCoord.x - 2*x, texCoord.y)).rgb;
+	vec3 d = texture(srcTexture, vec2(texCoord.x - 2.0 *x, texCoord.y)).rgb;
 	vec3 e = texture(srcTexture, vec2(texCoord.x,       texCoord.y)).rgb;
-	vec3 f = texture(srcTexture, vec2(texCoord.x + 2*x, texCoord.y)).rgb;
+	vec3 f = texture(srcTexture, vec2(texCoord.x + 2.0 *x, texCoord.y)).rgb;
 
-	vec3 g = texture(srcTexture, vec2(texCoord.x - 2*x, texCoord.y - 2*y)).rgb;
-	vec3 h = texture(srcTexture, vec2(texCoord.x,       texCoord.y - 2*y)).rgb;
-	vec3 i = texture(srcTexture, vec2(texCoord.x + 2*x, texCoord.y - 2*y)).rgb;
+	vec3 g = texture(srcTexture, vec2(texCoord.x - 2.0 *x, texCoord.y - 2.0 *y)).rgb;
+	vec3 h = texture(srcTexture, vec2(texCoord.x,       texCoord.y - 2.0 *y)).rgb;
+	vec3 i = texture(srcTexture, vec2(texCoord.x + 2.0 *x, texCoord.y - 2.0 *y)).rgb;
 
 	vec3 j = texture(srcTexture, vec2(texCoord.x - x, texCoord.y + y)).rgb;
 	vec3 k = texture(srcTexture, vec2(texCoord.x + x, texCoord.y + y)).rgb;
@@ -78,10 +77,8 @@ void main()
 
 	// Check if we need to perform Karis average on each block of 4 samples
 	vec3 groups[5];
-	switch (mipLevel)
+	if(mipLevel == 0)
 	{
-
-	case 0:
 	  // We are writing to mip 0, so we need to apply Karis average to each block
 	  // of 4 samples to prevent fireflies (very bright subpixels, leads to pulsating
 	  // artifacts).
@@ -97,14 +94,13 @@ void main()
 	  groups[4] *= KarisAverage(groups[4]);
 	  downsample = groups[0]+groups[1]+groups[2]+groups[3]+groups[4];
 	  downsample = max(downsample, 0.0001f);
-	  break;
-
-	default:
-	  downsample = e*0.125;                // ok
+	}
+	else
+	{
+		  downsample = e*0.125;                // ok
 	  downsample += (a+c+g+i)*0.03125;     // ok
 	  downsample += (b+d+f+h)*0.0625;      // ok
 	  downsample += (j+k+l+m)*0.125;       // ok
-	  break;
 
 	}
 }

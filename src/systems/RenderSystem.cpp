@@ -158,10 +158,13 @@ void RenderSystem::Update(
         }
     }
 
+
+
     debug->lines.Draw(projectionMatrix* viewMatrix);
 
     RenderBloom(bloomBuffer);
 	 
+
     if (renderTexture == nullptr)
     {
        glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -582,7 +585,7 @@ void RenderSystem::RenderBloom(unsigned int srcTexture)
     
     RenderDownSamples(srcTexture);
     
-    RenderUpSamples(SCREEN_WIDTH / SCREEN_HEIGHT);
+    RenderUpSamples((float)SCREEN_WIDTH / (float)SCREEN_HEIGHT);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
